@@ -1,4 +1,6 @@
-﻿namespace EnterpriseCoder.MartenDb.GridFs;
+﻿using System.Text;
+
+namespace EnterpriseCoder.MartenDb.GridFs;
 
 public class GridFsDirectory : IComparable<GridFsDirectory>
 {
@@ -6,9 +8,7 @@ public class GridFsDirectory : IComparable<GridFsDirectory>
 
     public GridFsDirectory(string resourcePath)
     {
-        _resourcePath = resourcePath;
-
-        _VerifyPath(resourcePath, false);
+        _resourcePath = PathNormalizer.NormalizePath(resourcePath);
     }
 
     #region Public Properties
@@ -43,7 +43,7 @@ public class GridFsDirectory : IComparable<GridFsDirectory>
 
     #endregion
 
-    #region Implicit Operators
+    #region Implicit Members
 
     public static implicit operator string(GridFsDirectory gridFsPath) => gridFsPath.Path;
     public static implicit operator GridFsDirectory(string resourcePath) => new(resourcePath);
@@ -69,38 +69,7 @@ public class GridFsDirectory : IComparable<GridFsDirectory>
 
     #endregion
 
-    #region Public Methods
-
-    public GridFsDirectory ChildDirectory(string childPath)
-    {
-        _VerifyPath(childPath, true);
-
-        string workPath = _resourcePath;
-        if (workPath.EndsWith('/'))
-        {
-            workPath = workPath.Substring(0, workPath.Length - 1);
-        }
-
-        if (childPath.StartsWith("/") is false)
-        {
-            childPath = "/" + childPath;
-        }
-
-        return workPath + childPath;
-    }
-
-    public ContentFilePath ChildFile(string resourcePath)
-    {
-        _VerifyPath(resourcePath, true);
-
-        string workPath = _resourcePath;
-        if (workPath.EndsWith('/'))
-        {
-            workPath = workPath.Substring(0, workPath.Length - 1);
-        }
-
-        return workPath + "/" + resourcePath;
-    }
+    #region IComparable<GridFsDirectory> Members
 
     public int CompareTo(GridFsDirectory? other)
     {
@@ -109,47 +78,24 @@ public class GridFsDirectory : IComparable<GridFsDirectory>
 
     #endregion
 
-    #region Private Methods
 
-    private void _VerifyPath(string resourcePath, bool relativePath)
+    #region Public Methods
+
+    public GridFsDirectory Combine(params string[] childDirectories)
     {
-        if (string.IsNullOrEmpty(resourcePath))
+        StringBuilder returnPath = new StringBuilder(_resourcePath);
+
+        foreach (var childDirectory in childDirectories)
         {
-            throw new ArgumentException($"Invalid resource path (null or empty)");
-        }
-
-        // =================================================================================================
-        // Paths must contain only A-Za-z0-9, '.'  and space characters with / for separators.
-        // =================================================================================================
-
-        // First character must be either a "/" or a "." if this is a relative path.
-        bool validStart = relativePath;
-        if (resourcePath.StartsWith("/"))
-        {
-            validStart = true;
-        }
-
-        if (validStart is false && resourcePath.StartsWith("."))
-        {
-            throw new ArgumentException($"Relative path is not allowed in this context: {resourcePath}");
-        }
-
-        if (validStart is false)
-        {
-            throw new ArgumentException($"Improperly formed resource path: {resourcePath}");
-        }
-
-        // Loop through and make sure all character are valid.
-        foreach (var nextChar in resourcePath)
-        {
-            bool validCharacter = Char.IsLetterOrDigit(nextChar) || nextChar == ' ' || nextChar == '/' ||
-                                  nextChar == '.' || nextChar == '_' || nextChar == '-';
-
-            if (validCharacter is false)
+            if (returnPath.ToString().EndsWith("/") is false)
             {
-                throw new ArgumentException($"Invalid character in resource path: {resourcePath}");
+                returnPath.Append("/");
             }
+
+            returnPath.Append(childDirectory);
         }
+
+        return new GridFsDirectory(PathNormalizer.NormalizePath(returnPath.ToString()));
     }
 
     #endregion
