@@ -20,10 +20,20 @@ public class GridFileSystem : IGridFileSystem
         _documentSession = documentSession;
     }
 
-    public async Task SaveStreamAsync(GridFsFilePath filePath, Stream inStream, Guid? userGuid = null,
+    public async Task UploadStreamAsync(GridFsFilePath filePath, Stream inStream, bool overwriteExisting = false,
+        Guid? userGuid = null,
         long userValue = 0L)
     {
-        // If the file already exists, then delete it.
+        if (overwriteExisting is false)
+        {
+            if (await FileExistsAsync(filePath))
+            {
+                throw new IOException($"File {filePath} already exists and {nameof(overwriteExisting)} is set to false.");
+            }
+        }
+        
+        // No overwrite protection...call delete to make sure 
+        // there's nothing taking the incoming filePath resource name.
         await DeleteFileAsync(filePath);
 
         // Create a temp file stream to save the incoming stream into...
@@ -97,7 +107,7 @@ public class GridFileSystem : IGridFileSystem
         }
     }
 
-    public async Task<Stream?> LoadStreamAsync(GridFsFilePath filePath)
+    public async Task<Stream?> DownLoadStreamAsync(GridFsFilePath filePath)
     {
         var targetHeader = await _fileHeaderProcedures.SelectAsync(_documentSession, filePath);
         if (targetHeader is null)
@@ -178,6 +188,60 @@ public class GridFileSystem : IGridFileSystem
             OriginalLength = targetHeader.OriginalLength,
             UpdateDateTime = targetHeader.UpdatedDateTime
         };
+    }
+
+    public async Task RenameFileAsync(GridFsFilePath oldFilePath, GridFsFilePath newFilePath, bool overwriteDestination = false)
+    {
+        // Lookup the old resource
+        var sourceHeader = await _fileHeaderProcedures.SelectAsync(_documentSession, oldFilePath);
+        if (sourceHeader == null)
+        {
+            throw new FileNotFoundException(oldFilePath);
+        }
+
+        // Lookup the new resource
+        var targetHeader = await _fileHeaderProcedures.SelectAsync(_documentSession, newFilePath);
+        if (targetHeader != null)
+        {
+            if (!overwriteDestination)
+            {
+                throw new IOException($"File {newFilePath} exists and {nameof(overwriteDestination)} is set to false.");
+            }
+            // Delete the file identified by newFilePath
+            await DeleteFileAsync(newFilePath);
+        }
+        
+        sourceHeader.FilePath = newFilePath;
+        sourceHeader.Directory = newFilePath.Directory;
+        _documentSession.Store(sourceHeader);        
+    }
+
+    public async Task CopyFileAsync(GridFsFilePath oldFilePath, GridFsFilePath newFilePath, bool overwriteDestination = false)
+    {
+        // Lookup the old resource
+        var sourceHeader = await _fileHeaderProcedures.SelectAsync(_documentSession, oldFilePath);
+        if (sourceHeader == null)
+        {
+            throw new FileNotFoundException(oldFilePath);
+        }
+
+        // Lookup the new resource
+        var targetHeader = await _fileHeaderProcedures.SelectAsync(_documentSession, newFilePath);
+        if (targetHeader != null)
+        {
+            if (!overwriteDestination)
+            {
+                throw new IOException($"File {newFilePath} exists and {nameof(overwriteDestination)} is set to false.");
+            }
+        }
+        
+        // Copy the file
+        await using var oldFileStream = await DownLoadStreamAsync(oldFilePath);
+        if (oldFileStream == null)
+        {
+            throw new ApplicationException($"Unable to load {nameof(oldFilePath)}");
+        }
+        await UploadStreamAsync(newFilePath, oldFileStream, true);
     }
 
     public IDocumentSession DocumentSession => _documentSession;
