@@ -1,6 +1,6 @@
 ﻿using System.Text;
 
-namespace EnterpriseCoder.MartenDb.GridFs;
+namespace EnterpriseCoder.MartenDb.GridFs.Utility;
 
 public static class PathNormalizer
 {

@@ -14,27 +14,28 @@ public class DatabaseTestFixture : IDisposable
     {
         var services = new ServiceCollection();
 
+        NpgsqlConnectionStringBuilder connectionBuilder = new NpgsqlConnectionStringBuilder
+        {
+            Host = "localhost",
+            Database = "postgres",
+            Username = "postgres",
+            Password = "3nterp4is3C0de4",
+            Port = 29123,
+            Pooling = true,
+            MinPoolSize = 1,
+            MaxPoolSize = 10,
+            SearchPath = "unittesting"
+        };
+
         services.AddMarten(options =>
         {
             options.DatabaseSchemaName = "unittesting";
             options.AutoCreateSchemaObjects = AutoCreate.All;
-
-            NpgsqlConnectionStringBuilder connectionBuilder = new NpgsqlConnectionStringBuilder
-            {
-                Host = "localhost",
-                Database = "postgres",
-                Username = "postgres",
-                Password = "3nterp4is3C0de4",
-                Port = 29123,
-                Pooling = true,
-                MinPoolSize = 1,
-                MaxPoolSize = 10
-            };
-
             options.Connection(connectionBuilder.ToString());
         });
         services.AddMartenDbGridFs();
-
+        services.AddSingleton<DatabaseHelper>();
+        
         ServiceProvider = services.BuildServiceProvider();
     }
     

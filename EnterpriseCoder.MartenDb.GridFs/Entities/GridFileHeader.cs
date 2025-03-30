@@ -10,8 +10,7 @@ public class GridFileHeader
 
     [DuplicateField] public string FilePath { get; set; } = string.Empty;
     public byte[] Sha256 { get; set; } = Array.Empty<byte>();
-    public DateTimeOffset CreationDateTime { get; set; }
-    public DateTimeOffset ModifiedDateTime { get; set; }
+    public DateTimeOffset UpdatedDateTime { get; set; } = DateTimeOffset.UtcNow;
     public long OriginalLength { get; set; }
     public long StoredLength { get; set; }
 
@@ -22,5 +21,6 @@ public class GridFileHeader
     public Guid UserDataGuid { get; set; } = Guid.Empty;
     
     // User custom data long - useful for download count
+    [DuplicateField]
     public long UserDataLong { get; set; }
 }

@@ -1,4 +1,6 @@
-﻿namespace EnterpriseCoder.MartenDb.GridFs;
+﻿using EnterpriseCoder.MartenDb.GridFs.Utility;
+
+namespace EnterpriseCoder.MartenDb.GridFs;
 
 public sealed class GridFsFilePath : IComparable<GridFsFilePath>
 {

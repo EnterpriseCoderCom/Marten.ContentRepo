@@ -1,6 +1,6 @@
 ﻿namespace EnterpriseCoder.MartenDb.GridFs.Testing;
 
-public class DirectoryFilePathTests
+public class GridFsDirectoryFilePathTests
 {
     [Fact]
     public void ConstructorAndParentTests()

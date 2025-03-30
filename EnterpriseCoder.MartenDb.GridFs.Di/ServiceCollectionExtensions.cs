@@ -6,7 +6,7 @@ public static class ServiceCollectionExtensions
 {
     public static IServiceCollection AddMartenDbGridFs(this IServiceCollection serviceCollection)
     {
-        serviceCollection.AddSingleton<IGridFileSystem, GridFileSystem>();
+        serviceCollection.AddScoped<IGridFileSystem, GridFileSystem>();
         
         return serviceCollection;
     }

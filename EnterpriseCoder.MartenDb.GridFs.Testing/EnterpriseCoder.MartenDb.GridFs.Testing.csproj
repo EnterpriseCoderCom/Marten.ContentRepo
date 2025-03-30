@@ -10,7 +10,6 @@
 
     <ItemGroup>
         <PackageReference Include="Marten" Version="7.39.5" />
-        <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.2" />
         <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.1.0"/>
         <PackageReference Include="xunit" Version="2.4.1"/>
         <PackageReference Include="xunit.runner.visualstudio" Version="2.4.3">
@@ -29,7 +28,9 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="TestFiles\" />
+      <None Update="TestFiles\angrybird.png">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
     </ItemGroup>
 
 </Project>
