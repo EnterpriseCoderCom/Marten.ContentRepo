@@ -1,22 +1,22 @@
 ﻿using System.IO.Compression;
 using System.Security.Cryptography;
-using EnterpriseCoder.MartenDb.GridFs.DtoMapping;
-using EnterpriseCoder.MartenDb.GridFs.Entities;
-using EnterpriseCoder.MartenDb.GridFs.Procedures;
-using EnterpriseCoder.MartenDb.GridFs.Utility;
+using EnterpriseCoder.Marten.ContentRepo.DtoMapping;
+using EnterpriseCoder.Marten.ContentRepo.Entities;
+using EnterpriseCoder.Marten.ContentRepo.Procedures;
+using EnterpriseCoder.Marten.ContentRepo.Utility;
 using Marten;
 using Marten.Pagination;
 
-namespace EnterpriseCoder.MartenDb.GridFs;
+namespace EnterpriseCoder.Marten.ContentRepo;
 
-public class GridFileSystem : IGridFileSystem
+public class ContentRepository : IContentRepository
 {
     private const int FileBlockSize = 65535;
 
-    private readonly GridFileHeaderProcedures _fileHeaderProcedures = new();
-    private readonly GridFileBlockProcedures _fileBlockProcedures = new();
+    private readonly ContentFileHeaderProcedures _fileHeaderProcedures = new();
+    private readonly ContentFileBlockProcedures _fileBlockProcedures = new();
 
-    public async Task UploadStreamAsync(IDocumentSession documentSession, GridFsFilePath filePath, Stream inStream,
+    public async Task UploadStreamAsync(IDocumentSession documentSession, ContentRepositoryFilePath filePath, Stream inStream,
         bool overwriteExisting = false,
         Guid? userGuid = null, long userValue = 0L)
     {
@@ -67,7 +67,7 @@ public class GridFileSystem : IGridFileSystem
         FileInfo fileInfo = new(tempFilename.FilePath);
 
         // Create a new header document.
-        GridFileHeader header = new GridFileHeader()
+        ContentFileHeader header = new ContentFileHeader()
         {
             // Id is automatically assigned in constructor
             Directory = filePath.Directory,
@@ -91,7 +91,7 @@ public class GridFileSystem : IGridFileSystem
                 byte[] saveBuffer = new byte[readCount];
                 Buffer.BlockCopy(buffer, 0, saveBuffer, 0, readCount);
 
-                GridFileBlock nextBlock = new GridFileBlock()
+                ContentFileBlock nextBlock = new ContentFileBlock()
                 {
                     // Id is assigned by constructor
                     ParentFileHeaderId = header.Id,
@@ -104,7 +104,7 @@ public class GridFileSystem : IGridFileSystem
         }
     }
 
-    public async Task<Stream?> DownloadStreamAsync(IDocumentSession documentSession, GridFsFilePath filePath)
+    public async Task<Stream?> DownloadStreamAsync(IDocumentSession documentSession, ContentRepositoryFilePath filePath)
     {
         var targetHeader = await _fileHeaderProcedures.SelectAsync(documentSession, filePath);
         if (targetHeader is null)
@@ -143,14 +143,14 @@ public class GridFileSystem : IGridFileSystem
         }
     }
 
-    public async Task<bool> FileExistsAsync(IDocumentSession documentSession, GridFsFilePath filePath)
+    public async Task<bool> FileExistsAsync(IDocumentSession documentSession, ContentRepositoryFilePath filePath)
     {
         // Lookup the target resource
         var targetHeader = await _fileHeaderProcedures.SelectAsync(documentSession, filePath);
         return targetHeader != null;
     }
 
-    public async Task DeleteFileAsync(IDocumentSession documentSession, GridFsFilePath filePath)
+    public async Task DeleteFileAsync(IDocumentSession documentSession, ContentRepositoryFilePath filePath)
     {
         // Lookup the target resource
         var targetHeader = await _fileHeaderProcedures.SelectAsync(documentSession, filePath);
@@ -166,7 +166,7 @@ public class GridFileSystem : IGridFileSystem
         await _fileHeaderProcedures.DeleteAsync(documentSession, targetHeader);
     }
 
-    public async Task<GridFsFileInfo?> GetFileInfoAsync(IDocumentSession documentSession, GridFsFilePath filePath)
+    public async Task<ContentRepositoryFileInfo?> GetFileInfoAsync(IDocumentSession documentSession, ContentRepositoryFilePath filePath)
     {
         // Lookup the target resource
         var targetHeader = await _fileHeaderProcedures.SelectAsync(documentSession, filePath);
@@ -175,11 +175,11 @@ public class GridFileSystem : IGridFileSystem
             return null;
         }
 
-        return targetHeader.ToGridFsFileInfoDto();
+        return targetHeader.ToContentFileInfoDto();
     }
 
-    public async Task RenameFileAsync(IDocumentSession documentSession, GridFsFilePath oldFilePath,
-        GridFsFilePath newFilePath,
+    public async Task RenameFileAsync(IDocumentSession documentSession, ContentRepositoryFilePath oldFilePath,
+        ContentRepositoryFilePath newFilePath,
         bool overwriteDestination = false)
     {
         // Lookup the old resource
@@ -207,8 +207,8 @@ public class GridFileSystem : IGridFileSystem
         documentSession.Store(sourceHeader);
     }
 
-    public async Task CopyFileAsync(IDocumentSession documentSession, GridFsFilePath oldFilePath,
-        GridFsFilePath newFilePath,
+    public async Task CopyFileAsync(IDocumentSession documentSession, ContentRepositoryFilePath oldFilePath,
+        ContentRepositoryFilePath newFilePath,
         bool overwriteDestination = false)
     {
         // Lookup the old resource
@@ -238,13 +238,13 @@ public class GridFileSystem : IGridFileSystem
         await UploadStreamAsync(documentSession, newFilePath, oldFileStream, true);
     }
 
-    public async Task<IList<GridFsFileInfo>> GetFileListingAsync(IDocumentSession documentSession,
-        GridFsDirectory directory, int oneBasedPage, int pageSize,
+    public async Task<IList<ContentRepositoryFileInfo>> GetFileListingAsync(IDocumentSession documentSession,
+        ContentRepositoryDirectory directory, int oneBasedPage, int pageSize,
         bool recursive = false)
     {
         string directoryString = directory;
 
-        IQueryable<GridFileHeader> baseQuery = documentSession.Query<GridFileHeader>();
+        IQueryable<ContentFileHeader> baseQuery = documentSession.Query<ContentFileHeader>();
         if (recursive)
         {
             baseQuery = baseQuery.Where(x => x.Directory.StartsWith(directoryString));
@@ -256,6 +256,6 @@ public class GridFileSystem : IGridFileSystem
 
         var pagedList = await baseQuery.ToPagedListAsync(oneBasedPage, pageSize);
 
-        return new List<GridFsFileInfo>(pagedList.Select(x => x.ToGridFsFileInfoDto()));
+        return new List<ContentRepositoryFileInfo>(pagedList.Select(x => x.ToContentFileInfoDto()));
     }
 }

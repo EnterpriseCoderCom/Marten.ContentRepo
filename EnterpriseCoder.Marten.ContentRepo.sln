@@ -1,8 +1,8 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EnterpriseCoder.MartenDb.GridFs", "EnterpriseCoder.MartenDb.GridFs\EnterpriseCoder.MartenDb.GridFs.csproj", "{44CD8ABC-C943-4B4D-89CF-8F9C4D3FF25D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EnterpriseCoder.Marten.ContentRepo", "EnterpriseCoder.Marten.ContentRepo\EnterpriseCoder.Marten.ContentRepo.csproj", "{44CD8ABC-C943-4B4D-89CF-8F9C4D3FF25D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EnterpriseCoder.MartenDb.GridFs.Testing", "EnterpriseCoder.MartenDb.GridFs.Testing\EnterpriseCoder.MartenDb.GridFs.Testing.csproj", "{722C9920-9E99-4F97-B0A1-DB9F2A0F370A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EnterpriseCoder.Marten.ContentRepo.Testing", "EnterpriseCoder.Marten.ContentRepo.Testing\EnterpriseCoder.Marten.ContentRepo.Testing.csproj", "{722C9920-9E99-4F97-B0A1-DB9F2A0F370A}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "TestingSetup", "TestingSetup", "{9A8F26D7-BEB7-4509-8827-E1E80F3C1D4D}"
 	ProjectSection(SolutionItems) = preProject
@@ -10,7 +10,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "TestingSetup", "TestingSetu
 		docker-postgres16-windows-create.bat = docker-postgres16-windows-create.bat
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EnterpriseCoder.MartenDb.GridFs.Di", "EnterpriseCoder.MartenDb.GridFs.Di\EnterpriseCoder.MartenDb.GridFs.Di.csproj", "{6A66A930-A2F2-45C1-811C-4A481422AD1B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EnterpriseCoder.Marten.ContentRepo.Di", "EnterpriseCoder.Marten.ContentRepo.Di\EnterpriseCoder.Marten.ContentRepo.Di.csproj", "{6A66A930-A2F2-45C1-811C-4A481422AD1B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

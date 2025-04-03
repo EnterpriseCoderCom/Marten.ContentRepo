@@ -1,9 +1,9 @@
 ﻿using Marten.Schema;
 using UUIDNext;
 
-namespace EnterpriseCoder.MartenDb.GridFs.Entities;
+namespace EnterpriseCoder.Marten.ContentRepo.Entities;
 
-public class GridFileHeader
+public class ContentFileHeader
 {
     [Identity]
     public Guid Id { get; set; } = Uuid.NewDatabaseFriendly(Database.PostgreSql);

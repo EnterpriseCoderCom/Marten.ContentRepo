@@ -1,8 +1,8 @@
-﻿namespace EnterpriseCoder.MartenDb.GridFs;
+﻿namespace EnterpriseCoder.Marten.ContentRepo;
 
-public class GridFsFileInfo
+public class ContentRepositoryFileInfo
 {
-    public GridFsFilePath FilePath { get; set; } = null!;
+    public ContentRepositoryFilePath FilePath { get; set; } = null!;
     public byte[] Sha256 { get; set; } = Array.Empty<byte>();
     public DateTimeOffset UpdateDateTime { get; set; }
     public long OriginalLength { get; set; }

@@ -1,12 +1,12 @@
-﻿using EnterpriseCoder.MartenDb.GridFs.Utility;
+﻿using EnterpriseCoder.Marten.ContentRepo.Utility;
 
-namespace EnterpriseCoder.MartenDb.GridFs;
+namespace EnterpriseCoder.Marten.ContentRepo;
 
-public sealed class GridFsFilePath : IComparable<GridFsFilePath>
+public sealed class ContentRepositoryFilePath : IComparable<ContentRepositoryFilePath>
 {
     private readonly string _resourcePath;
 
-    public GridFsFilePath(string resourcePath)
+    public ContentRepositoryFilePath(string resourcePath)
     {
         ArgumentNullException.ThrowIfNull(resourcePath);
         if (resourcePath.Trim() == "/")
@@ -19,21 +19,21 @@ public sealed class GridFsFilePath : IComparable<GridFsFilePath>
 
     #region Implicit Operators
 
-    public static implicit operator string(GridFsFilePath gridFsFilePath) => gridFsFilePath.Path;
-    public static implicit operator GridFsFilePath(string resourcePath) => new(resourcePath);
+    public static implicit operator string(ContentRepositoryFilePath contentRepositoryFilePath) => contentRepositoryFilePath.Path;
+    public static implicit operator ContentRepositoryFilePath(string resourcePath) => new(resourcePath);
 
     #endregion
 
     #region Equality Members
 
-    private bool Equals(GridFsFilePath other)
+    private bool Equals(ContentRepositoryFilePath other)
     {
         return _resourcePath == other._resourcePath;
     }
 
     public override bool Equals(object? obj)
     {
-        return ReferenceEquals(this, obj) || obj is GridFsFilePath other && Equals(other);
+        return ReferenceEquals(this, obj) || obj is ContentRepositoryFilePath other && Equals(other);
     }
 
     public override int GetHashCode()
@@ -43,9 +43,9 @@ public sealed class GridFsFilePath : IComparable<GridFsFilePath>
 
     #endregion
 
-    #region IComparable<GridFsFilePath> Members
+    #region IComparable<ContentFilePath> Members
 
-    public int CompareTo(GridFsFilePath? other)
+    public int CompareTo(ContentRepositoryFilePath? other)
     {
         return string.Compare(_resourcePath, other?._resourcePath, StringComparison.Ordinal);
     }
@@ -101,7 +101,7 @@ public sealed class GridFsFilePath : IComparable<GridFsFilePath>
         }
     }
 
-    public GridFsDirectory Directory
+    public ContentRepositoryDirectory Directory
     {
         get
         {

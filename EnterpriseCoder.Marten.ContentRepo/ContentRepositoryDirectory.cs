@@ -1,13 +1,13 @@
 ﻿using System.Text;
-using EnterpriseCoder.MartenDb.GridFs.Utility;
+using EnterpriseCoder.Marten.ContentRepo.Utility;
 
-namespace EnterpriseCoder.MartenDb.GridFs;
+namespace EnterpriseCoder.Marten.ContentRepo;
 
-public class GridFsDirectory : IComparable<GridFsDirectory>
+public class ContentRepositoryDirectory : IComparable<ContentRepositoryDirectory>
 {
     private readonly string _resourcePath;
 
-    public GridFsDirectory(string resourcePath)
+    public ContentRepositoryDirectory(string resourcePath)
     {
         _resourcePath = PathNormalizer.NormalizePath(resourcePath);
     }
@@ -16,7 +16,7 @@ public class GridFsDirectory : IComparable<GridFsDirectory>
 
     public string Path => _resourcePath;
 
-    public GridFsDirectory Parent
+    public ContentRepositoryDirectory Parent
     {
         get
         {
@@ -46,21 +46,21 @@ public class GridFsDirectory : IComparable<GridFsDirectory>
 
     #region Implicit Members
 
-    public static implicit operator string(GridFsDirectory gridFsPath) => gridFsPath.Path;
-    public static implicit operator GridFsDirectory(string resourcePath) => new(resourcePath);
+    public static implicit operator string(ContentRepositoryDirectory contentRepositoryPath) => contentRepositoryPath.Path;
+    public static implicit operator ContentRepositoryDirectory(string resourcePath) => new(resourcePath);
 
     #endregion
 
     #region Equality Operators
 
-    public bool Equals(GridFsDirectory other)
+    public bool Equals(ContentRepositoryDirectory other)
     {
         return _resourcePath == other._resourcePath;
     }
 
     public override bool Equals(object? obj)
     {
-        return obj is GridFsDirectory other && Equals(other);
+        return obj is ContentRepositoryDirectory other && Equals(other);
     }
 
     public override int GetHashCode()
@@ -70,9 +70,9 @@ public class GridFsDirectory : IComparable<GridFsDirectory>
 
     #endregion
 
-    #region IComparable<GridFsDirectory> Members
+    #region IComparable<ContentDirectory> Members
 
-    public int CompareTo(GridFsDirectory? other)
+    public int CompareTo(ContentRepositoryDirectory? other)
     {
         return string.Compare(_resourcePath, other?._resourcePath, StringComparison.Ordinal);
     }
@@ -81,7 +81,7 @@ public class GridFsDirectory : IComparable<GridFsDirectory>
 
     #region Public Methods
 
-    public GridFsDirectory Combine(params string[] childDirectories)
+    public ContentRepositoryDirectory Combine(params string[] childDirectories)
     {
         StringBuilder returnPath = new StringBuilder(_resourcePath);
 
@@ -95,7 +95,7 @@ public class GridFsDirectory : IComparable<GridFsDirectory>
             returnPath.Append(childDirectory);
         }
 
-        return new GridFsDirectory(PathNormalizer.NormalizePath(returnPath.ToString()));
+        return new ContentRepositoryDirectory(PathNormalizer.NormalizePath(returnPath.ToString()));
     }
 
     public string[] SplitPath()

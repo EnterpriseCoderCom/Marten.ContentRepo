@@ -1,25 +1,25 @@
 using System.Reflection;
 using System.Security.Cryptography;
-using EnterpriseCoder.MartenDb.GridFs.Di;
+using EnterpriseCoder.Marten.ContentRepo.Di;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit.Abstractions;
 
-namespace EnterpriseCoder.MartenDb.GridFs.Testing;
+namespace EnterpriseCoder.Marten.ContentRepo.Testing;
 
-public class GridFileSystemScopedTests : IClassFixture<DatabaseTestFixture>
+public class ContentRepositoryScopedTests : IClassFixture<DatabaseTestFixture>
 {
     private readonly ITestOutputHelper _output;
     private const string TestFilename = "angrybird.png";
     private const string TestResourcePath = "/resources/angrybird.png";
     private const int TestBlockCount = 8;
 
-    private readonly IGridFileSystemScoped _gridFileSystemScoped;
+    private readonly IContentRepositoryScoped _contentRepositoryScoped;
     private readonly DatabaseHelper _databaseHelper;
 
-    public GridFileSystemScopedTests(DatabaseTestFixture databaseFixture, ITestOutputHelper output)
+    public ContentRepositoryScopedTests(DatabaseTestFixture databaseFixture, ITestOutputHelper output)
     {
         _output = output;
-        _gridFileSystemScoped = databaseFixture.ServiceProvider.GetRequiredService<IGridFileSystemScoped>();
+        _contentRepositoryScoped = databaseFixture.ServiceProvider.GetRequiredService<IContentRepositoryScoped>();
         _databaseHelper = databaseFixture.ServiceProvider.GetRequiredService<DatabaseHelper>();
     }
 
@@ -38,11 +38,11 @@ public class GridFileSystemScopedTests : IClassFixture<DatabaseTestFixture>
 
         await using (var fileStream = new FileStream(resourceFilePath, FileMode.Open))
         {
-            await _gridFileSystemScoped.UploadStreamAsync(TestResourcePath, fileStream);
-            await _gridFileSystemScoped.DocumentSession.SaveChangesAsync();
+            await _contentRepositoryScoped.UploadStreamAsync(TestResourcePath, fileStream);
+            await _contentRepositoryScoped.DocumentSession.SaveChangesAsync();
         }
 
-        Assert.True(await _gridFileSystemScoped.FileExistsAsync(TestResourcePath));
+        Assert.True(await _contentRepositoryScoped.FileExistsAsync(TestResourcePath));
         Assert.Equal(1, await _databaseHelper.CountHeadersAsync());
         Assert.Equal(TestBlockCount, await _databaseHelper.CountBlocksAsync());
 
@@ -53,15 +53,15 @@ public class GridFileSystemScopedTests : IClassFixture<DatabaseTestFixture>
         await using (var fileStream = new FileStream(resourceFilePath, FileMode.Open))
         {
             await Assert.ThrowsAsync<IOException>(async () =>
-                await _gridFileSystemScoped.UploadStreamAsync(TestResourcePath, fileStream));
-            _gridFileSystemScoped.DocumentSession.EjectAllPendingChanges();
+                await _contentRepositoryScoped.UploadStreamAsync(TestResourcePath, fileStream));
+            _contentRepositoryScoped.DocumentSession.EjectAllPendingChanges();
         }
 
         // ===================================================================================
         // Read the saved data back out of the grid file system and ensure that the SHA256's
         // match to ensure data integrity
         // ===================================================================================
-        await using Stream? readStream = await _gridFileSystemScoped.DownloadStreamAsync(TestResourcePath);
+        await using Stream? readStream = await _contentRepositoryScoped.DownloadStreamAsync(TestResourcePath);
         Assert.NotNull(readStream);
 
         // Generate a sha256 for the stream that comes out of the database.
@@ -73,7 +73,7 @@ public class GridFileSystemScopedTests : IClassFixture<DatabaseTestFixture>
 
         // Get the file information from the database and ensure that the stored 
         // SHA256 matches.
-        GridFsFileInfo? fileInfo = await _gridFileSystemScoped.GetFileInfoAsync(TestResourcePath);
+        ContentRepositoryFileInfo? fileInfo = await _contentRepositoryScoped.GetFileInfoAsync(TestResourcePath);
         Assert.NotNull(fileInfo);
 
         // Verify that the SHA256's are the same between stored vs reloaded.
@@ -102,13 +102,13 @@ public class GridFileSystemScopedTests : IClassFixture<DatabaseTestFixture>
         Assert.Equal(1, await _databaseHelper.CountHeadersAsync());
         Assert.Equal(TestBlockCount, await _databaseHelper.CountBlocksAsync());
 
-        await _gridFileSystemScoped.DeleteFileAsync(TestResourcePath);
-        await _gridFileSystemScoped.DocumentSession.SaveChangesAsync();
+        await _contentRepositoryScoped.DeleteFileAsync(TestResourcePath);
+        await _contentRepositoryScoped.DocumentSession.SaveChangesAsync();
 
         Assert.Equal(0, await _databaseHelper.CountHeadersAsync());
         Assert.Equal(0, await _databaseHelper.CountBlocksAsync());
 
-        Assert.False(await _gridFileSystemScoped.FileExistsAsync(TestResourcePath));
+        Assert.False(await _contentRepositoryScoped.FileExistsAsync(TestResourcePath));
     }
 
     [Fact]
@@ -118,11 +118,11 @@ public class GridFileSystemScopedTests : IClassFixture<DatabaseTestFixture>
 
         await _UploadTestResourceAsync();
 
-        await _gridFileSystemScoped.RenameFileAsync(TestResourcePath, "/aNewFilename/InANewPlate.png");
-        await _gridFileSystemScoped.DocumentSession.SaveChangesAsync();
+        await _contentRepositoryScoped.RenameFileAsync(TestResourcePath, "/aNewFilename/InANewPlate.png");
+        await _contentRepositoryScoped.DocumentSession.SaveChangesAsync();
 
-        Assert.False(await _gridFileSystemScoped.FileExistsAsync(TestResourcePath));
-        Assert.True(await _gridFileSystemScoped.FileExistsAsync("/aNewFilename/InANewPlate.png"));
+        Assert.False(await _contentRepositoryScoped.FileExistsAsync(TestResourcePath));
+        Assert.True(await _contentRepositoryScoped.FileExistsAsync("/aNewFilename/InANewPlate.png"));
     }
 
     [Fact]
@@ -138,8 +138,8 @@ public class GridFileSystemScopedTests : IClassFixture<DatabaseTestFixture>
         var resourceFilePath = _GetTestResourceFilePath(TestFilename);
         using (var fileStream = new FileStream(resourceFilePath, FileMode.Open))
         {
-            await _gridFileSystemScoped.UploadStreamAsync(TestResourcePath, fileStream, true);
-            await _gridFileSystemScoped.DocumentSession.SaveChangesAsync();
+            await _contentRepositoryScoped.UploadStreamAsync(TestResourcePath, fileStream, true);
+            await _contentRepositoryScoped.DocumentSession.SaveChangesAsync();
         }
 
         Assert.Equal(1, await _databaseHelper.CountHeadersAsync());
@@ -156,14 +156,14 @@ public class GridFileSystemScopedTests : IClassFixture<DatabaseTestFixture>
         Assert.Equal(1, await _databaseHelper.CountHeadersAsync());
         Assert.Equal(TestBlockCount, await _databaseHelper.CountBlocksAsync());
 
-        await _gridFileSystemScoped.CopyFileAsync(TestResourcePath, "/newPath/anotherBird.png", true);
-        await _gridFileSystemScoped.DocumentSession.SaveChangesAsync();
+        await _contentRepositoryScoped.CopyFileAsync(TestResourcePath, "/newPath/anotherBird.png", true);
+        await _contentRepositoryScoped.DocumentSession.SaveChangesAsync();
 
         Assert.Equal(2, await _databaseHelper.CountHeadersAsync());
         Assert.Equal(TestBlockCount * 2, await _databaseHelper.CountBlocksAsync());
 
         await Assert.ThrowsAsync<IOException>(async () =>
-            await _gridFileSystemScoped.CopyFileAsync(TestResourcePath, TestResourcePath));
+            await _contentRepositoryScoped.CopyFileAsync(TestResourcePath, TestResourcePath));
     }
 
     [Fact]
@@ -188,7 +188,7 @@ public class GridFileSystemScopedTests : IClassFixture<DatabaseTestFixture>
             }
         }
 
-        await _gridFileSystemScoped.DocumentSession.SaveChangesAsync();
+        await _contentRepositoryScoped.DocumentSession.SaveChangesAsync();
         
         Assert.Equal(testArticleCount * subItemCount, await _databaseHelper.CountHeadersAsync());
         Assert.Equal(TestBlockCount * testArticleCount * subItemCount, await _databaseHelper.CountBlocksAsync());
@@ -196,7 +196,7 @@ public class GridFileSystemScopedTests : IClassFixture<DatabaseTestFixture>
         // ===================================================================================
         // Try to get a listing with no recursion...should be zero.
         // ===================================================================================
-        var fileListing = await _gridFileSystemScoped.GetFileListingAsync(
+        var fileListing = await _contentRepositoryScoped.GetFileListingAsync(
             "/directory", 1, 200);
         Assert.Equal(0, fileListing.Count);
         
@@ -204,7 +204,7 @@ public class GridFileSystemScopedTests : IClassFixture<DatabaseTestFixture>
         // Get a listing for the files that we uploaded with recursive listing
         // ===================================================================================
         HashSet<string> compareSet = new HashSet<string>(masterTrackingSet);
-        fileListing = await _gridFileSystemScoped.GetFileListingAsync("/directory",
+        fileListing = await _contentRepositoryScoped.GetFileListingAsync("/directory",
             1, 200, true);
         
         Assert.Equal(testArticleCount * subItemCount, fileListing.Count);
@@ -232,7 +232,7 @@ public class GridFileSystemScopedTests : IClassFixture<DatabaseTestFixture>
             await _UploadTestResourceAsync($"/directory/item{i}.png", false);
         }
 
-        await _gridFileSystemScoped.DocumentSession.SaveChangesAsync();
+        await _contentRepositoryScoped.DocumentSession.SaveChangesAsync();
 
         Assert.Equal(testArticleCount, await _databaseHelper.CountHeadersAsync());
         Assert.Equal(TestBlockCount * testArticleCount, await _databaseHelper.CountBlocksAsync());
@@ -241,7 +241,7 @@ public class GridFileSystemScopedTests : IClassFixture<DatabaseTestFixture>
         // Get a listing for the files that we uploaded.  Get them all at once.
         // ===================================================================================
         HashSet<string> compareSet = new HashSet<string>(masterTrackingSet);
-        var fileListing = await _gridFileSystemScoped.GetFileListingAsync("/directory", 1, 200);
+        var fileListing = await _contentRepositoryScoped.GetFileListingAsync("/directory", 1, 200);
         Assert.Equal(testArticleCount, fileListing.Count);
         foreach (var nextItem in fileListing)
         {
@@ -257,7 +257,7 @@ public class GridFileSystemScopedTests : IClassFixture<DatabaseTestFixture>
         int pageCount = testArticleCount / 25;
         for (int nextPage = 1; nextPage <= pageCount; nextPage++)
         {
-            fileListing = await _gridFileSystemScoped.GetFileListingAsync("/directory", nextPage, 25);
+            fileListing = await _contentRepositoryScoped.GetFileListingAsync("/directory", nextPage, 25);
             foreach (var nextItem in fileListing)
             {
                 compareSet.Remove(nextItem.FilePath);
@@ -284,11 +284,11 @@ public class GridFileSystemScopedTests : IClassFixture<DatabaseTestFixture>
 
         await using (var fileStream = new FileStream(resourceFilePath, FileMode.Open))
         {
-            await _gridFileSystemScoped.UploadStreamAsync(TestResourcePath, fileStream);
-            await _gridFileSystemScoped.DocumentSession.SaveChangesAsync();
+            await _contentRepositoryScoped.UploadStreamAsync(TestResourcePath, fileStream);
+            await _contentRepositoryScoped.DocumentSession.SaveChangesAsync();
         }
 
-        Assert.True(await _gridFileSystemScoped.FileExistsAsync(TestResourcePath));
+        Assert.True(await _contentRepositoryScoped.FileExistsAsync(TestResourcePath));
     }
 
     private async Task _UploadTestResourceAsync(string resourceFilename, bool saveAfterUpdate = true)
@@ -297,16 +297,16 @@ public class GridFileSystemScopedTests : IClassFixture<DatabaseTestFixture>
 
         await using (var fileStream = new FileStream(resourceFilePath, FileMode.Open))
         {
-            await _gridFileSystemScoped.UploadStreamAsync(resourceFilename, fileStream);
+            await _contentRepositoryScoped.UploadStreamAsync(resourceFilename, fileStream);
             if (saveAfterUpdate)
             {
-                await _gridFileSystemScoped.DocumentSession.SaveChangesAsync();
+                await _contentRepositoryScoped.DocumentSession.SaveChangesAsync();
             }
         }
 
         if (saveAfterUpdate)
         {
-            Assert.True(await _gridFileSystemScoped.FileExistsAsync(resourceFilename));
+            Assert.True(await _contentRepositoryScoped.FileExistsAsync(resourceFilename));
         }
     }
 }
