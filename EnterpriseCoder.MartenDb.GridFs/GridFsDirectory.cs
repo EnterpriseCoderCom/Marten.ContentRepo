@@ -79,7 +79,6 @@ public class GridFsDirectory : IComparable<GridFsDirectory>
 
     #endregion
 
-
     #region Public Methods
 
     public GridFsDirectory Combine(params string[] childDirectories)
@@ -99,5 +98,10 @@ public class GridFsDirectory : IComparable<GridFsDirectory>
         return new GridFsDirectory(PathNormalizer.NormalizePath(returnPath.ToString()));
     }
 
+    public string[] SplitPath()
+    {
+        return PathNormalizer.SplitPath(_resourcePath);
+    }
+    
     #endregion
 }

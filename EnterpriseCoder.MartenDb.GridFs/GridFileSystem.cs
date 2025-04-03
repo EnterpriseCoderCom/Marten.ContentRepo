@@ -1,44 +1,41 @@
 ﻿using System.IO.Compression;
 using System.Security.Cryptography;
+using EnterpriseCoder.MartenDb.GridFs.DtoMapping;
 using EnterpriseCoder.MartenDb.GridFs.Entities;
 using EnterpriseCoder.MartenDb.GridFs.Procedures;
 using EnterpriseCoder.MartenDb.GridFs.Utility;
 using Marten;
+using Marten.Pagination;
 
 namespace EnterpriseCoder.MartenDb.GridFs;
 
 public class GridFileSystem : IGridFileSystem
 {
-    private const int BufferSize = 65535;
-    
-    private readonly IDocumentSession _documentSession;
+    private const int FileBlockSize = 65535;
+
     private readonly GridFileHeaderProcedures _fileHeaderProcedures = new();
     private readonly GridFileBlockProcedures _fileBlockProcedures = new();
-    
-    public GridFileSystem(IDocumentSession documentSession)
-    {
-        _documentSession = documentSession;
-    }
 
-    public async Task UploadStreamAsync(GridFsFilePath filePath, Stream inStream, bool overwriteExisting = false,
-        Guid? userGuid = null,
-        long userValue = 0L)
+    public async Task UploadStreamAsync(IDocumentSession documentSession, GridFsFilePath filePath, Stream inStream,
+        bool overwriteExisting = false,
+        Guid? userGuid = null, long userValue = 0L)
     {
         if (overwriteExisting is false)
         {
-            if (await FileExistsAsync(filePath))
+            if (await FileExistsAsync(documentSession, filePath))
             {
-                throw new IOException($"File {filePath} already exists and {nameof(overwriteExisting)} is set to false.");
+                throw new IOException(
+                    $"File {filePath} already exists and {nameof(overwriteExisting)} is set to false.");
             }
         }
-        
+
         // No overwrite protection...call delete to make sure 
         // there's nothing taking the incoming filePath resource name.
-        await DeleteFileAsync(filePath);
+        await DeleteFileAsync(documentSession, filePath);
 
         // Create a temp file stream to save the incoming stream into...
         using TemporaryFilenameDisposable tempFilename = new TemporaryFilenameDisposable();
-        byte[] buffer = new byte[BufferSize];
+        byte[] buffer = new byte[FileBlockSize];
         byte[] sha256Hash;
 
         long originalFileSize = 0L;
@@ -82,7 +79,7 @@ public class GridFileSystem : IGridFileSystem
             UserDataGuid = userGuid ?? Guid.Empty
         };
 
-        await _fileHeaderProcedures.UpsertAsync(_documentSession, header);
+        await _fileHeaderProcedures.UpsertAsync(documentSession, header);
 
         // Write out the blocks...
         using (FileStream tempInStream = new FileStream(tempFilename.FilePath, FileMode.Open))
@@ -102,14 +99,14 @@ public class GridFileSystem : IGridFileSystem
                     BlockData = saveBuffer
                 };
 
-                _documentSession.Store(nextBlock);
+                documentSession.Store(nextBlock);
             }
         }
     }
 
-    public async Task<Stream?> DownLoadStreamAsync(GridFsFilePath filePath)
+    public async Task<Stream?> DownLoadStreamAsync(IDocumentSession documentSession, GridFsFilePath filePath)
     {
-        var targetHeader = await _fileHeaderProcedures.SelectAsync(_documentSession, filePath);
+        var targetHeader = await _fileHeaderProcedures.SelectAsync(documentSession, filePath);
         if (targetHeader is null)
         {
             throw new FileNotFoundException(filePath);
@@ -120,7 +117,7 @@ public class GridFileSystem : IGridFileSystem
         {
             using (FileStream tempStream = File.OpenWrite(workFilename))
             {
-                var blockResults = _fileBlockProcedures.Select(_documentSession, targetHeader);
+                var blockResults = _fileBlockProcedures.Select(documentSession, targetHeader);
 
                 await foreach (var nextBlock in blockResults)
                 {
@@ -145,88 +142,84 @@ public class GridFileSystem : IGridFileSystem
             }
         }
     }
-    
-    public async Task<bool> FileExistsAsync(GridFsFilePath filePath)
+
+    public async Task<bool> FileExistsAsync(IDocumentSession documentSession, GridFsFilePath filePath)
     {
         // Lookup the target resource
-        var targetHeader = await _fileHeaderProcedures.SelectAsync(_documentSession, filePath);
+        var targetHeader = await _fileHeaderProcedures.SelectAsync(documentSession, filePath);
         return targetHeader != null;
     }
 
-    public async Task DeleteFileAsync(GridFsFilePath filePath)
+    public async Task DeleteFileAsync(IDocumentSession documentSession, GridFsFilePath filePath)
     {
         // Lookup the target resource
-        var targetHeader = await _fileHeaderProcedures.SelectAsync(_documentSession, filePath);
+        var targetHeader = await _fileHeaderProcedures.SelectAsync(documentSession, filePath);
         if (targetHeader is null)
         {
             return;
         }
 
         // Delete all file blocks associated with this header.
-        await _fileBlockProcedures.DeleteAsync(_documentSession, targetHeader);
+        await _fileBlockProcedures.DeleteAsync(documentSession, targetHeader);
 
         // Delete the header itself.
-        await _fileHeaderProcedures.DeleteAsync(_documentSession, targetHeader);
+        await _fileHeaderProcedures.DeleteAsync(documentSession, targetHeader);
     }
 
-    public async Task<GridFsFileInfo?> GetFileInfoAsync(GridFsFilePath filePath)
+    public async Task<GridFsFileInfo?> GetFileInfoAsync(IDocumentSession documentSession, GridFsFilePath filePath)
     {
         // Lookup the target resource
-        var targetHeader = await _fileHeaderProcedures.SelectAsync(_documentSession, filePath);
+        var targetHeader = await _fileHeaderProcedures.SelectAsync(documentSession, filePath);
         if (targetHeader == null)
         {
             return null;
         }
 
-        return new GridFsFileInfo()
-        {
-            FilePath = filePath,
-            StoredLength = targetHeader.StoredLength,
-            UserDataLong = targetHeader.UserDataLong,
-            UserDataGuid = targetHeader.UserDataGuid,
-            Sha256 = targetHeader.Sha256,
-            OriginalLength = targetHeader.OriginalLength,
-            UpdateDateTime = targetHeader.UpdatedDateTime
-        };
+        return targetHeader.ToGridFsFileInfoDto();
     }
 
-    public async Task RenameFileAsync(GridFsFilePath oldFilePath, GridFsFilePath newFilePath, bool overwriteDestination = false)
+    public async Task RenameFileAsync(IDocumentSession documentSession, GridFsFilePath oldFilePath,
+        GridFsFilePath newFilePath,
+        bool overwriteDestination = false)
     {
         // Lookup the old resource
-        var sourceHeader = await _fileHeaderProcedures.SelectAsync(_documentSession, oldFilePath);
+        var sourceHeader = await _fileHeaderProcedures.SelectAsync(documentSession, oldFilePath);
         if (sourceHeader == null)
         {
             throw new FileNotFoundException(oldFilePath);
         }
 
         // Lookup the new resource
-        var targetHeader = await _fileHeaderProcedures.SelectAsync(_documentSession, newFilePath);
+        var targetHeader = await _fileHeaderProcedures.SelectAsync(documentSession, newFilePath);
         if (targetHeader != null)
         {
             if (!overwriteDestination)
             {
                 throw new IOException($"File {newFilePath} exists and {nameof(overwriteDestination)} is set to false.");
             }
+
             // Delete the file identified by newFilePath
-            await DeleteFileAsync(newFilePath);
+            await DeleteFileAsync(documentSession, newFilePath);
         }
-        
+
         sourceHeader.FilePath = newFilePath;
         sourceHeader.Directory = newFilePath.Directory;
-        _documentSession.Store(sourceHeader);        
+        documentSession.Store(sourceHeader);
     }
 
-    public async Task CopyFileAsync(GridFsFilePath oldFilePath, GridFsFilePath newFilePath, bool overwriteDestination = false)
+    public async Task CopyFileAsync(IDocumentSession documentSession, GridFsFilePath oldFilePath,
+        GridFsFilePath newFilePath,
+        bool overwriteDestination = false)
     {
         // Lookup the old resource
-        var sourceHeader = await _fileHeaderProcedures.SelectAsync(_documentSession, oldFilePath);
+        var sourceHeader = await _fileHeaderProcedures.SelectAsync(documentSession, oldFilePath);
         if (sourceHeader == null)
         {
             throw new FileNotFoundException(oldFilePath);
         }
 
         // Lookup the new resource
-        var targetHeader = await _fileHeaderProcedures.SelectAsync(_documentSession, newFilePath);
+        var targetHeader = await _fileHeaderProcedures.SelectAsync(documentSession, newFilePath);
         if (targetHeader != null)
         {
             if (!overwriteDestination)
@@ -234,15 +227,35 @@ public class GridFileSystem : IGridFileSystem
                 throw new IOException($"File {newFilePath} exists and {nameof(overwriteDestination)} is set to false.");
             }
         }
-        
+
         // Copy the file
-        await using var oldFileStream = await DownLoadStreamAsync(oldFilePath);
+        await using var oldFileStream = await DownLoadStreamAsync(documentSession, oldFilePath);
         if (oldFileStream == null)
         {
             throw new ApplicationException($"Unable to load {nameof(oldFilePath)}");
         }
-        await UploadStreamAsync(newFilePath, oldFileStream, true);
+
+        await UploadStreamAsync(documentSession, newFilePath, oldFileStream, true);
     }
 
-    public IDocumentSession DocumentSession => _documentSession;
+    public async Task<IList<GridFsFileInfo>> GetFileListingAsync(IDocumentSession documentSession,
+        GridFsDirectory directory, int oneBasedPage, int pageSize,
+        bool recursive = false)
+    {
+        string directoryString = directory;
+
+        IQueryable<GridFileHeader> baseQuery = documentSession.Query<GridFileHeader>();
+        if (recursive)
+        {
+            baseQuery = baseQuery.Where(x => x.Directory.StartsWith(directoryString));
+        }
+        else
+        {
+            baseQuery = baseQuery.Where(x => x.Directory == directoryString);
+        }
+
+        var pagedList = await baseQuery.ToPagedListAsync(oneBasedPage, pageSize);
+
+        return new List<GridFsFileInfo>(pagedList.Select(x => x.ToGridFsFileInfoDto()));
+    }
 }

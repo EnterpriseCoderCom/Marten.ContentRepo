@@ -6,6 +6,7 @@ using Weasel.Core;
 
 namespace EnterpriseCoder.MartenDb.GridFs.Testing;
 
+// ReSharper disable once ClassNeverInstantiated.Global
 public class DatabaseTestFixture : IDisposable
 {
     public IServiceProvider ServiceProvider { get; private set; }

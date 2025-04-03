@@ -4,13 +4,13 @@ namespace EnterpriseCoder.MartenDb.GridFs.Utility;
 
 public static class PathNormalizer
 {
-    internal  static string NormalizePath(string path)
+    internal static string NormalizePath(string path)
     {
         if (string.IsNullOrWhiteSpace(path))
         {
             throw new ArgumentException("Invalid path", nameof(path));
         }
-        
+
         List<string> buildParts = new List<string>();
 
         List<string> pathParts = path.Replace('\\', '/').Split('/').ToList();
@@ -59,7 +59,37 @@ public static class PathNormalizer
         {
             finalPath = "/";
         }
-        
+
         return finalPath;
+    }
+
+    internal static string[] SplitPath(string path)
+    {
+        if (string.IsNullOrWhiteSpace(path))
+        {
+            throw new ArgumentException("Invalid path", nameof(path));
+        }
+       
+        List<string> buildParts = new List<string>();
+
+        List<string> pathParts = path.Replace('\\', '/').Split('/').ToList();
+
+        foreach (var nextPathPart in pathParts)
+        {
+            string workPathPart = nextPathPart.Trim();
+            if (string.IsNullOrEmpty(workPathPart))
+            {
+                continue;
+            }
+
+            if (workPathPart == "." || workPathPart == "..")
+            {
+                throw new ArgumentException($"{nameof(SplitPath)} does not process relative directory information.");
+            }
+
+            buildParts.Add(workPathPart);
+        }
+        
+        return buildParts.ToArray();
     }
 }
