@@ -24,8 +24,6 @@ public class ContentRepoDirectoryFilePathTests
         rootDirectory = new ContentRepositoryDirectory("/parentDirectory/childDirectory/./..");
         Assert.Equal("/parentDirectory", rootDirectory.Path);
         Assert.Equal("/", rootDirectory.Parent);
-
-        
     }
 
     [Fact]
