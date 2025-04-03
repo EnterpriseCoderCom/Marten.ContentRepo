@@ -1,10 +1,10 @@
-﻿using EnterpriseCoder.MartenDb.GridFs.Di;
+﻿using EnterpriseCoder.Marten.ContentRepo.Di;
 using Marten;
 using Microsoft.Extensions.DependencyInjection;
 using Npgsql;
 using Weasel.Core;
 
-namespace EnterpriseCoder.MartenDb.GridFs.Testing;
+namespace EnterpriseCoder.Marten.ContentRepo.Testing;
 
 // ReSharper disable once ClassNeverInstantiated.Global
 public class DatabaseTestFixture : IDisposable
@@ -34,7 +34,7 @@ public class DatabaseTestFixture : IDisposable
             options.AutoCreateSchemaObjects = AutoCreate.All;
             options.Connection(connectionBuilder.ToString());
         });
-        services.AddMartenDbGridFs();
+        services.AddMartenContentRepo();
         services.AddSingleton<DatabaseHelper>();
         
         ServiceProvider = services.BuildServiceProvider();

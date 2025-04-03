@@ -1,4 +1,4 @@
-﻿namespace EnterpriseCoder.MartenDb.GridFs.Utility;
+﻿namespace EnterpriseCoder.Marten.ContentRepo.Utility;
 
 public class AutoDeleteReadFileStream : FileStream
 {

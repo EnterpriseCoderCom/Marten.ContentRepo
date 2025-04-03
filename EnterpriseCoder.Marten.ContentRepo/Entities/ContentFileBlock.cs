@@ -1,11 +1,11 @@
 ﻿using Marten.Schema;
 using UUIDNext;
 
-namespace EnterpriseCoder.MartenDb.GridFs.Entities;
+namespace EnterpriseCoder.Marten.ContentRepo.Entities;
 
-public class GridFileBlock
+public class ContentFileBlock
 {
-    private const string OrderedIndexName = "gridfileblock_uidx_gridfileblock_sequence";
+    private const string OrderedIndexName = "contentfileblock_uidx_contentfileblock_sequence";
     
     [Identity]
     public Guid Id { get; set; } = Uuid.NewDatabaseFriendly(Database.PostgreSql);

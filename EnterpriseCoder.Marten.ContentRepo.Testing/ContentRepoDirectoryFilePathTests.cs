@@ -1,27 +1,27 @@
-﻿namespace EnterpriseCoder.MartenDb.GridFs.Testing;
+﻿namespace EnterpriseCoder.Marten.ContentRepo.Testing;
 
-public class GridFsDirectoryFilePathTests
+public class ContentRepoDirectoryFilePathTests
 {
     [Fact]
     public void ConstructorAndParentTests()
     {
-        Assert.Throws<ArgumentException>(() => new GridFsDirectory(""));
+        Assert.Throws<ArgumentException>(() => new ContentRepositoryDirectory(""));
         
-        GridFsDirectory rootDirectory = new GridFsDirectory("/");
+        ContentRepositoryDirectory rootDirectory = new ContentRepositoryDirectory("/");
         Assert.Equal("/", rootDirectory.Path);
         
-        GridFsDirectory captureRootDirectory = new GridFsDirectory("/");
+        ContentRepositoryDirectory captureRootDirectory = new ContentRepositoryDirectory("/");
         Assert.Throws<ArgumentException>(() => captureRootDirectory.Parent);
         
-        rootDirectory = new GridFsDirectory("/childDirectory");
+        rootDirectory = new ContentRepositoryDirectory("/childDirectory");
         Assert.Equal("/childDirectory", rootDirectory.Path);
         Assert.Equal("/", rootDirectory.Parent);
  
-        rootDirectory = new GridFsDirectory("/parentDirectory/childDirectory");
+        rootDirectory = new ContentRepositoryDirectory("/parentDirectory/childDirectory");
         Assert.Equal("/parentDirectory/childDirectory", rootDirectory.Path);
         Assert.Equal("/parentDirectory", rootDirectory.Parent);
 
-        rootDirectory = new GridFsDirectory("/parentDirectory/childDirectory/./..");
+        rootDirectory = new ContentRepositoryDirectory("/parentDirectory/childDirectory/./..");
         Assert.Equal("/parentDirectory", rootDirectory.Path);
         Assert.Equal("/", rootDirectory.Parent);
 
@@ -31,11 +31,11 @@ public class GridFsDirectoryFilePathTests
     [Fact]
     public void RelativePathTests()
     {
-        GridFsDirectory rootDirectory = new GridFsDirectory("/");
+        ContentRepositoryDirectory rootDirectory = new ContentRepositoryDirectory("/");
         Assert.Equal("/", rootDirectory.Path);
         Assert.Throws<ArgumentException>(() => rootDirectory.Parent);
 
-        GridFsDirectory childDirectory = rootDirectory.Combine("parentDirectory", "childDirectory");
+        ContentRepositoryDirectory childDirectory = rootDirectory.Combine("parentDirectory", "childDirectory");
         Assert.Equal("/parentDirectory/childDirectory", childDirectory.Path);
         
         childDirectory = rootDirectory.Combine("/parentDirectory\\childDirectory\\");

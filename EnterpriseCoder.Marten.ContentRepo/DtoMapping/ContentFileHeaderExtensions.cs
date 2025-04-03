@@ -1,12 +1,12 @@
-﻿using EnterpriseCoder.MartenDb.GridFs.Entities;
+﻿using EnterpriseCoder.Marten.ContentRepo.Entities;
 
-namespace EnterpriseCoder.MartenDb.GridFs.DtoMapping;
+namespace EnterpriseCoder.Marten.ContentRepo.DtoMapping;
 
-public static class GridFileHeaderExtensions
+public static class ContentFileHeaderExtensions
 {
-    public static GridFsFileInfo ToGridFsFileInfoDto(this GridFileHeader inHeader)
+    public static ContentRepositoryFileInfo ToContentFileInfoDto(this ContentFileHeader inHeader)
     {
-        return new GridFsFileInfo()
+        return new ContentRepositoryFileInfo()
         {
             FilePath = inHeader.FilePath,
             StoredLength = inHeader.StoredLength,
