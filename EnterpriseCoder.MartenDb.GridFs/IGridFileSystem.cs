@@ -7,7 +7,7 @@ public interface IGridFileSystem
     Task UploadStreamAsync(IDocumentSession documentSession, GridFsFilePath filePath, Stream inStream,
         bool overwriteExisting = false,
         Guid? userGuid = null, long userValue = 0L);
-    Task<Stream?> DownLoadStreamAsync(IDocumentSession documentSession, GridFsFilePath filePath);
+    Task<Stream?> DownloadStreamAsync(IDocumentSession documentSession, GridFsFilePath filePath);
     Task<bool> FileExistsAsync(IDocumentSession documentSession, GridFsFilePath filePath);
     Task DeleteFileAsync(IDocumentSession documentSession, GridFsFilePath filePath);
     Task<GridFsFileInfo?> GetFileInfoAsync(IDocumentSession documentSession, GridFsFilePath filePath);

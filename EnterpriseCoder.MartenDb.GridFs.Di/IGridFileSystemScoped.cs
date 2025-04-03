@@ -8,7 +8,7 @@ public interface IGridFileSystemScoped
 
     Task UploadStreamAsync(GridFsFilePath filePath, Stream inStream, bool overwriteExisting = false,
         Guid? userGuid = null, long userValue = 0L);
-    Task<Stream?> DownLoadStreamAsync(GridFsFilePath filePath);
+    Task<Stream?> DownloadStreamAsync(GridFsFilePath filePath);
     Task<bool> FileExistsAsync(GridFsFilePath filePath);
     Task DeleteFileAsync(GridFsFilePath filePath);
     Task<GridFsFileInfo?> GetFileInfoAsync(GridFsFilePath filePath);

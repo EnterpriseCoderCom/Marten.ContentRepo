@@ -61,7 +61,7 @@ public class GridFileSystemScopedTests : IClassFixture<DatabaseTestFixture>
         // Read the saved data back out of the grid file system and ensure that the SHA256's
         // match to ensure data integrity
         // ===================================================================================
-        await using Stream? readStream = await _gridFileSystemScoped.DownLoadStreamAsync(TestResourcePath);
+        await using Stream? readStream = await _gridFileSystemScoped.DownloadStreamAsync(TestResourcePath);
         Assert.NotNull(readStream);
 
         // Generate a sha256 for the stream that comes out of the database.

@@ -104,7 +104,7 @@ public class GridFileSystem : IGridFileSystem
         }
     }
 
-    public async Task<Stream?> DownLoadStreamAsync(IDocumentSession documentSession, GridFsFilePath filePath)
+    public async Task<Stream?> DownloadStreamAsync(IDocumentSession documentSession, GridFsFilePath filePath)
     {
         var targetHeader = await _fileHeaderProcedures.SelectAsync(documentSession, filePath);
         if (targetHeader is null)
@@ -229,7 +229,7 @@ public class GridFileSystem : IGridFileSystem
         }
 
         // Copy the file
-        await using var oldFileStream = await DownLoadStreamAsync(documentSession, oldFilePath);
+        await using var oldFileStream = await DownloadStreamAsync(documentSession, oldFilePath);
         if (oldFileStream == null)
         {
             throw new ApplicationException($"Unable to load {nameof(oldFilePath)}");

@@ -21,9 +21,9 @@ public class GridFileSystemScoped : IGridFileSystemScoped
             userValue);
     }
 
-    public async Task<Stream?> DownLoadStreamAsync(GridFsFilePath filePath)
+    public async Task<Stream?> DownloadStreamAsync(GridFsFilePath filePath)
     {
-        return await _gridFileSystem.DownLoadStreamAsync(_documentSession, filePath);
+        return await _gridFileSystem.DownloadStreamAsync(_documentSession, filePath);
     }
 
     public async Task<bool> FileExistsAsync(GridFsFilePath filePath)
