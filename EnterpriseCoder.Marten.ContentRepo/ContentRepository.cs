@@ -16,7 +16,8 @@ public class ContentRepository : IContentRepository
     private readonly ContentFileHeaderProcedures _fileHeaderProcedures = new();
     private readonly ContentFileBlockProcedures _fileBlockProcedures = new();
 
-    public async Task UploadStreamAsync(IDocumentSession documentSession, ContentRepositoryFilePath filePath, Stream inStream,
+    public async Task UploadStreamAsync(IDocumentSession documentSession, ContentRepositoryFilePath filePath,
+        Stream inStream,
         bool overwriteExisting = false,
         Guid? userGuid = null, long userValue = 0L)
     {
@@ -166,7 +167,8 @@ public class ContentRepository : IContentRepository
         await _fileHeaderProcedures.DeleteAsync(documentSession, targetHeader);
     }
 
-    public async Task<ContentRepositoryFileInfo?> GetFileInfoAsync(IDocumentSession documentSession, ContentRepositoryFilePath filePath)
+    public async Task<ContentRepositoryFileInfo?> GetFileInfoAsync(IDocumentSession documentSession,
+        ContentRepositoryFilePath filePath)
     {
         // Lookup the target resource
         var targetHeader = await _fileHeaderProcedures.SelectAsync(documentSession, filePath);
