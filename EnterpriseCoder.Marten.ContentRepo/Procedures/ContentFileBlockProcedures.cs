@@ -20,4 +20,10 @@ public class ContentFileBlockProcedures
         
         return blockResults;
     }
+
+    public Task UpsertAsync(IDocumentSession documentSession, ContentFileBlock targetBlock)
+    {
+        documentSession.Store(targetBlock);
+        return Task.CompletedTask;
+    }
 }
