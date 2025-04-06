@@ -1,22 +1,31 @@
-﻿using Marten;
+﻿using EnterpriseCoder.Marten.ContentRepo.Entities;
+using Marten;
 
 namespace EnterpriseCoder.Marten.ContentRepo;
 
 public partial class ContentRepository
 {
-    public async Task RenameFileAsync(IDocumentSession documentSession, ContentRepositoryFilePath oldFilePath,
+    public async Task RenameFileAsync(IDocumentSession documentSession, 
+        string bucketName, ContentRepositoryFilePath oldFilePath,
         ContentRepositoryFilePath newFilePath,
         bool overwriteDestination = false)
     {
+        // Lookup the bucket
+        ContentBucket? targetBucket = await _contentBucketProcedures.SelectBucketAsync(documentSession, bucketName);
+        if (targetBucket == null)
+        {
+            throw new FileNotFoundException($"Bucket {bucketName} not found");
+        }
+        
         // Lookup the old resource
-        var sourceHeader = await _fileHeaderProcedures.SelectAsync(documentSession, oldFilePath);
+        var sourceHeader = await _fileHeaderProcedures.SelectAsync(documentSession, targetBucket, oldFilePath);
         if (sourceHeader == null)
         {
             throw new FileNotFoundException(oldFilePath);
         }
 
         // Lookup the new resource
-        var targetHeader = await _fileHeaderProcedures.SelectAsync(documentSession, newFilePath);
+        var targetHeader = await _fileHeaderProcedures.SelectAsync(documentSession, targetBucket, newFilePath);
         if (targetHeader != null)
         {
             if (!overwriteDestination)
@@ -25,7 +34,7 @@ public partial class ContentRepository
             }
 
             // Delete the file identified by newFilePath
-            await DeleteFileAsync(documentSession, newFilePath);
+            await DeleteFileAsync(documentSession, bucketName, newFilePath);
         }
 
         sourceHeader.FilePath = newFilePath;

@@ -15,6 +15,7 @@ public class DatabaseHelper
     {
         _session.DeleteWhere<ContentFileBlock>(x => true);
         _session.DeleteWhere<ContentFileHeader>(x => true);
+        _session.DeleteWhere<ContentBucket>(x => true);
         await _session.SaveChangesAsync();
     }
 
@@ -26,5 +27,10 @@ public class DatabaseHelper
     public async Task<int> CountBlocksAsync()
     {
         return await _session.Query<ContentFileBlock>().CountAsync();
+    }
+
+    public async Task<int> CountBucketsAsync()
+    {
+        return await _session.Query<ContentBucket>().CountAsync();
     }
 }

@@ -8,11 +8,18 @@ namespace EnterpriseCoder.Marten.ContentRepo;
 public partial class ContentRepository
 {
     public async Task<IList<ContentRepositoryFileInfo>> GetFileListingAsync(IDocumentSession documentSession,
-        ContentRepositoryDirectory directory, int oneBasedPage, int pageSize,
+        string bucketName, ContentRepositoryDirectory directory, int oneBasedPage, int pageSize,
         bool recursive = false)
     {
         // Convert the incoming directory to a string
         string directoryString = directory;
+        
+        // Lookup the bucket
+        ContentBucket? targetBucket = await _contentBucketProcedures.SelectBucketAsync(documentSession, bucketName);
+        if (targetBucket is null)
+        {
+            return Array.Empty<ContentRepositoryFileInfo>();
+        }
         
         IQueryable<ContentFileHeader> baseQuery = documentSession.Query<ContentFileHeader>();
         if (recursive)

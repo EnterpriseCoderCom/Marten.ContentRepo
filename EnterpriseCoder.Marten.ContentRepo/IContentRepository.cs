@@ -4,18 +4,37 @@ namespace EnterpriseCoder.Marten.ContentRepo;
 
 public interface IContentRepository
 {
-    Task UploadStreamAsync(IDocumentSession documentSession, ContentRepositoryFilePath filePath, Stream inStream,
+    Task CreateBucketAsync(IDocumentSession session, string bucketName);
+
+    Task DeleteBucketAsync(IDocumentSession session, string bucketName, bool force = false);
+    
+    Task UploadStreamAsync(IDocumentSession documentSession, string bucketName, ContentRepositoryFilePath filePath,
+        Stream inStream, bool autoCreateBucket = true,
         bool overwriteExisting = false,
         Guid? userGuid = null, long userValue = 0L);
-    Task<Stream?> DownloadStreamAsync(IDocumentSession documentSession, ContentRepositoryFilePath filePath);
-    Task<bool> FileExistsAsync(IDocumentSession documentSession, ContentRepositoryFilePath filePath);
-    Task DeleteFileAsync(IDocumentSession documentSession, ContentRepositoryFilePath filePath);
-    Task<ContentRepositoryFileInfo?> GetFileInfoAsync(IDocumentSession documentSession, ContentRepositoryFilePath filePath);
-    Task RenameFileAsync(IDocumentSession documentSession, ContentRepositoryFilePath oldFilePath, ContentRepositoryFilePath newFilePath,
+
+    Task<Stream?> DownloadStreamAsync(IDocumentSession documentSession, string bucketName,
+        ContentRepositoryFilePath filePath);
+    
+    Task<bool> FileExistsAsync(IDocumentSession documentSession, string bucketName, ContentRepositoryFilePath filePath);
+    
+    Task DeleteFileAsync(IDocumentSession documentSession, string bucketName, ContentRepositoryFilePath filePath);
+
+    Task<ContentRepositoryFileInfo?> GetFileInfoAsync(IDocumentSession documentSession,
+        string bucketName, ContentRepositoryFilePath filePath);
+
+    Task RenameFileAsync(IDocumentSession documentSession, 
+        string bucketName, ContentRepositoryFilePath oldFilePath,
+        ContentRepositoryFilePath newFilePath,
         bool overwriteDestination = false);
-    Task CopyFileAsync(IDocumentSession documentSession, ContentRepositoryFilePath oldFilePath, ContentRepositoryFilePath newFilePath,
-        bool overwriteDestination = false);
-    Task<IList<ContentRepositoryFileInfo>> GetFileListingAsync(IDocumentSession documentSession, ContentRepositoryDirectory directory,
+
+    Task CopyFileAsync(IDocumentSession documentSession, 
+        string oldBucketName, ContentRepositoryFilePath oldFilePath,
+        string newBucketName, ContentRepositoryFilePath newFilePath,
+        bool autoCreateBucket = true, bool overwriteDestination = false);
+
+    Task<IList<ContentRepositoryFileInfo>> GetFileListingAsync(IDocumentSession documentSession,
+        string bucketName, ContentRepositoryDirectory directory,
         int oneBasedPage, int pageSize,
         bool recursive = false);
 }

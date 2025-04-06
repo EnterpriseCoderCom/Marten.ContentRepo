@@ -5,11 +5,12 @@ namespace EnterpriseCoder.Marten.ContentRepo.Procedures;
 
 public class ContentFileHeaderProcedures
 {
-    public async Task<ContentFileHeader?> SelectAsync(IDocumentSession documentSession, ContentRepositoryFilePath filePath)
+    public async Task<ContentFileHeader?> SelectAsync(IDocumentSession documentSession, ContentBucket targetBucket,
+        ContentRepositoryFilePath filePath)
     {
         ContentFileHeader? targetHeader = await documentSession.Query<ContentFileHeader>()
-            .SingleOrDefaultAsync(x => x.FilePath == filePath.Path);
-        
+            .SingleOrDefaultAsync(x => x.BucketId == targetBucket.Id && x.FilePath == filePath.Path);
+
         return targetHeader;
     }
 

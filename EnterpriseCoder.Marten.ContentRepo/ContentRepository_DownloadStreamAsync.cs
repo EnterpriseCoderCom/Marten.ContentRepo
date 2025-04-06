@@ -1,4 +1,5 @@
 ﻿using System.IO.Compression;
+using EnterpriseCoder.Marten.ContentRepo.Entities;
 using EnterpriseCoder.Marten.ContentRepo.Utility;
 using Marten;
 
@@ -6,10 +7,18 @@ namespace EnterpriseCoder.Marten.ContentRepo;
 
 public partial class ContentRepository
 {
-    public async Task<Stream?> DownloadStreamAsync(IDocumentSession documentSession, ContentRepositoryFilePath filePath)
+    public async Task<Stream?> DownloadStreamAsync(IDocumentSession documentSession, string bucketName,
+        ContentRepositoryFilePath filePath)
     {
+        // Lookup the target bucket 
+        ContentBucket? targetBucket = await _contentBucketProcedures.SelectBucketAsync(documentSession, bucketName);
+        if (targetBucket == null)
+        {
+            throw new IOException($"Bucket {bucketName} not found");
+        }
+        
         // Select the header for the given resource.
-        var targetHeader = await _fileHeaderProcedures.SelectAsync(documentSession, filePath);
+        var targetHeader = await _fileHeaderProcedures.SelectAsync(documentSession, targetBucket, filePath);
         if (targetHeader is null)
         {
             // If there's no header, then there's no such resource.
@@ -38,13 +47,13 @@ public partial class ContentRepository
             // Wrap the temp filename is an AutoDeleteReadFileStream so that the temp file 
             // will be deleted when the associated stream is disposed.
             FileStream rereadStream = new AutoDeleteReadFileStream(tempFilename);
-            
+
             // Wrap the rereadStream in a  gzip decompressing stream.
             GZipStream unzipStream = new GZipStream(rereadStream, CompressionMode.Decompress);
 
             return unzipStream;
         }
-        catch(Exception)
+        catch (Exception)
         {
             // In the event of an exception, try to delete the 
             // temporary file.  It may fail, depending on where within the 

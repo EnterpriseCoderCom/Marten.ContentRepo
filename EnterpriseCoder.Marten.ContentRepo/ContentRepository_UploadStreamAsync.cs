@@ -8,13 +8,27 @@ namespace EnterpriseCoder.Marten.ContentRepo;
 
 public partial class ContentRepository
 {
-    public async Task UploadStreamAsync(IDocumentSession documentSession, ContentRepositoryFilePath filePath,
-        Stream inStream, bool overwriteExisting = false, Guid? userGuid = null, long userValue = 0L)
+    public async Task UploadStreamAsync(IDocumentSession documentSession, string bucketName, ContentRepositoryFilePath filePath,
+        Stream inStream, bool autoCreateBucket = true, bool overwriteExisting = false, Guid? userGuid = null, long userValue = 0L)
     {
+        // Make sure the bucket exists
+        ContentBucket? targetBucket = await _contentBucketProcedures.SelectBucketAsync(documentSession, bucketName);
+        if (autoCreateBucket && targetBucket is null)
+        {
+            // Create the target bucket
+            targetBucket = await _contentBucketProcedures.CreateBucketAsync(documentSession, bucketName);
+        }
+        
+        // If there's no targetBucket at this point, then we cannot continue.
+        if (targetBucket is null)
+        {
+            throw new IOException($"No such bucket: {bucketName}");
+        }
+        
         if (overwriteExisting is false)
         {
             // See if there's an existing item with the given filePath
-            if (await FileExistsAsync(documentSession, filePath))
+            if (await FileExistsAsync(documentSession, bucketName, filePath))
             {
                 // There's an existing item with the same name...throw an IOException.
                 throw new IOException(
@@ -24,7 +38,7 @@ public partial class ContentRepository
 
         // No overwrite protection...call delete to make sure 
         // there's nothing taking the incoming filePath resource name.
-        await DeleteFileAsync(documentSession, filePath);
+        await DeleteFileAsync(documentSession, bucketName, filePath);
 
         // Create a temp file stream to save the incoming stream into...
         using TemporaryFilenameDisposable tempFilename = new TemporaryFilenameDisposable();
@@ -84,6 +98,7 @@ public partial class ContentRepository
         ContentFileHeader header = new ContentFileHeader()
         {
             // Id is automatically assigned in constructor
+            BucketId = targetBucket.Id,
             Directory = filePath.Directory,
             FilePath = filePath,
             OriginalLength = originalFileSize,

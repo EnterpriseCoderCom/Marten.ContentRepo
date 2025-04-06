@@ -1,13 +1,22 @@
-﻿using Marten;
+﻿using EnterpriseCoder.Marten.ContentRepo.Entities;
+using Marten;
 
 namespace EnterpriseCoder.Marten.ContentRepo;
 
 public partial class ContentRepository
 {
-    public async Task<bool> FileExistsAsync(IDocumentSession documentSession, ContentRepositoryFilePath filePath)
+    public async Task<bool> FileExistsAsync(IDocumentSession documentSession, string bucketName,
+        ContentRepositoryFilePath filePath)
     {
+        // Lookup the target bucket.
+        ContentBucket? targetBucket = await _contentBucketProcedures.SelectBucketAsync(documentSession, bucketName);
+        if (targetBucket is null)
+        {
+            return false;
+        }
+
         // Lookup the target resource
-        var targetHeader = await _fileHeaderProcedures.SelectAsync(documentSession, filePath);
+        var targetHeader = await _fileHeaderProcedures.SelectAsync(documentSession, targetBucket, filePath);
         return targetHeader != null;
     }
 }
