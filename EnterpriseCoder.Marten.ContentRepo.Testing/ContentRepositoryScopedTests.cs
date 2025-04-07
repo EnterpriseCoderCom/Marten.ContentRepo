@@ -2,6 +2,7 @@ using System.Reflection;
 using System.Security.Cryptography;
 using EnterpriseCoder.Marten.ContentRepo.Di;
 using Microsoft.Extensions.DependencyInjection;
+using Weasel.Postgresql.Tables.Indexes;
 using Xunit.Abstractions;
 
 namespace EnterpriseCoder.Marten.ContentRepo.Testing;
@@ -200,7 +201,7 @@ public class ContentRepositoryScopedTests : IClassFixture<DatabaseTestFixture>
                 string path = $"/directory/subdirectory{i}/item{j}.png";
 
                 masterTrackingSet.Add(path);
-                await _UploadTestResourceAsync(path, false);
+                await _UploadTestResourceAsync(bucketName, path, false);
             }
         }
 
@@ -220,7 +221,7 @@ public class ContentRepositoryScopedTests : IClassFixture<DatabaseTestFixture>
     public async Task FileListingRecursiveTest()
     {
         string bucketName = "default";
-
+ 
         await _databaseHelper.ClearDatabaseAsync();
 
         const int testArticleCount = 20;
@@ -236,7 +237,7 @@ public class ContentRepositoryScopedTests : IClassFixture<DatabaseTestFixture>
                 string path = $"/directory/subdirectory{i}/item{j}.png";
 
                 masterTrackingSet.Add(path);
-                await _UploadTestResourceAsync(path, false);
+                await _UploadTestResourceAsync(bucketName, path, false);
             }
         }
 
@@ -283,7 +284,7 @@ public class ContentRepositoryScopedTests : IClassFixture<DatabaseTestFixture>
         foreach (var i in Enumerable.Range(1, testArticleCount))
         {
             masterTrackingSet.Add($"/directory/item{i}.png");
-            await _UploadTestResourceAsync($"/directory/item{i}.png", false);
+            await _UploadTestResourceAsync(bucketName, $"/directory/item{i}.png", false);
         }
 
         await _contentRepositoryScoped.DocumentSession.SaveChangesAsync();
@@ -323,6 +324,49 @@ public class ContentRepositoryScopedTests : IClassFixture<DatabaseTestFixture>
         Assert.True(compareSet.Count == 0);
     }
 
+    [Fact]
+    public async Task GetByUserDataGuidTest()
+    {
+        string bucketName = "default";
+
+        await _databaseHelper.ClearDatabaseAsync();
+
+        const int testArticleCount = 100;
+
+        HashSet<string> masterTrackingSet = new HashSet<string>(testArticleCount);
+
+        Guid testUserGuid1 = Guid.NewGuid();
+        Guid testUserGuid2 = Guid.NewGuid();
+        
+        // Upload the test article 100 times.
+        foreach (var i in Enumerable.Range(1, testArticleCount))
+        {
+            Guid guidToUse = i % 2 == 0 ? testUserGuid1 : testUserGuid2;
+            
+            masterTrackingSet.Add($"/directory/item{i}.png");
+            await _UploadTestResourceAsync(bucketName, $"/directory/item{i}.png", false, guidToUse);
+        }
+
+        await _contentRepositoryScoped.DocumentSession.SaveChangesAsync();
+
+        Assert.Equal(testArticleCount, await _databaseHelper.CountHeadersAsync());
+        Assert.Equal(TestBlockCount * testArticleCount, await _databaseHelper.CountBlocksAsync());
+
+        // ===================================================================================
+        // Use the first user guid and make sure we can select 1/2 of the data.
+        // ===================================================================================
+        var returnList =
+            await _contentRepositoryScoped.GetFileListingByUserGuidAsync(bucketName, testUserGuid1, 1, 200);
+        Assert.Equal(testArticleCount/2, returnList.Count);
+        
+        // ===================================================================================
+        // Use the second user guid and make sure we can select 1/2 of the data.
+        // ===================================================================================
+        returnList =
+            await _contentRepositoryScoped.GetFileListingByUserGuidAsync(bucketName, testUserGuid2, 1, 200);
+        Assert.Equal(testArticleCount/2, returnList.Count);
+    }
+    
     private static string _GetTestResourceFilePath(string filename)
     {
         var assembly = Assembly.GetExecutingAssembly();
@@ -349,15 +393,15 @@ public class ContentRepositoryScopedTests : IClassFixture<DatabaseTestFixture>
         Assert.True(await _contentRepositoryScoped.FileExistsAsync(bucketName, TestResourcePath));
     }
 
-    private async Task _UploadTestResourceAsync(string resourceFilename, bool saveAfterUpdate = true)
+    private async Task _UploadTestResourceAsync(string bucketName, string resourceFilename, bool saveAfterUpdate = true, Guid? userGuid = null)
     {
-        string bucketName = "default";
-        
         var resourceFilePath = _GetTestResourceFilePath(TestFilename);
 
         await using (var fileStream = new FileStream(resourceFilePath, FileMode.Open))
         {
-            await _contentRepositoryScoped.UploadStreamAsync(bucketName, resourceFilename, fileStream);
+            await _contentRepositoryScoped.UploadStreamAsync(bucketName, resourceFilename, fileStream,
+                userGuid: userGuid);
+            
             if (saveAfterUpdate)
             {
                 await _contentRepositoryScoped.DocumentSession.SaveChangesAsync();

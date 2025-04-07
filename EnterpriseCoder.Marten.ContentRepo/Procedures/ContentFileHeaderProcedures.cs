@@ -1,5 +1,6 @@
 ﻿using EnterpriseCoder.Marten.ContentRepo.Entities;
 using Marten;
+using Marten.Pagination;
 
 namespace EnterpriseCoder.Marten.ContentRepo.Procedures;
 
@@ -12,6 +13,16 @@ public class ContentFileHeaderProcedures
             .SingleOrDefaultAsync(x => x.BucketId == targetBucket.Id && x.FilePath == filePath.Path);
 
         return targetHeader;
+    }
+
+    public async Task<IPagedList<ContentFileHeader>> SelectByUserGuid(IDocumentSession documentSession,
+        ContentBucket targetBucket, Guid userGuid, int pageNumber, int pageSize)
+    {
+        IPagedList<ContentFileHeader> pageList = await documentSession.Query<ContentFileHeader>()
+            .Where(x => x.UserDataGuid == userGuid && x.BucketId == targetBucket.Id)
+            .ToPagedListAsync(pageNumber, pageSize);
+
+        return pageList;
     }
 
     public Task DeleteAsync(IDocumentSession documentSession, ContentFileHeader targetHeader)

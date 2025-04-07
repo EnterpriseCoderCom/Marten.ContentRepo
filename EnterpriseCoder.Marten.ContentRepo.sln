@@ -12,6 +12,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "TestingSetup", "TestingSetu
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EnterpriseCoder.Marten.ContentRepo.Di", "EnterpriseCoder.Marten.ContentRepo.Di\EnterpriseCoder.Marten.ContentRepo.Di.csproj", "{6A66A930-A2F2-45C1-811C-4A481422AD1B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EnterpriseCoder.Marten.ContentRepo.Cli", "EnterpriseCoder.Marten.ContentRepo.Cli\EnterpriseCoder.Marten.ContentRepo.Cli.csproj", "{C5305663-42AA-4BDA-A608-3E7013C9714C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -30,5 +32,9 @@ Global
 		{6A66A930-A2F2-45C1-811C-4A481422AD1B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6A66A930-A2F2-45C1-811C-4A481422AD1B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6A66A930-A2F2-45C1-811C-4A481422AD1B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C5305663-42AA-4BDA-A608-3E7013C9714C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C5305663-42AA-4BDA-A608-3E7013C9714C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C5305663-42AA-4BDA-A608-3E7013C9714C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C5305663-42AA-4BDA-A608-3E7013C9714C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

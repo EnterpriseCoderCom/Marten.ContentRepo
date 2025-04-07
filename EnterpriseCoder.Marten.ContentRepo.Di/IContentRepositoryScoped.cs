@@ -38,4 +38,8 @@ public interface IContentRepositoryScoped
         string bucketName, ContentRepositoryDirectory directory,
         int oneBasedPage, int pageSize,
         bool recursive = false);
+
+    Task<IList<ContentRepositoryFileInfo>> GetFileListingByUserGuidAsync(string bucketName, Guid userGuid,
+        int oneBasedPage, int pageSize);
+
 }

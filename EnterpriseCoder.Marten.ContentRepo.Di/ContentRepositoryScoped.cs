@@ -7,7 +7,7 @@ public class ContentRepositoryScoped : IContentRepositoryScoped
     private readonly IDocumentSession _documentSession;
     private readonly IContentRepository _contentRepository;
 
-    
+
     public ContentRepositoryScoped(IDocumentSession documentSession, IContentRepository contentRepository)
     {
         _documentSession = documentSession;
@@ -78,6 +78,13 @@ public class ContentRepositoryScoped : IContentRepositoryScoped
         return await _contentRepository.GetFileListingAsync(_documentSession, bucketName, directory, oneBasedPage,
             pageSize,
             recursive);
+    }
+
+    public async Task<IList<ContentRepositoryFileInfo>> GetFileListingByUserGuidAsync(string bucketName, Guid userGuid,
+        int oneBasedPage, int pageSize)
+    {
+        return await _contentRepository.GetFileListingByUserGuidAsync(_documentSession, bucketName, userGuid,
+            oneBasedPage, pageSize);
     }
 
     public IDocumentSession DocumentSession => _documentSession;

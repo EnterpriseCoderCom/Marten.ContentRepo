@@ -1,10 +1,7 @@
 ﻿
 # TODO
-* [ ] How to handle migrations. 
-* [ ] Async all the things.
-* [ ] Support for Streams for reading and writing.
-* [ ] Dependency Injection support
-* [ ] Manual setup support.
-* [ ] Use Microsoft logging for cross compatibility
-* [ ] How to add on to an existing Marten configuration.
-
+* [ ] Ability to select by user guid
+* [ ] Command line tool for dumping contents
+* [ ] Make sure Copy and Move preserve user data
+* [ ] Paged results need a better return type that gives page information.
+* [ ] Pre-compiled queries
