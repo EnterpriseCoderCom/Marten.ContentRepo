@@ -38,6 +38,6 @@ public interface IContentRepository
         int oneBasedPage, int pageSize,
         bool recursive = false);
 
-    Task<IList<ContentRepositoryFileInfo>> GetFileListingByUserGuidAsync(IDocumentSession documentSession,
+    Task<IList<ContentRepositoryFileInfo>> GetFileListingByUserDataGuidAsync(IDocumentSession documentSession,
         string bucketName, Guid userGuid, int oneBasedPage, int pageSize);
 }

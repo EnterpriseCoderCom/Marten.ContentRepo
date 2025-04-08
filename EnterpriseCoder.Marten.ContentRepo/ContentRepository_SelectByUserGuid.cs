@@ -7,7 +7,7 @@ namespace EnterpriseCoder.Marten.ContentRepo;
 
 public partial class ContentRepository
 {
-    public async Task<IList<ContentRepositoryFileInfo>> GetFileListingByUserGuidAsync(IDocumentSession documentSession,
+    public async Task<IList<ContentRepositoryFileInfo>> GetFileListingByUserDataGuidAsync(IDocumentSession documentSession,
         string bucketName, Guid userGuid, int oneBasedPage, int pageSize)
     {
         ContentBucket? targetBucket = await _contentBucketProcedures.SelectBucketAsync(documentSession, bucketName);
@@ -15,12 +15,14 @@ public partial class ContentRepository
         {
             throw new IOException($"Bucket {bucketName} not found");
         }
-        
-        IPagedList<ContentFileHeader> pageList = await _fileHeaderProcedures.SelectByUserGuid(documentSession, targetBucket, userGuid, oneBasedPage, pageSize);
+
+        IPagedList<ContentFileHeader> pageList =
+            await _fileHeaderProcedures.SelectByUserGuid(documentSession, targetBucket, userGuid, oneBasedPage,
+                pageSize);
 
         List<ContentRepositoryFileInfo> returnListing =
             new List<ContentRepositoryFileInfo>(pageList.Select(x => x.ToContentFileInfoDto()));
-        
+
         return returnListing;
     }
 }

@@ -83,7 +83,7 @@ public class ContentRepositoryScoped : IContentRepositoryScoped
     public async Task<IList<ContentRepositoryFileInfo>> GetFileListingByUserGuidAsync(string bucketName, Guid userGuid,
         int oneBasedPage, int pageSize)
     {
-        return await _contentRepository.GetFileListingByUserGuidAsync(_documentSession, bucketName, userGuid,
+        return await _contentRepository.GetFileListingByUserDataGuidAsync(_documentSession, bucketName, userGuid,
             oneBasedPage, pageSize);
     }
 
