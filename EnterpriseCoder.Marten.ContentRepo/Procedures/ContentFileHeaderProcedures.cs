@@ -1,4 +1,5 @@
-﻿using EnterpriseCoder.Marten.ContentRepo.Entities;
+﻿using EnterpriseCoder.Marten.ContentRepo.CompiledQueries;
+using EnterpriseCoder.Marten.ContentRepo.Entities;
 using Marten;
 using Marten.Pagination;
 
@@ -9,8 +10,11 @@ public class ContentFileHeaderProcedures
     public async Task<ContentFileHeader?> SelectAsync(IDocumentSession documentSession, ContentBucket targetBucket,
         ContentRepositoryFilePath filePath)
     {
-        ContentFileHeader? targetHeader = await documentSession.Query<ContentFileHeader>()
-            .SingleOrDefaultAsync(x => x.BucketId == targetBucket.Id && x.FilePath == filePath.Path);
+        ContentFileHeader? targetHeader = await documentSession.QueryAsync(new QuerySelectContentFileHeader()
+        {
+            BucketId = targetBucket.Id,
+            FilePath = filePath
+        });
 
         return targetHeader;
     }

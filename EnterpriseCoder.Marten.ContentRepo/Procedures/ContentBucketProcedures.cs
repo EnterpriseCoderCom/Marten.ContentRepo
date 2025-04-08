@@ -1,4 +1,5 @@
-﻿using EnterpriseCoder.Marten.ContentRepo.Entities;
+﻿using EnterpriseCoder.Marten.ContentRepo.CompiledQueries;
+using EnterpriseCoder.Marten.ContentRepo.Entities;
 using Marten;
 
 namespace EnterpriseCoder.Marten.ContentRepo.Procedures;
@@ -25,9 +26,9 @@ public class ContentBucketProcedures
         return newBucket;
     }
 
-    public Task<ContentBucket?> SelectBucketAsync(IDocumentSession session, string bucketName)
+    public async Task<ContentBucket?> SelectBucketAsync(IDocumentSession session, string bucketName)
     {
-        return session.Query<ContentBucket>().SingleOrDefaultAsync(x => x.BucketName == bucketName);
+        return await session.QueryAsync(new QuerySelectBucketByName() { BucketName = bucketName });
     }
     
     public async Task DeleteBucketAsync(IDocumentSession session, string bucketName)
