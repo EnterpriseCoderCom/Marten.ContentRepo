@@ -25,8 +25,8 @@ public interface IContentRepositoryScoped
     Task<ContentRepositoryFileInfo?> GetFileInfoAsync(string bucketName, ContentRepositoryFilePath filePath);
 
     Task RenameFileAsync(
-        string bucketName, ContentRepositoryFilePath oldFilePath,
-        ContentRepositoryFilePath newFilePath,
+        string oldBucketName, ContentRepositoryFilePath oldFilePath,
+        string newBucketName, ContentRepositoryFilePath newFilePath,
         bool overwriteDestination = false);
 
     Task CopyFileAsync(

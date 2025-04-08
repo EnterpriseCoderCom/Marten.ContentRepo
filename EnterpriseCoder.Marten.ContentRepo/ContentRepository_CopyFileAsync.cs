@@ -16,14 +16,14 @@ public partial class ContentRepository
         {
             throw new IOException($"Bucket {oldBucketName} not found");
         }
-        
+
         // Lookup the old resource
         var sourceHeader = await _fileHeaderProcedures.SelectAsync(documentSession, oldBucket, oldFilePath);
         if (sourceHeader == null)
         {
             throw new FileNotFoundException(oldFilePath);
         }
-        
+
         // Lookup and possibly create the new bucket.
         ContentBucket? newBucket = await _contentBucketProcedures.SelectBucketAsync(documentSession, newBucketName);
         if (newBucket is null && autoCreateNewBucket)
@@ -35,7 +35,7 @@ public partial class ContentRepository
         {
             throw new IOException($"Bucket {newBucketName} not found");
         }
-        
+
         // Lookup the new resource
         var targetHeader = await _fileHeaderProcedures.SelectAsync(documentSession, newBucket, newFilePath);
         if (targetHeader != null)
@@ -53,6 +53,7 @@ public partial class ContentRepository
             throw new ApplicationException($"Unable to load {nameof(oldFilePath)}");
         }
 
-        await UploadStreamAsync(documentSession, newBucketName, newFilePath, oldFileStream, autoCreateNewBucket, overwriteDestination);
+        await UploadStreamAsync(documentSession, newBucketName, newFilePath, oldFileStream, autoCreateNewBucket,
+            overwriteDestination, sourceHeader.UserDataGuid, sourceHeader.UserDataLong);
     }
 }

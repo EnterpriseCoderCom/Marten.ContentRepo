@@ -24,9 +24,9 @@ public interface IContentRepository
         string bucketName, ContentRepositoryFilePath filePath);
 
     Task RenameFileAsync(IDocumentSession documentSession,
-        string bucketName, ContentRepositoryFilePath oldFilePath,
-        ContentRepositoryFilePath newFilePath,
-        bool overwriteDestination = false);
+        string oldBucketName, ContentRepositoryFilePath oldFilePath,
+        string newBucketName, ContentRepositoryFilePath newFilePath,
+        bool replaceDestination = false);
 
     Task CopyFileAsync(IDocumentSession documentSession,
         string oldBucketName, ContentRepositoryFilePath oldFilePath,

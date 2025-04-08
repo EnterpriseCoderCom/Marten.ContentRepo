@@ -55,11 +55,12 @@ public class ContentRepositoryScoped : IContentRepositoryScoped
         return await _contentRepository.GetFileInfoAsync(_documentSession, bucketName, filePath);
     }
 
-    public async Task RenameFileAsync(string bucketName, ContentRepositoryFilePath oldFilePath,
-        ContentRepositoryFilePath newFilePath,
+    public async Task RenameFileAsync(
+        string oldBucketName, ContentRepositoryFilePath oldFilePath,
+        string newBucketName, ContentRepositoryFilePath newFilePath,
         bool overwriteDestination = false)
     {
-        await _contentRepository.RenameFileAsync(_documentSession, bucketName, oldFilePath, newFilePath,
+        await _contentRepository.RenameFileAsync(_documentSession, oldBucketName, oldFilePath, newBucketName, newFilePath,
             overwriteDestination);
     }
 
