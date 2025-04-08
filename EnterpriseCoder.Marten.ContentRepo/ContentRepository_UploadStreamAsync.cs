@@ -1,6 +1,7 @@
 ﻿using System.IO.Compression;
 using System.Security.Cryptography;
 using EnterpriseCoder.Marten.ContentRepo.Entities;
+using EnterpriseCoder.Marten.ContentRepo.Exceptions;
 using EnterpriseCoder.Marten.ContentRepo.Utility;
 using Marten;
 
@@ -8,8 +9,10 @@ namespace EnterpriseCoder.Marten.ContentRepo;
 
 public partial class ContentRepository
 {
-    public async Task UploadStreamAsync(IDocumentSession documentSession, string bucketName, ContentRepositoryFilePath filePath,
-        Stream inStream, bool autoCreateBucket = true, bool overwriteExisting = false, Guid? userGuid = null, long userValue = 0L)
+    public async Task UploadStreamAsync(IDocumentSession documentSession, string bucketName,
+        ContentRepositoryFilePath filePath,
+        Stream inStream, bool autoCreateBucket = true, bool overwriteExisting = false, Guid? userGuid = null,
+        long userValue = 0L)
     {
         // Make sure the bucket exists
         ContentBucket? targetBucket = await _contentBucketProcedures.SelectBucketAsync(documentSession, bucketName);
@@ -18,21 +21,20 @@ public partial class ContentRepository
             // Create the target bucket
             targetBucket = await _contentBucketProcedures.CreateBucketAsync(documentSession, bucketName);
         }
-        
+
         // If there's no targetBucket at this point, then we cannot continue.
         if (targetBucket is null)
         {
-            throw new IOException($"No such bucket: {bucketName}");
+            throw new BucketNotFoundException(bucketName);
         }
-        
+
         if (overwriteExisting is false)
         {
             // See if there's an existing item with the given filePath
             if (await FileExistsAsync(documentSession, bucketName, filePath))
             {
                 // There's an existing item with the same name...throw an IOException.
-                throw new IOException(
-                    $"File {filePath} already exists and {nameof(overwriteExisting)} is set to false.");
+                throw new OverwriteNotPermittedException(bucketName, filePath);
             }
         }
 

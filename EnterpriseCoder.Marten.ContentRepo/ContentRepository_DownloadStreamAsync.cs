@@ -1,5 +1,6 @@
 ﻿using System.IO.Compression;
 using EnterpriseCoder.Marten.ContentRepo.Entities;
+using EnterpriseCoder.Marten.ContentRepo.Exceptions;
 using EnterpriseCoder.Marten.ContentRepo.Utility;
 using Marten;
 
@@ -14,7 +15,7 @@ public partial class ContentRepository
         ContentBucket? targetBucket = await _contentBucketProcedures.SelectBucketAsync(documentSession, bucketName);
         if (targetBucket == null)
         {
-            throw new IOException($"Bucket {bucketName} not found");
+            throw new BucketNotFoundException(bucketName);
         }
         
         // Select the header for the given resource.
@@ -22,7 +23,7 @@ public partial class ContentRepository
         if (targetHeader is null)
         {
             // If there's no header, then there's no such resource.
-            throw new FileNotFoundException(filePath);
+            throw new ResourceNotFoundException(bucketName, filePath);
         }
 
         // Create a temporary filename to write into as we load the file from the database

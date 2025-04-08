@@ -1,4 +1,5 @@
 ﻿using EnterpriseCoder.Marten.ContentRepo.Entities;
+using EnterpriseCoder.Marten.ContentRepo.Exceptions;
 using Marten;
 
 namespace EnterpriseCoder.Marten.ContentRepo;
@@ -14,14 +15,14 @@ public partial class ContentRepository
         ContentBucket? oldBucket = await _contentBucketProcedures.SelectBucketAsync(documentSession, oldBucketName);
         if (oldBucket is null)
         {
-            throw new IOException($"Bucket {oldBucketName} not found");
+            throw new BucketNotFoundException(oldBucketName);
         }
 
         // Lookup the old resource
         var sourceHeader = await _fileHeaderProcedures.SelectAsync(documentSession, oldBucket, oldFilePath);
         if (sourceHeader == null)
         {
-            throw new FileNotFoundException(oldFilePath);
+            throw new ResourceNotFoundException(oldBucketName, oldFilePath);
         }
 
         // Lookup and possibly create the new bucket.
@@ -33,7 +34,7 @@ public partial class ContentRepository
 
         if (newBucket is null)
         {
-            throw new IOException($"Bucket {newBucketName} not found");
+            throw new BucketNotFoundException(newBucketName);
         }
 
         // Lookup the new resource
@@ -42,7 +43,7 @@ public partial class ContentRepository
         {
             if (!overwriteDestination)
             {
-                throw new IOException($"File {newFilePath} exists and {nameof(overwriteDestination)} is set to false.");
+                throw new OverwriteNotPermittedException(newBucketName, newFilePath);
             }
         }
 

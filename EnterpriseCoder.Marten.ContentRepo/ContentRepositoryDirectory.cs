@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using EnterpriseCoder.Marten.ContentRepo.Exceptions;
 using EnterpriseCoder.Marten.ContentRepo.Utility;
 
 namespace EnterpriseCoder.Marten.ContentRepo;
@@ -22,13 +23,13 @@ public class ContentRepositoryDirectory : IComparable<ContentRepositoryDirectory
         {
             if (_resourcePath == "/")
             {
-                throw new ArgumentException($"Already at root...unable to get parent.");
+                throw new InvalidPathException("Already at root...unable to get parent.");
             }
 
             int lastSlashPos = Path.LastIndexOf('/');
             if (lastSlashPos == -1)
             {
-                throw new ArgumentException($"Already at root...unable to get parent.");
+                throw new InvalidPathException("Already at root...unable to get parent.");
             }
 
             string returnString = _resourcePath.Substring(0, lastSlashPos);

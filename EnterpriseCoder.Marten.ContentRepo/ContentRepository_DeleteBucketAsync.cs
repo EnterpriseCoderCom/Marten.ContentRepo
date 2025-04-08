@@ -1,4 +1,5 @@
 ﻿using EnterpriseCoder.Marten.ContentRepo.Entities;
+using EnterpriseCoder.Marten.ContentRepo.Exceptions;
 using Marten;
 
 namespace EnterpriseCoder.Marten.ContentRepo;
@@ -18,8 +19,7 @@ public partial class ContentRepository
         bool hasContent = await documentSession.Query<ContentFileHeader>().AnyAsync(x => x.BucketId == targetBucket.Id);
         if (hasContent && force == false)
         {
-            throw new IOException(
-                $"The Bucket {bucketName} is not empty and cannot be deleted.  Or use force = true on the argument list to {nameof(DeleteBucketAsync)}");
+            throw new DeleteFailureException(bucketName, "*");
         }
 
         // Destroy all content in the bucket...

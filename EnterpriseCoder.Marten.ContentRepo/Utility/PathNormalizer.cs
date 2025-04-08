@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using EnterpriseCoder.Marten.ContentRepo.Exceptions;
 
 namespace EnterpriseCoder.Marten.ContentRepo.Utility;
 
@@ -8,7 +9,7 @@ public static class PathNormalizer
     {
         if (string.IsNullOrWhiteSpace(path))
         {
-            throw new ArgumentException("Invalid path", nameof(path));
+            throw new InvalidPathException("Null or empty path");
         }
 
         List<string> buildParts = new List<string>();
@@ -32,7 +33,7 @@ public static class PathNormalizer
             {
                 if (buildParts.Count == 0)
                 {
-                    throw new ArgumentException("Unable to get parent when already at root directory.");
+                    throw new InvalidPathException("Unable to get parent when already at root directory.");
                 }
 
                 // Delete the last directory in the buildParts list.
@@ -67,7 +68,7 @@ public static class PathNormalizer
     {
         if (string.IsNullOrWhiteSpace(path))
         {
-            throw new ArgumentException("Invalid path", nameof(path));
+            throw new InvalidPathException("Null or empty path");
         }
        
         List<string> buildParts = new List<string>();
@@ -84,7 +85,7 @@ public static class PathNormalizer
 
             if (workPathPart == "." || workPathPart == "..")
             {
-                throw new ArgumentException($"{nameof(SplitPath)} does not process relative directory information.");
+                throw new InvalidCastException($"{nameof(SplitPath)} does not support relative directory information.");
             }
 
             buildParts.Add(workPathPart);

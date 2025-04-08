@@ -1,5 +1,6 @@
 ﻿using EnterpriseCoder.Marten.ContentRepo.DtoMapping;
 using EnterpriseCoder.Marten.ContentRepo.Entities;
+using EnterpriseCoder.Marten.ContentRepo.Exceptions;
 using Marten;
 using Marten.Pagination;
 
@@ -13,7 +14,7 @@ public partial class ContentRepository
         ContentBucket? targetBucket = await _contentBucketProcedures.SelectBucketAsync(documentSession, bucketName);
         if (targetBucket == null)
         {
-            throw new IOException($"Bucket {bucketName} not found");
+            throw new BucketNotFoundException(bucketName);
         }
 
         IPagedList<ContentFileHeader> pageList =

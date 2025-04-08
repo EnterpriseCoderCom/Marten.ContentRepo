@@ -1,4 +1,5 @@
-﻿using EnterpriseCoder.Marten.ContentRepo.Utility;
+﻿using EnterpriseCoder.Marten.ContentRepo.Exceptions;
+using EnterpriseCoder.Marten.ContentRepo.Utility;
 
 namespace EnterpriseCoder.Marten.ContentRepo;
 
@@ -11,7 +12,7 @@ public sealed class ContentRepositoryFilePath : IComparable<ContentRepositoryFil
         ArgumentNullException.ThrowIfNull(resourcePath);
         if (resourcePath.Trim() == "/")
         {
-            throw new ArgumentException("Invalid path", nameof(resourcePath));
+            throw new InvalidPathException(resourcePath);
         }
 
         _resourcePath = PathNormalizer.NormalizePath(resourcePath);
@@ -63,7 +64,7 @@ public sealed class ContentRepositoryFilePath : IComparable<ContentRepositoryFil
             int lastSlashPos = Path.LastIndexOf('/');
             if (lastSlashPos == -1)
             {
-                throw new ArgumentException($"Already at root, unable to get parent.");
+                throw new InvalidPathException("Already at root, unable to get parent.");
             }
 
             string returnString = _resourcePath.Substring(lastSlashPos + 1);
@@ -93,7 +94,7 @@ public sealed class ContentRepositoryFilePath : IComparable<ContentRepositoryFil
             int lastDotPosition = Path.LastIndexOf('.');
             if (lastDotPosition == -1)
             {
-                throw new ArgumentException($"Could not find file extension.");
+                throw new InvalidPathException("Could not find file extension.");
             }
 
             string returnString = _resourcePath.Substring(lastDotPosition);
@@ -108,7 +109,7 @@ public sealed class ContentRepositoryFilePath : IComparable<ContentRepositoryFil
             int lastSlashPos = Path.LastIndexOf('/');
             if (lastSlashPos == -1)
             {
-                throw new ArgumentException($"Already at root, unable to get parent.");
+                throw new InvalidPathException("Already at root, unable to get parent.");
             }
 
             string returnString = _resourcePath.Substring(0, lastSlashPos);
