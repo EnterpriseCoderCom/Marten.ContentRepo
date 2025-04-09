@@ -5,9 +5,7 @@ namespace EnterpriseCoder.Marten.ContentRepo.Entities;
 
 public class ContentBucket
 {
-    [Identity]
-    public Guid Id { get; set; } = Uuid.NewDatabaseFriendly(Database.PostgreSql);
+    [Identity] public Guid Id { get; set; } = Uuid.NewDatabaseFriendly(Database.PostgreSql);
 
-    [UniqueIndex] 
-    public string BucketName { get; set; } = string.Empty;
+    [UniqueIndex] public string BucketName { get; set; } = string.Empty;
 }

@@ -3,8 +3,9 @@
 public class AutoDeleteReadFileStream : FileStream
 {
     private readonly string _tempFilePath;
-    
-    public AutoDeleteReadFileStream(string tempFilename) : base(tempFilename, FileMode.Open, FileAccess.Read, FileShare.None)
+
+    public AutoDeleteReadFileStream(string tempFilename) : base(tempFilename, FileMode.Open, FileAccess.Read,
+        FileShare.None)
     {
         _tempFilePath = tempFilename;
     }

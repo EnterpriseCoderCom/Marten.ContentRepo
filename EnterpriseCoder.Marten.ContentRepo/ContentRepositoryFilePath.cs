@@ -18,10 +18,26 @@ public sealed class ContentRepositoryFilePath : IComparable<ContentRepositoryFil
         _resourcePath = PathNormalizer.NormalizePath(resourcePath);
     }
 
+    #region IComparable<ContentFilePath> Members
+
+    public int CompareTo(ContentRepositoryFilePath? other)
+    {
+        return string.Compare(_resourcePath, other?._resourcePath, StringComparison.Ordinal);
+    }
+
+    #endregion
+
     #region Implicit Operators
 
-    public static implicit operator string(ContentRepositoryFilePath contentRepositoryFilePath) => contentRepositoryFilePath.Path;
-    public static implicit operator ContentRepositoryFilePath(string resourcePath) => new(resourcePath);
+    public static implicit operator string(ContentRepositoryFilePath contentRepositoryFilePath)
+    {
+        return contentRepositoryFilePath.Path;
+    }
+
+    public static implicit operator ContentRepositoryFilePath(string resourcePath)
+    {
+        return new ContentRepositoryFilePath(resourcePath);
+    }
 
     #endregion
 
@@ -34,21 +50,12 @@ public sealed class ContentRepositoryFilePath : IComparable<ContentRepositoryFil
 
     public override bool Equals(object? obj)
     {
-        return ReferenceEquals(this, obj) || obj is ContentRepositoryFilePath other && Equals(other);
+        return ReferenceEquals(this, obj) || (obj is ContentRepositoryFilePath other && Equals(other));
     }
 
     public override int GetHashCode()
     {
         return _resourcePath.GetHashCode();
-    }
-
-    #endregion
-
-    #region IComparable<ContentFilePath> Members
-
-    public int CompareTo(ContentRepositoryFilePath? other)
-    {
-        return string.Compare(_resourcePath, other?._resourcePath, StringComparison.Ordinal);
     }
 
     #endregion
@@ -61,13 +68,13 @@ public sealed class ContentRepositoryFilePath : IComparable<ContentRepositoryFil
     {
         get
         {
-            int lastSlashPos = Path.LastIndexOf('/');
+            var lastSlashPos = Path.LastIndexOf('/');
             if (lastSlashPos == -1)
             {
                 throw new InvalidPathException("Already at root, unable to get parent.");
             }
 
-            string returnString = _resourcePath.Substring(lastSlashPos + 1);
+            var returnString = _resourcePath.Substring(lastSlashPos + 1);
             return returnString;
         }
     }
@@ -76,8 +83,8 @@ public sealed class ContentRepositoryFilePath : IComparable<ContentRepositoryFil
     {
         get
         {
-            string fullFilename = Filename;
-            int lastDotPos = fullFilename.LastIndexOf('.');
+            var fullFilename = Filename;
+            var lastDotPos = fullFilename.LastIndexOf('.');
             if (lastDotPos != -1)
             {
                 return fullFilename.Substring(0, lastDotPos);
@@ -91,13 +98,13 @@ public sealed class ContentRepositoryFilePath : IComparable<ContentRepositoryFil
     {
         get
         {
-            int lastDotPosition = Path.LastIndexOf('.');
+            var lastDotPosition = Path.LastIndexOf('.');
             if (lastDotPosition == -1)
             {
                 throw new InvalidPathException("Could not find file extension.");
             }
 
-            string returnString = _resourcePath.Substring(lastDotPosition);
+            var returnString = _resourcePath.Substring(lastDotPosition);
             return returnString;
         }
     }
@@ -106,13 +113,13 @@ public sealed class ContentRepositoryFilePath : IComparable<ContentRepositoryFil
     {
         get
         {
-            int lastSlashPos = Path.LastIndexOf('/');
+            var lastSlashPos = Path.LastIndexOf('/');
             if (lastSlashPos == -1)
             {
                 throw new InvalidPathException("Already at root, unable to get parent.");
             }
 
-            string returnString = _resourcePath.Substring(0, lastSlashPos);
+            var returnString = _resourcePath.Substring(0, lastSlashPos);
             if (returnString.Length == 0)
             {
                 returnString = "/";

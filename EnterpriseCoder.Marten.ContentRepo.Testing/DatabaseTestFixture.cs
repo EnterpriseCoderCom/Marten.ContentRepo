@@ -9,13 +9,11 @@ namespace EnterpriseCoder.Marten.ContentRepo.Testing;
 // ReSharper disable once ClassNeverInstantiated.Global
 public class DatabaseTestFixture : IDisposable
 {
-    public IServiceProvider ServiceProvider { get; private set; }
-    
     public DatabaseTestFixture()
     {
         var services = new ServiceCollection();
 
-        NpgsqlConnectionStringBuilder connectionBuilder = new NpgsqlConnectionStringBuilder
+        var connectionBuilder = new NpgsqlConnectionStringBuilder
         {
             Host = "localhost",
             Database = "postgres",
@@ -36,11 +34,13 @@ public class DatabaseTestFixture : IDisposable
         });
         services.AddMartenContentRepo();
         services.AddSingleton<DatabaseHelper>();
-        
+
         ServiceProvider = services.BuildServiceProvider();
     }
-    
-    
+
+    public IServiceProvider ServiceProvider { get; private set; }
+
+
     public void Dispose()
     {
         // Force release all connections.

@@ -1,5 +1,4 @@
-﻿using EnterpriseCoder.Marten.ContentRepo.Entities;
-using EnterpriseCoder.Marten.ContentRepo.Exceptions;
+﻿using EnterpriseCoder.Marten.ContentRepo.Exceptions;
 using Marten;
 
 namespace EnterpriseCoder.Marten.ContentRepo;
@@ -12,7 +11,7 @@ public partial class ContentRepository
         bool autoCreateNewBucket = true, bool overwriteDestination = false)
     {
         // Get the old bucket
-        ContentBucket? oldBucket = await _contentBucketProcedures.SelectBucketAsync(documentSession, oldBucketName);
+        var oldBucket = await _contentBucketProcedures.SelectBucketAsync(documentSession, oldBucketName);
         if (oldBucket is null)
         {
             throw new BucketNotFoundException(oldBucketName);
@@ -26,7 +25,7 @@ public partial class ContentRepository
         }
 
         // Lookup and possibly create the new bucket.
-        ContentBucket? newBucket = await _contentBucketProcedures.SelectBucketAsync(documentSession, newBucketName);
+        var newBucket = await _contentBucketProcedures.SelectBucketAsync(documentSession, newBucketName);
         if (newBucket is null && autoCreateNewBucket)
         {
             newBucket = await _contentBucketProcedures.CreateBucketAsync(documentSession, newBucketName);

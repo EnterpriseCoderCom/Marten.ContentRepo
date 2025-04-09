@@ -8,8 +8,8 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="Marten" Version="7.39.5" />
-      <PackageReference Include="UUIDNext" Version="4.1.1" />
+        <PackageReference Include="Marten" Version="7.39.5"/>
+        <PackageReference Include="UUIDNext" Version="4.1.1"/>
     </ItemGroup>
 
 </Project>

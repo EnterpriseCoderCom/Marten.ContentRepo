@@ -13,14 +13,14 @@ public partial class ContentRepository
     {
         // Convert the incoming directory to a string
         string directoryString = directory;
-        
+
         // Lookup the bucket
-        ContentBucket? targetBucket = await _contentBucketProcedures.SelectBucketAsync(documentSession, bucketName);
+        var targetBucket = await _contentBucketProcedures.SelectBucketAsync(documentSession, bucketName);
         if (targetBucket is null)
         {
             return Array.Empty<ContentRepositoryFileInfo>();
         }
-        
+
         IQueryable<ContentFileHeader> baseQuery = documentSession.Query<ContentFileHeader>();
         if (recursive)
         {

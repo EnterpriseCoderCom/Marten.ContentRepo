@@ -6,7 +6,7 @@ public static class ContentFileHeaderExtensions
 {
     public static ContentRepositoryFileInfo ToContentFileInfoDto(this ContentFileHeader inHeader)
     {
-        return new ContentRepositoryFileInfo()
+        return new ContentRepositoryFileInfo
         {
             FilePath = inHeader.FilePath,
             StoredLength = inHeader.StoredLength,

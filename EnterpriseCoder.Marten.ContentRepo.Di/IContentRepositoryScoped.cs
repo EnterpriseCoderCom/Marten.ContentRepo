@@ -7,9 +7,9 @@ public interface IContentRepositoryScoped
     IDocumentSession DocumentSession { get; }
 
     Task CreateBucketAsync(string bucketName);
-    
+
     Task DeleteBucketAsync(string bucketName, bool force = false);
-    
+
     Task UploadStreamAsync(string bucketName, ContentRepositoryFilePath filePath,
         Stream inStream, bool autoCreateBucket = true,
         bool overwriteExisting = false,
@@ -17,9 +17,9 @@ public interface IContentRepositoryScoped
 
     Task<Stream?> DownloadStreamAsync(string bucketName,
         ContentRepositoryFilePath filePath);
-    
+
     Task<bool> FileExistsAsync(string bucketName, ContentRepositoryFilePath filePath);
-    
+
     Task DeleteFileAsync(string bucketName, ContentRepositoryFilePath filePath);
 
     Task<ContentRepositoryFileInfo?> GetFileInfoAsync(string bucketName, ContentRepositoryFilePath filePath);
@@ -41,5 +41,4 @@ public interface IContentRepositoryScoped
 
     Task<IList<ContentRepositoryFileInfo>> GetFileListingByUserGuidAsync(string bucketName, Guid userGuid,
         int oneBasedPage, int pageSize);
-
 }

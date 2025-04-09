@@ -1,23 +1,22 @@
-﻿using EnterpriseCoder.Marten.ContentRepo.Entities;
-using EnterpriseCoder.Marten.ContentRepo.Exceptions;
+﻿using EnterpriseCoder.Marten.ContentRepo.Exceptions;
 using Marten;
 
 namespace EnterpriseCoder.Marten.ContentRepo;
 
 public partial class ContentRepository
 {
-    public async Task RenameFileAsync(IDocumentSession documentSession, 
+    public async Task RenameFileAsync(IDocumentSession documentSession,
         string oldBucketName, ContentRepositoryFilePath oldFilePath,
         string newBucketName, ContentRepositoryFilePath newFilePath,
         bool replaceDestination = false)
     {
         // Lookup the bucket
-        ContentBucket? targetBucket = await _contentBucketProcedures.SelectBucketAsync(documentSession, oldBucketName);
+        var targetBucket = await _contentBucketProcedures.SelectBucketAsync(documentSession, oldBucketName);
         if (targetBucket == null)
         {
             throw new BucketNotFoundException(oldBucketName);
         }
-        
+
         // Lookup the old resource
         var sourceHeader = await _fileHeaderProcedures.SelectAsync(documentSession, targetBucket, oldFilePath);
         if (sourceHeader == null)
@@ -26,12 +25,12 @@ public partial class ContentRepository
         }
 
         // Lookup the new bucket
-        ContentBucket? newBucket = await _contentBucketProcedures.SelectBucketAsync(documentSession, newBucketName);
+        var newBucket = await _contentBucketProcedures.SelectBucketAsync(documentSession, newBucketName);
         if (newBucket == null)
         {
             throw new BucketNotFoundException(newBucketName);
         }
-        
+
         // Lookup the new resource
         var targetHeader = await _fileHeaderProcedures.SelectAsync(documentSession, targetBucket, newFilePath);
         if (targetHeader != null)

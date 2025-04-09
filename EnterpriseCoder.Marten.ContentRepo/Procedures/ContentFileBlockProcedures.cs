@@ -17,7 +17,7 @@ public class ContentFileBlockProcedures
             .Where(x => x.ParentFileHeaderId == targetHeader.Id)
             .OrderBy(x => x.BlockSequenceNumber)
             .ToAsyncEnumerable();
-        
+
         return blockResults;
     }
 

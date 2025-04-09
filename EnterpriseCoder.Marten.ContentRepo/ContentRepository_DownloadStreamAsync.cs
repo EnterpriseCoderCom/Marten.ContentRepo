@@ -1,5 +1,4 @@
 ﻿using System.IO.Compression;
-using EnterpriseCoder.Marten.ContentRepo.Entities;
 using EnterpriseCoder.Marten.ContentRepo.Exceptions;
 using EnterpriseCoder.Marten.ContentRepo.Utility;
 using Marten;
@@ -12,12 +11,12 @@ public partial class ContentRepository
         ContentRepositoryFilePath filePath)
     {
         // Lookup the target bucket 
-        ContentBucket? targetBucket = await _contentBucketProcedures.SelectBucketAsync(documentSession, bucketName);
+        var targetBucket = await _contentBucketProcedures.SelectBucketAsync(documentSession, bucketName);
         if (targetBucket == null)
         {
             throw new BucketNotFoundException(bucketName);
         }
-        
+
         // Select the header for the given resource.
         var targetHeader = await _fileHeaderProcedures.SelectAsync(documentSession, targetBucket, filePath);
         if (targetHeader is null)
@@ -28,11 +27,11 @@ public partial class ContentRepository
 
         // Create a temporary filename to write into as we load the file from the database
         // block by block.
-        string tempFilename = Path.GetTempFileName();
+        var tempFilename = Path.GetTempFileName();
         try
         {
             // Open the temp file...
-            using (FileStream tempStream = File.OpenWrite(tempFilename))
+            using (var tempStream = File.OpenWrite(tempFilename))
             {
                 // Read the blocks using an IAsyncEnumerable so we aren't reading all block
                 // information into memory in one shot.
@@ -50,7 +49,7 @@ public partial class ContentRepository
             FileStream rereadStream = new AutoDeleteReadFileStream(tempFilename);
 
             // Wrap the rereadStream in a  gzip decompressing stream.
-            GZipStream unzipStream = new GZipStream(rereadStream, CompressionMode.Decompress);
+            var unzipStream = new GZipStream(rereadStream, CompressionMode.Decompress);
 
             return unzipStream;
         }

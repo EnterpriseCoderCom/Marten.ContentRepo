@@ -18,7 +18,7 @@ public static class PathNormalizer
 
         foreach (var nextPathPart in pathParts)
         {
-            string workPathPart = nextPathPart.Trim();
+            var workPathPart = nextPathPart.Trim();
             if (string.IsNullOrEmpty(workPathPart))
             {
                 continue;
@@ -47,7 +47,7 @@ public static class PathNormalizer
         // ================================================================================
         // Assembly the parts into a slash separated string.
         // ================================================================================
-        StringBuilder returnPath = new StringBuilder();
+        var returnPath = new StringBuilder();
 
         foreach (var nextPathPart in buildParts)
         {
@@ -55,7 +55,7 @@ public static class PathNormalizer
             returnPath.Append(nextPathPart);
         }
 
-        string finalPath = returnPath.ToString();
+        var finalPath = returnPath.ToString();
         if (string.IsNullOrEmpty(finalPath))
         {
             finalPath = "/";
@@ -70,14 +70,14 @@ public static class PathNormalizer
         {
             throw new InvalidPathException("Null or empty path");
         }
-       
-        List<string> buildParts = new List<string>();
 
-        List<string> pathParts = path.Replace('\\', '/').Split('/').ToList();
+        var buildParts = new List<string>();
+
+        var pathParts = path.Replace('\\', '/').Split('/').ToList();
 
         foreach (var nextPathPart in pathParts)
         {
-            string workPathPart = nextPathPart.Trim();
+            var workPathPart = nextPathPart.Trim();
             if (string.IsNullOrEmpty(workPathPart))
             {
                 continue;
@@ -90,7 +90,7 @@ public static class PathNormalizer
 
             buildParts.Add(workPathPart);
         }
-        
+
         return buildParts.ToArray();
     }
 }

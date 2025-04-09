@@ -6,6 +6,7 @@ namespace EnterpriseCoder.Marten.ContentRepo.Testing;
 public class DatabaseHelper
 {
     private readonly IDocumentSession _session;
+
     public DatabaseHelper(IDocumentSession session)
     {
         _session = session;

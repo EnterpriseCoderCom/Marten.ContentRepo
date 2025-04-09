@@ -1,5 +1,4 @@
 ﻿using EnterpriseCoder.Marten.ContentRepo.DtoMapping;
-using EnterpriseCoder.Marten.ContentRepo.Entities;
 using Marten;
 
 namespace EnterpriseCoder.Marten.ContentRepo;
@@ -10,7 +9,7 @@ public partial class ContentRepository
         string bucketName, ContentRepositoryFilePath filePath)
     {
         // Lookup the target bucket
-        ContentBucket? targetBucket = await _contentBucketProcedures.SelectBucketAsync(documentSession, bucketName);
+        var targetBucket = await _contentBucketProcedures.SelectBucketAsync(documentSession, bucketName);
         if (targetBucket == null)
         {
             return null;

@@ -1,14 +1,16 @@
-﻿namespace EnterpriseCoder.Marten.ContentRepo.Testing;
+﻿using EnterpriseCoder.Marten.ContentRepo.Exceptions;
+
+namespace EnterpriseCoder.Marten.ContentRepo.Testing;
 
 public class ContentRepositoryFilePathTests
 {
     [Fact]
     public void AllTests()
     {
-        Assert.Throws<ArgumentException>(() => new ContentRepositoryFilePath(""));
-        Assert.Throws<ArgumentException>(() => new ContentRepositoryFilePath("/"));
+        Assert.Throws<InvalidPathException>(() => new ContentRepositoryFilePath(""));
+        Assert.Throws<InvalidPathException>(() => new ContentRepositoryFilePath("/"));
 
-        ContentRepositoryFilePath path = new ContentRepositoryFilePath("test.dat");
+        var path = new ContentRepositoryFilePath("test.dat");
         Assert.Equal("/", path.Directory);
         Assert.Equal("/test.dat", path.Path);
         Assert.Equal("test.dat", path.Filename);
@@ -28,5 +30,5 @@ public class ContentRepositoryFilePathTests
         Assert.Equal("test.dat", path.Filename);
         Assert.Equal("test", path.FilenameNoExtension);
         Assert.Equal(".dat", path.FileExtension);
-    }    
+    }
 }

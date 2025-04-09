@@ -1,21 +1,21 @@
 using System.Reflection;
 using System.Security.Cryptography;
 using EnterpriseCoder.Marten.ContentRepo.Di;
+using EnterpriseCoder.Marten.ContentRepo.Exceptions;
 using Microsoft.Extensions.DependencyInjection;
-using Weasel.Postgresql.Tables.Indexes;
 using Xunit.Abstractions;
 
 namespace EnterpriseCoder.Marten.ContentRepo.Testing;
 
 public class ContentRepositoryScopedTests : IClassFixture<DatabaseTestFixture>
 {
-    private readonly ITestOutputHelper _output;
     private const string TestFilename = "angrybird.png";
     private const string TestResourcePath = "/resources/angrybird.png";
     private const int TestBlockCount = 8;
 
     private readonly IContentRepositoryScoped _contentRepositoryScoped;
     private readonly DatabaseHelper _databaseHelper;
+    private readonly ITestOutputHelper _output;
 
     public ContentRepositoryScopedTests(DatabaseTestFixture databaseFixture, ITestOutputHelper output)
     {
@@ -27,7 +27,7 @@ public class ContentRepositoryScopedTests : IClassFixture<DatabaseTestFixture>
     [Fact]
     public async Task UploadAndRetrieve()
     {
-        string bucketName = "default";
+        var bucketName = "default";
 
         // ===================================================================================
         // Clear the database tables.
@@ -55,7 +55,7 @@ public class ContentRepositoryScopedTests : IClassFixture<DatabaseTestFixture>
         // ===================================================================================
         await using (var fileStream = new FileStream(resourceFilePath, FileMode.Open))
         {
-            await Assert.ThrowsAsync<IOException>(async () =>
+            await Assert.ThrowsAsync<OverwriteNotPermittedException>(async () =>
                 await _contentRepositoryScoped.UploadStreamAsync(bucketName, TestResourcePath, fileStream));
             _contentRepositoryScoped.DocumentSession.EjectAllPendingChanges();
         }
@@ -64,20 +64,20 @@ public class ContentRepositoryScopedTests : IClassFixture<DatabaseTestFixture>
         // Read the saved data back out of the grid file system and ensure that the SHA256's
         // match to ensure data integrity
         // ===================================================================================
-        await using Stream? readStream =
+        await using var readStream =
             await _contentRepositoryScoped.DownloadStreamAsync(bucketName, TestResourcePath);
         Assert.NotNull(readStream);
 
         // Generate a sha256 for the stream that comes out of the database.
         byte[] rereadSha256;
-        using (SHA256 sha256Hash = SHA256.Create())
+        using (var sha256Hash = SHA256.Create())
         {
             rereadSha256 = await sha256Hash.ComputeHashAsync(readStream!);
         }
 
         // Get the file information from the database and ensure that the stored 
         // SHA256 matches.
-        ContentRepositoryFileInfo? fileInfo =
+        var fileInfo =
             await _contentRepositoryScoped.GetFileInfoAsync(bucketName, TestResourcePath);
         Assert.NotNull(fileInfo);
 
@@ -85,10 +85,10 @@ public class ContentRepositoryScopedTests : IClassFixture<DatabaseTestFixture>
         Assert.Equal(rereadSha256, fileInfo!.Sha256);
 
         // Now load the original resource and get it's SHa256.
-        await using (FileStream resourceStream = new FileStream(resourceFilePath, FileMode.Open))
+        await using (var resourceStream = new FileStream(resourceFilePath, FileMode.Open))
         {
             byte[] originalSha;
-            using (SHA256 sha256Hash = SHA256.Create())
+            using (var sha256Hash = SHA256.Create())
             {
                 originalSha = await sha256Hash.ComputeHashAsync(resourceStream);
             }
@@ -100,7 +100,7 @@ public class ContentRepositoryScopedTests : IClassFixture<DatabaseTestFixture>
     [Fact]
     public async Task UploadAndDeleteFile()
     {
-        string bucketName = "default";
+        var bucketName = "default";
 
         await _databaseHelper.ClearDatabaseAsync();
 
@@ -121,7 +121,7 @@ public class ContentRepositoryScopedTests : IClassFixture<DatabaseTestFixture>
     [Fact]
     public async Task RenameFileTest()
     {
-        string bucketName = "default";
+        var bucketName = "default";
 
         await _databaseHelper.ClearDatabaseAsync();
 
@@ -138,7 +138,7 @@ public class ContentRepositoryScopedTests : IClassFixture<DatabaseTestFixture>
     [Fact]
     public async Task OverwriteTest()
     {
-        string bucketName = "default";
+        var bucketName = "default";
 
         await _databaseHelper.ClearDatabaseAsync();
 
@@ -161,7 +161,7 @@ public class ContentRepositoryScopedTests : IClassFixture<DatabaseTestFixture>
     [Fact]
     public async Task CopyTest()
     {
-        string bucketName = "default";
+        var bucketName = "default";
 
         await _databaseHelper.ClearDatabaseAsync();
 
@@ -171,21 +171,21 @@ public class ContentRepositoryScopedTests : IClassFixture<DatabaseTestFixture>
         Assert.Equal(TestBlockCount, await _databaseHelper.CountBlocksAsync());
 
         await _contentRepositoryScoped.CopyFileAsync(bucketName, TestResourcePath, bucketName,
-            "/newPath/anotherBird.png", true);
+            "/newPath/anotherBird.png");
 
         await _contentRepositoryScoped.DocumentSession.SaveChangesAsync();
 
         Assert.Equal(2, await _databaseHelper.CountHeadersAsync());
         Assert.Equal(TestBlockCount * 2, await _databaseHelper.CountBlocksAsync());
 
-        await Assert.ThrowsAsync<IOException>(async () =>
+        await Assert.ThrowsAsync<OverwriteNotPermittedException>(async () =>
             await _contentRepositoryScoped.CopyFileAsync(bucketName, TestResourcePath, bucketName, TestResourcePath));
     }
 
     [Fact]
     public async Task DeleteBucketTest()
     {
-        string bucketName = "default";
+        var bucketName = "default";
 
         await _databaseHelper.ClearDatabaseAsync();
 
@@ -197,7 +197,7 @@ public class ContentRepositoryScopedTests : IClassFixture<DatabaseTestFixture>
         {
             foreach (var j in Enumerable.Range(1, subItemCount))
             {
-                string path = $"/directory/subdirectory{i}/item{j}.png";
+                var path = $"/directory/subdirectory{i}/item{j}.png";
                 await _UploadTestResourceAsync(bucketName, path, false);
             }
         }
@@ -217,7 +217,7 @@ public class ContentRepositoryScopedTests : IClassFixture<DatabaseTestFixture>
     [Fact]
     public async Task FileListingRecursiveTest()
     {
-        string bucketName = "default";
+        var bucketName = "default";
 
         await _databaseHelper.ClearDatabaseAsync();
 
@@ -231,7 +231,7 @@ public class ContentRepositoryScopedTests : IClassFixture<DatabaseTestFixture>
         {
             foreach (var j in Enumerable.Range(1, subItemCount))
             {
-                string path = $"/directory/subdirectory{i}/item{j}.png";
+                var path = $"/directory/subdirectory{i}/item{j}.png";
 
                 masterTrackingSet.Add(path);
                 await _UploadTestResourceAsync(bucketName, path, false);
@@ -269,7 +269,7 @@ public class ContentRepositoryScopedTests : IClassFixture<DatabaseTestFixture>
     [Fact]
     public async Task FileListingTest()
     {
-        string bucketName = "default";
+        var bucketName = "default";
 
         await _databaseHelper.ClearDatabaseAsync();
 
@@ -292,7 +292,7 @@ public class ContentRepositoryScopedTests : IClassFixture<DatabaseTestFixture>
         // ===================================================================================
         // Get a listing for the files that we uploaded.  Get them all at once.
         // ===================================================================================
-        HashSet<string> compareSet = new HashSet<string>(masterTrackingSet);
+        var compareSet = new HashSet<string>(masterTrackingSet);
         var fileListing = await _contentRepositoryScoped.GetFileListingAsync(
             bucketName, "/directory", 1, 200);
 
@@ -308,8 +308,8 @@ public class ContentRepositoryScopedTests : IClassFixture<DatabaseTestFixture>
         // Do the same thing again, but get them in sets of 25
         // ===================================================================================
         compareSet = new HashSet<string>(masterTrackingSet);
-        int pageCount = testArticleCount / 25;
-        for (int nextPage = 1; nextPage <= pageCount; nextPage++)
+        var pageCount = testArticleCount / 25;
+        for (var nextPage = 1; nextPage <= pageCount; nextPage++)
         {
             fileListing = await _contentRepositoryScoped.GetFileListingAsync(bucketName, "/directory", nextPage, 25);
             foreach (var nextItem in fileListing)
@@ -324,19 +324,19 @@ public class ContentRepositoryScopedTests : IClassFixture<DatabaseTestFixture>
     [Fact]
     public async Task GetByUserDataGuidTest()
     {
-        string bucketName = "default";
+        var bucketName = "default";
 
         await _databaseHelper.ClearDatabaseAsync();
 
         const int testArticleCount = 100;
 
-        Guid testUserGuid1 = Guid.NewGuid();
-        Guid testUserGuid2 = Guid.NewGuid();
+        var testUserGuid1 = Guid.NewGuid();
+        var testUserGuid2 = Guid.NewGuid();
 
         // Upload the test article 100 times.
         foreach (var i in Enumerable.Range(1, testArticleCount))
         {
-            Guid guidToUse = i % 2 == 0 ? testUserGuid1 : testUserGuid2;
+            var guidToUse = i % 2 == 0 ? testUserGuid1 : testUserGuid2;
             await _UploadTestResourceAsync(bucketName, $"/directory/item{i}.png", false, guidToUse);
         }
 
@@ -363,14 +363,14 @@ public class ContentRepositoryScopedTests : IClassFixture<DatabaseTestFixture>
     [Fact]
     public async Task CopyPreservesUserDataTest()
     {
-        string bucketName = "default";
+        var bucketName = "default";
 
         await _databaseHelper.ClearDatabaseAsync();
 
-        Guid guidToUse = Guid.NewGuid();
-        long testValue = Random.Shared.NextInt64();
+        var guidToUse = Guid.NewGuid();
+        var testValue = Random.Shared.NextInt64();
 
-        await _UploadTestResourceAsync(bucketName, $"/testItem.png", false, guidToUse, testValue);
+        await _UploadTestResourceAsync(bucketName, "/testItem.png", false, guidToUse, testValue);
         await _contentRepositoryScoped.DocumentSession.SaveChangesAsync();
 
         var fileInfo = await _contentRepositoryScoped.GetFileInfoAsync(bucketName, "/testItem.png");
@@ -391,14 +391,14 @@ public class ContentRepositoryScopedTests : IClassFixture<DatabaseTestFixture>
     [Fact]
     public async Task RenamePreservesUserDataTest()
     {
-        string bucketName = "default";
+        var bucketName = "default";
 
         await _databaseHelper.ClearDatabaseAsync();
 
-        Guid guidToUse = Guid.NewGuid();
-        long testValue = Random.Shared.NextInt64();
+        var guidToUse = Guid.NewGuid();
+        var testValue = Random.Shared.NextInt64();
 
-        await _UploadTestResourceAsync(bucketName, $"/testItem.png", false, guidToUse, testValue);
+        await _UploadTestResourceAsync(bucketName, "/testItem.png", false, guidToUse, testValue);
         await _contentRepositoryScoped.DocumentSession.SaveChangesAsync();
 
         var fileInfo = await _contentRepositoryScoped.GetFileInfoAsync(bucketName, "/testItem.png");
@@ -419,17 +419,17 @@ public class ContentRepositoryScopedTests : IClassFixture<DatabaseTestFixture>
     private static string _GetTestResourceFilePath(string filename)
     {
         var assembly = Assembly.GetExecutingAssembly();
-        string basePath = Path.GetDirectoryName(assembly.Location)!;
+        var basePath = Path.GetDirectoryName(assembly.Location)!;
         Assert.NotNull(basePath);
 
-        string resourceFilePath = Path.Combine(basePath, "TestFiles", filename);
+        var resourceFilePath = Path.Combine(basePath, "TestFiles", filename);
         Assert.True(File.Exists(resourceFilePath));
         return resourceFilePath;
     }
 
     private async Task _UploadTestResourceAsync()
     {
-        string bucketName = "default";
+        var bucketName = "default";
 
         var resourceFilePath = _GetTestResourceFilePath(TestFilename);
 

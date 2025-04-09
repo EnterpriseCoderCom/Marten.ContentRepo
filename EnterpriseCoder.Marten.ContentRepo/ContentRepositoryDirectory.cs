@@ -13,6 +13,15 @@ public class ContentRepositoryDirectory : IComparable<ContentRepositoryDirectory
         _resourcePath = PathNormalizer.NormalizePath(resourcePath);
     }
 
+    #region IComparable<ContentDirectory> Members
+
+    public int CompareTo(ContentRepositoryDirectory? other)
+    {
+        return string.Compare(_resourcePath, other?._resourcePath, StringComparison.Ordinal);
+    }
+
+    #endregion
+
     #region Public Properties
 
     public string Path => _resourcePath;
@@ -26,13 +35,13 @@ public class ContentRepositoryDirectory : IComparable<ContentRepositoryDirectory
                 throw new InvalidPathException("Already at root...unable to get parent.");
             }
 
-            int lastSlashPos = Path.LastIndexOf('/');
+            var lastSlashPos = Path.LastIndexOf('/');
             if (lastSlashPos == -1)
             {
                 throw new InvalidPathException("Already at root...unable to get parent.");
             }
 
-            string returnString = _resourcePath.Substring(0, lastSlashPos);
+            var returnString = _resourcePath.Substring(0, lastSlashPos);
 
             if (returnString == "")
             {
@@ -47,8 +56,15 @@ public class ContentRepositoryDirectory : IComparable<ContentRepositoryDirectory
 
     #region Implicit Members
 
-    public static implicit operator string(ContentRepositoryDirectory contentRepositoryPath) => contentRepositoryPath.Path;
-    public static implicit operator ContentRepositoryDirectory(string resourcePath) => new(resourcePath);
+    public static implicit operator string(ContentRepositoryDirectory contentRepositoryPath)
+    {
+        return contentRepositoryPath.Path;
+    }
+
+    public static implicit operator ContentRepositoryDirectory(string resourcePath)
+    {
+        return new ContentRepositoryDirectory(resourcePath);
+    }
 
     #endregion
 
@@ -71,20 +87,11 @@ public class ContentRepositoryDirectory : IComparable<ContentRepositoryDirectory
 
     #endregion
 
-    #region IComparable<ContentDirectory> Members
-
-    public int CompareTo(ContentRepositoryDirectory? other)
-    {
-        return string.Compare(_resourcePath, other?._resourcePath, StringComparison.Ordinal);
-    }
-
-    #endregion
-
     #region Public Methods
 
     public ContentRepositoryDirectory Combine(params string[] childDirectories)
     {
-        StringBuilder returnPath = new StringBuilder(_resourcePath);
+        var returnPath = new StringBuilder(_resourcePath);
 
         foreach (var childDirectory in childDirectories)
         {
@@ -103,6 +110,6 @@ public class ContentRepositoryDirectory : IComparable<ContentRepositoryDirectory
     {
         return PathNormalizer.SplitPath(_resourcePath);
     }
-    
+
     #endregion
 }

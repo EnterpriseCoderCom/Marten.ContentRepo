@@ -10,7 +10,7 @@ public class ContentFileHeaderProcedures
     public async Task<ContentFileHeader?> SelectAsync(IDocumentSession documentSession, ContentBucket targetBucket,
         ContentRepositoryFilePath filePath)
     {
-        ContentFileHeader? targetHeader = await documentSession.QueryAsync(new QuerySelectContentFileHeader()
+        var targetHeader = await documentSession.QueryAsync(new QuerySelectContentFileHeader
         {
             BucketId = targetBucket.Id,
             FilePath = filePath

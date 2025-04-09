@@ -4,8 +4,8 @@ namespace EnterpriseCoder.Marten.ContentRepo.Di;
 
 public class ContentRepositoryScoped : IContentRepositoryScoped
 {
-    private readonly IDocumentSession _documentSession;
     private readonly IContentRepository _contentRepository;
+    private readonly IDocumentSession _documentSession;
 
 
     public ContentRepositoryScoped(IDocumentSession documentSession, IContentRepository contentRepository)
@@ -60,7 +60,8 @@ public class ContentRepositoryScoped : IContentRepositoryScoped
         string newBucketName, ContentRepositoryFilePath newFilePath,
         bool overwriteDestination = false)
     {
-        await _contentRepository.RenameFileAsync(_documentSession, oldBucketName, oldFilePath, newBucketName, newFilePath,
+        await _contentRepository.RenameFileAsync(_documentSession, oldBucketName, oldFilePath, newBucketName,
+            newFilePath,
             overwriteDestination);
     }
 

@@ -1,19 +1,19 @@
-﻿using EnterpriseCoder.Marten.ContentRepo.Entities;
-using Marten;
+﻿using Marten;
 
 namespace EnterpriseCoder.Marten.ContentRepo;
 
 public partial class ContentRepository
 {
-    public async Task DeleteFileAsync(IDocumentSession documentSession, string bucketName, ContentRepositoryFilePath filePath)
+    public async Task DeleteFileAsync(IDocumentSession documentSession, string bucketName,
+        ContentRepositoryFilePath filePath)
     {
         // Lookup the target bucket.
-        ContentBucket? targetBucket = await _contentBucketProcedures.SelectBucketAsync(documentSession, bucketName);
+        var targetBucket = await _contentBucketProcedures.SelectBucketAsync(documentSession, bucketName);
         if (targetBucket == null)
         {
             return;
         }
-        
+
         // Lookup the target resource
         var targetHeader = await _fileHeaderProcedures.SelectAsync(documentSession, targetBucket, filePath);
         if (targetHeader is null)

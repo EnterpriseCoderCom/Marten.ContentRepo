@@ -10,16 +10,16 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Marten" Version="7.39.5" />
-        <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="8.0.0" />
-        <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.1" />
-        <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="8.0.2" />
-        <PackageReference Include="Microsoft.Extensions.Diagnostics.Abstractions" Version="8.0.1" />
-        <PackageReference Include="Microsoft.Extensions.FileProviders.Abstractions" Version="8.0.0" />
-        <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="8.0.0" />
-        <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.3" />
-        <PackageReference Include="Microsoft.Extensions.Options" Version="8.0.2" />
-        <PackageReference Include="Microsoft.Extensions.Primitives" Version="8.0.0" />
+        <PackageReference Include="Marten" Version="7.39.5"/>
+        <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="8.0.0"/>
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.1"/>
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="8.0.2"/>
+        <PackageReference Include="Microsoft.Extensions.Diagnostics.Abstractions" Version="8.0.1"/>
+        <PackageReference Include="Microsoft.Extensions.FileProviders.Abstractions" Version="8.0.0"/>
+        <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="8.0.0"/>
+        <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.3"/>
+        <PackageReference Include="Microsoft.Extensions.Options" Version="8.0.2"/>
+        <PackageReference Include="Microsoft.Extensions.Primitives" Version="8.0.0"/>
         <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.1.0"/>
         <PackageReference Include="xunit" Version="2.4.1"/>
         <PackageReference Include="xunit.runner.visualstudio" Version="2.4.3">
@@ -33,14 +33,14 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\EnterpriseCoder.Marten.ContentRepo.Di\EnterpriseCoder.Marten.ContentRepo.Di.csproj" />
-      <ProjectReference Include="..\EnterpriseCoder.Marten.ContentRepo\EnterpriseCoder.Marten.ContentRepo.csproj" />
+        <ProjectReference Include="..\EnterpriseCoder.Marten.ContentRepo.Di\EnterpriseCoder.Marten.ContentRepo.Di.csproj"/>
+        <ProjectReference Include="..\EnterpriseCoder.Marten.ContentRepo\EnterpriseCoder.Marten.ContentRepo.csproj"/>
     </ItemGroup>
 
     <ItemGroup>
-      <None Update="TestFiles\angrybird.png">
-        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      </None>
+        <None Update="TestFiles\angrybird.png">
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </None>
     </ItemGroup>
 
 </Project>

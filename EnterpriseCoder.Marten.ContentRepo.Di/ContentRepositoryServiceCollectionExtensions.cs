@@ -8,7 +8,7 @@ public static class ContentRepositoryServiceCollectionExtensions
     {
         serviceCollection.AddSingleton<IContentRepository, ContentRepository>();
         serviceCollection.AddScoped<IContentRepositoryScoped, ContentRepositoryScoped>();
-        
+
         return serviceCollection;
     }
 }

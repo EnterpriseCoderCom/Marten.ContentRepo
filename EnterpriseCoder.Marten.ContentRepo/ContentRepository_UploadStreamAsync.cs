@@ -15,7 +15,7 @@ public partial class ContentRepository
         long userValue = 0L)
     {
         // Make sure the bucket exists
-        ContentBucket? targetBucket = await _contentBucketProcedures.SelectBucketAsync(documentSession, bucketName);
+        var targetBucket = await _contentBucketProcedures.SelectBucketAsync(documentSession, bucketName);
         if (autoCreateBucket && targetBucket is null)
         {
             // Create the target bucket
@@ -43,17 +43,17 @@ public partial class ContentRepository
         await DeleteFileAsync(documentSession, bucketName, filePath);
 
         // Create a temp file stream to save the incoming stream into...
-        using TemporaryFilenameDisposable tempFilename = new TemporaryFilenameDisposable();
+        using var tempFilename = new TemporaryFilenameDisposable();
 
         // Allocate a transfer buffer that will be used to break the file into
         // blocks for storage.
-        byte[] buffer = new byte[FileBlockSize];
+        var buffer = new byte[FileBlockSize];
 
         // Variable that will hold the hash for the incoming file AFTER being compressed.
         byte[] sha256Hash;
 
         // Accumulator to determine the size of the incoming stream.
-        long originalFileSize = 0L;
+        var originalFileSize = 0L;
 
         // Create a SHA256 hasher to accumulate the hash into as we read the input file stream.
         using (var sha256 = SHA256.Create())
@@ -97,7 +97,7 @@ public partial class ContentRepository
         FileInfo fileInfo = new(tempFilename.FilePath);
 
         // Create a new header document.
-        ContentFileHeader header = new ContentFileHeader()
+        var header = new ContentFileHeader
         {
             // Id is automatically assigned in constructor
             BucketId = targetBucket.Id,
@@ -114,11 +114,11 @@ public partial class ContentRepository
         await _fileHeaderProcedures.UpsertAsync(documentSession, header);
 
         // Reopen the compressed temp file so we can chunk it up into the database.
-        using (FileStream tempInStream = new FileStream(tempFilename.FilePath, FileMode.Open))
+        using (var tempInStream = new FileStream(tempFilename.FilePath, FileMode.Open))
         {
             // Create a sequence number so that we can order the blocks when 
             // reading in the future.
-            int sequenceNumber = 1;
+            var sequenceNumber = 1;
 
             // Loop and read the compressed temp file block by block.
             int readCount;
@@ -126,11 +126,11 @@ public partial class ContentRepository
             {
                 // Make a copy of what was read into a new buffer so it can be given 
                 // to a ContentFileBlock for storage in the database.
-                byte[] saveBuffer = new byte[readCount];
+                var saveBuffer = new byte[readCount];
                 Buffer.BlockCopy(buffer, 0, saveBuffer, 0, readCount);
 
                 // Create the ContentFileBlock that will be written to the database.
-                ContentFileBlock nextBlock = new ContentFileBlock()
+                var nextBlock = new ContentFileBlock
                 {
                     // Id is assigned by constructor
                     ParentFileHeaderId = header.Id,

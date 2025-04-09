@@ -9,14 +9,14 @@ public partial class ContentRepository
     public async Task DeleteBucketAsync(IDocumentSession documentSession, string bucketName, bool force = false)
     {
         // Lookup the bucket
-        ContentBucket? targetBucket = await _contentBucketProcedures.SelectBucketAsync(documentSession, bucketName);
+        var targetBucket = await _contentBucketProcedures.SelectBucketAsync(documentSession, bucketName);
         if (targetBucket == null)
         {
             return;
         }
 
         // See if there is any content in the bucket
-        bool hasContent = await documentSession.Query<ContentFileHeader>().AnyAsync(x => x.BucketId == targetBucket.Id);
+        var hasContent = await documentSession.Query<ContentFileHeader>().AnyAsync(x => x.BucketId == targetBucket.Id);
         if (hasContent && force == false)
         {
             throw new DeleteFailureException(bucketName, "*");
