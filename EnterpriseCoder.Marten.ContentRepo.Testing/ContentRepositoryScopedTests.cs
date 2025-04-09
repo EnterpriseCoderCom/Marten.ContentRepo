@@ -256,6 +256,13 @@ public class ContentRepositoryScopedTests : IClassFixture<DatabaseTestFixture>
         HashSet<string> compareSet = new HashSet<string>(masterTrackingSet);
         fileListing = await _contentRepositoryScoped.GetFileListingAsync(bucketName, "/directory",
             1, 200, true);
+        Assert.Equal(1, fileListing.PageNumber);
+        Assert.Equal(100, fileListing.TotalItemCount);
+        Assert.True(fileListing.IsLastPage);
+        Assert.True(fileListing.IsFirstPage);
+        Assert.False(fileListing.HasNextPage);
+        Assert.False(fileListing.HasPreviousPage);
+        Assert.Equal(1, fileListing.PageCount);
 
         Assert.Equal(testArticleCount * subItemCount, fileListing.Count);
         foreach (var nextItem in fileListing)
@@ -351,6 +358,8 @@ public class ContentRepositoryScopedTests : IClassFixture<DatabaseTestFixture>
         var returnList =
             await _contentRepositoryScoped.GetFileListingByUserGuidAsync(bucketName, testUserGuid1, 1, 200);
         Assert.Equal(testArticleCount / 2, returnList.Count);
+        Assert.Equal(1, returnList.PageCount);
+        Assert.Equal(50, returnList.TotalItemCount);
 
         // ===================================================================================
         // Use the second user guid and make sure we can select 1/2 of the data.
@@ -358,6 +367,8 @@ public class ContentRepositoryScopedTests : IClassFixture<DatabaseTestFixture>
         returnList =
             await _contentRepositoryScoped.GetFileListingByUserGuidAsync(bucketName, testUserGuid2, 1, 200);
         Assert.Equal(testArticleCount / 2, returnList.Count);
+        Assert.Equal(1, returnList.PageCount);
+        Assert.Equal(50, returnList.TotalItemCount);
     }
 
     [Fact]

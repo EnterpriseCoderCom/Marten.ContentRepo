@@ -1,12 +1,14 @@
 ﻿using EnterpriseCoder.Marten.ContentRepo.DtoMapping;
+using EnterpriseCoder.Marten.ContentRepo.Entities;
 using EnterpriseCoder.Marten.ContentRepo.Exceptions;
 using Marten;
+using Marten.Pagination;
 
 namespace EnterpriseCoder.Marten.ContentRepo;
 
 public partial class ContentRepository
 {
-    public async Task<IList<ContentRepositoryFileInfo>> GetFileListingByUserDataGuidAsync(
+    public async Task<PagedContentRepositoryFileInfo> GetFileListingByUserDataGuidAsync(
         IDocumentSession documentSession,
         string bucketName, Guid userGuid, int oneBasedPage, int pageSize)
     {
@@ -16,13 +18,10 @@ public partial class ContentRepository
             throw new BucketNotFoundException(bucketName);
         }
 
-        var pageList =
+        IPagedList<ContentFileHeader> pageList =
             await _fileHeaderProcedures.SelectByUserGuid(documentSession, targetBucket, userGuid, oneBasedPage,
                 pageSize);
 
-        List<ContentRepositoryFileInfo> returnListing =
-            new List<ContentRepositoryFileInfo>(pageList.Select(x => x.ToContentFileInfoDto()));
-
-        return returnListing;
+        return new PagedContentRepositoryFileInfo(pageList);
     }
 }

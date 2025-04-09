@@ -33,11 +33,11 @@ public interface IContentRepository
         string newBucketName, ContentRepositoryFilePath newFilePath,
         bool autoCreateBucket = true, bool overwriteDestination = false);
 
-    Task<IList<ContentRepositoryFileInfo>> GetFileListingAsync(IDocumentSession documentSession,
+    Task<PagedContentRepositoryFileInfo> GetFileListingAsync(IDocumentSession documentSession,
         string bucketName, ContentRepositoryDirectory directory,
         int oneBasedPage, int pageSize,
         bool recursive = false);
 
-    Task<IList<ContentRepositoryFileInfo>> GetFileListingByUserDataGuidAsync(IDocumentSession documentSession,
+    Task<PagedContentRepositoryFileInfo> GetFileListingByUserDataGuidAsync(IDocumentSession documentSession,
         string bucketName, Guid userGuid, int oneBasedPage, int pageSize);
 }
