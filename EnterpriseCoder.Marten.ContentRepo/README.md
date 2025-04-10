@@ -1,8 +1,8 @@
 ﻿# TODO
 
-* [X] Paged results need a better return type that gives page information.
-* [ ] More unit tests around paging.
 * [ ] Write Summary documentation
+* [X] Paged results need a better return type that gives page information.
+* [X] More unit tests around paging.
 * [X] Review exceptions that are thrown for correctness.
 * [X] Command line tool for dumping contents - no doing this, requires database access
 * [X] Ability to select by user guid

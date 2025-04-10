@@ -9,8 +9,26 @@ namespace EnterpriseCoder.Marten.ContentRepo;
 
 public partial class ContentRepository
 {
+    /// <summary>
+    /// <para>
+    /// The UploadStreamAsync method is used to insert content contained in <paramref name="inStream"/> into the
+    /// content repository under the bucket specified in <paramref name="bucketName"/> and the resource path specified
+    /// by <paramref name="resourcePath"/>.
+    /// </para>
+    /// </summary>
+    /// <param name="documentSession">A Marten documentSession that will be used to communicate with the database.</param>
+    /// <param name="bucketName">The name of the bucket in which to place the content.</param>
+    /// <param name="resourcePath">A slash separated path to the resource, including filename and extension.  "/myResourcePath/myImage.png"</param>
+    /// <param name="inStream">A <c>Stream</c> that contains the content to be inserted into the database.</param>
+    /// <param name="autoCreateBucket">Whether the bucket specified by <paramref name="bucketName"/> should automatically be created if it is not already present.</param>
+    /// <param name="overwriteExisting"><c>true</c> when this call should overwrite any existing resource of the same bucket and file path.</param>
+    /// <param name="userGuid">A <c>GUID</c> user specified value.  Defaults to Guid.Empty.  This value is indexed in the database for fast future lookups.  You may want to use this for referencing a user that performed the upload of the content.</param>
+    /// <param name="userValue">A <c>long</c> user specified value that can be used to track data related to the content entry.  This value is indexed in the database for fast lookup.  Perhaps a download counter or a primary key value to another document.</param>
+    /// <returns></returns>
+    /// <exception cref="BucketNotFoundException">If the <paramref name="bucketName"/> is not found and <paramref name="autoCreateBucket"/> is false this exception will be thrown.</exception>
+    /// <exception cref="OverwriteNotPermittedException">If the <paramref name="resourcePath"/> is already in the database and <paramref name="overwriteExisting"/> is false, this exception will be thrown./></exception>
     public async Task UploadStreamAsync(IDocumentSession documentSession, string bucketName,
-        ContentRepositoryFilePath filePath,
+        ContentRepositoryFilePath resourcePath,
         Stream inStream, bool autoCreateBucket = true, bool overwriteExisting = false, Guid? userGuid = null,
         long userValue = 0L)
     {
@@ -31,16 +49,16 @@ public partial class ContentRepository
         if (overwriteExisting is false)
         {
             // See if there's an existing item with the given filePath
-            if (await FileExistsAsync(documentSession, bucketName, filePath))
+            if (await FileExistsAsync(documentSession, bucketName, resourcePath))
             {
                 // There's an existing item with the same name...throw an IOException.
-                throw new OverwriteNotPermittedException(bucketName, filePath);
+                throw new OverwriteNotPermittedException(bucketName, resourcePath);
             }
         }
 
         // No overwrite protection...call delete to make sure 
         // there's nothing taking the incoming filePath resource name.
-        await DeleteFileAsync(documentSession, bucketName, filePath);
+        await DeleteFileAsync(documentSession, bucketName, resourcePath);
 
         // Create a temp file stream to save the incoming stream into...
         using var tempFilename = new TemporaryFilenameDisposable();
@@ -101,8 +119,8 @@ public partial class ContentRepository
         {
             // Id is automatically assigned in constructor
             BucketId = targetBucket.Id,
-            Directory = filePath.Directory,
-            FilePath = filePath,
+            Directory = resourcePath.Directory,
+            FilePath = resourcePath,
             OriginalLength = originalFileSize,
             StoredLength = fileInfo.Length,
             Sha256 = sha256Hash,
