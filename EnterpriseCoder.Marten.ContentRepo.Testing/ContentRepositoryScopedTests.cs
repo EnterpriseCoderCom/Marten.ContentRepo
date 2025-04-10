@@ -256,6 +256,13 @@ public class ContentRepositoryScopedTests : IClassFixture<DatabaseTestFixture>
         HashSet<string> compareSet = new HashSet<string>(masterTrackingSet);
         fileListing = await _contentRepositoryScoped.GetFileListingAsync(bucketName, "/directory",
             1, 200, true);
+        Assert.Equal(1, fileListing.PageNumber);
+        Assert.Equal(100, fileListing.TotalItemCount);
+        Assert.True(fileListing.IsLastPage);
+        Assert.True(fileListing.IsFirstPage);
+        Assert.False(fileListing.HasNextPage);
+        Assert.False(fileListing.HasPreviousPage);
+        Assert.Equal(1, fileListing.PageCount);
 
         Assert.Equal(testArticleCount * subItemCount, fileListing.Count);
         foreach (var nextItem in fileListing)
@@ -351,6 +358,8 @@ public class ContentRepositoryScopedTests : IClassFixture<DatabaseTestFixture>
         var returnList =
             await _contentRepositoryScoped.GetFileListingByUserGuidAsync(bucketName, testUserGuid1, 1, 200);
         Assert.Equal(testArticleCount / 2, returnList.Count);
+        Assert.Equal(1, returnList.PageCount);
+        Assert.Equal(50, returnList.TotalItemCount);
 
         // ===================================================================================
         // Use the second user guid and make sure we can select 1/2 of the data.
@@ -358,6 +367,8 @@ public class ContentRepositoryScopedTests : IClassFixture<DatabaseTestFixture>
         returnList =
             await _contentRepositoryScoped.GetFileListingByUserGuidAsync(bucketName, testUserGuid2, 1, 200);
         Assert.Equal(testArticleCount / 2, returnList.Count);
+        Assert.Equal(1, returnList.PageCount);
+        Assert.Equal(50, returnList.TotalItemCount);
     }
 
     [Fact]
@@ -414,6 +425,66 @@ public class ContentRepositoryScopedTests : IClassFixture<DatabaseTestFixture>
         Assert.NotNull(fileInfo);
         Assert.Equal(testValue, fileInfo!.UserDataLong);
         Assert.Equal(guidToUse, fileInfo.UserDataGuid);
+    }
+
+    [Fact]
+    public async Task FileListingPagingTest()
+    {
+        var bucketName = "default";
+
+        await _databaseHelper.ClearDatabaseAsync();
+
+        const int testArticleCount = 100;
+        const int pageSize = 20;
+
+        var testUserGuid1 = Guid.NewGuid();
+        var testUserGuid2 = Guid.NewGuid();
+
+        // Upload the test article 100 times.
+        foreach (var currentTestArticleOffset in Enumerable.Range(1, testArticleCount))
+        {
+            var guidToUse = currentTestArticleOffset % 2 == 0 ? testUserGuid1 : testUserGuid2;
+            await _UploadTestResourceAsync(bucketName, $"/directory/item{currentTestArticleOffset}.png", false, guidToUse);
+        }
+
+        await _contentRepositoryScoped.DocumentSession.SaveChangesAsync();
+
+        Assert.Equal(testArticleCount, await _databaseHelper.CountHeadersAsync());
+        Assert.Equal(TestBlockCount * testArticleCount, await _databaseHelper.CountBlocksAsync());
+        
+        // Pull in 5 pages at 20 items per page.
+        foreach (var currentPageOffset in Enumerable.Range(1, 5))
+        {
+            var fileListing = await _contentRepositoryScoped.GetFileListingAsync(bucketName, $"/directory", currentPageOffset, 20);
+            Assert.Equal(testArticleCount, fileListing.TotalItemCount);
+            Assert.Equal(testArticleCount/pageSize, fileListing.PageCount);
+            Assert.Equal(pageSize, fileListing.Count);
+            Assert.Equal(currentPageOffset, fileListing.PageNumber);
+            Assert.Equal( (currentPageOffset-1) * pageSize + 1, fileListing.FirstItemOnPage);
+            Assert.Equal( (currentPageOffset-1) * pageSize + pageSize, fileListing.LastItemOnPage);
+                
+            if (currentPageOffset == 1)
+            {
+                Assert.True(fileListing.IsFirstPage);
+                Assert.False(fileListing.IsLastPage);
+                Assert.False(fileListing.HasPreviousPage);
+                Assert.True(fileListing.HasNextPage);
+            }
+            else if (currentPageOffset == 5)
+            {
+                Assert.False(fileListing.IsFirstPage);
+                Assert.True(fileListing.IsLastPage);
+                Assert.True(fileListing.HasPreviousPage);
+                Assert.False(fileListing.HasNextPage);
+            }
+            else
+            {
+                Assert.False(fileListing.IsFirstPage);
+                Assert.False(fileListing.IsLastPage);
+                Assert.True(fileListing.HasPreviousPage);
+                Assert.True(fileListing.HasNextPage);
+            }
+        }
     }
 
     private static string _GetTestResourceFilePath(string filename)

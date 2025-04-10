@@ -73,7 +73,7 @@ public class ContentRepositoryScoped : IContentRepositoryScoped
             autoCreateBucket, overwriteDestination);
     }
 
-    public async Task<IList<ContentRepositoryFileInfo>> GetFileListingAsync(string bucketName,
+    public async Task<PagedContentRepositoryFileInfo> GetFileListingAsync(string bucketName,
         ContentRepositoryDirectory directory,
         int oneBasedPage, int pageSize, bool recursive = false)
     {
@@ -82,7 +82,7 @@ public class ContentRepositoryScoped : IContentRepositoryScoped
             recursive);
     }
 
-    public async Task<IList<ContentRepositoryFileInfo>> GetFileListingByUserGuidAsync(string bucketName, Guid userGuid,
+    public async Task<PagedContentRepositoryFileInfo> GetFileListingByUserGuidAsync(string bucketName, Guid userGuid,
         int oneBasedPage, int pageSize)
     {
         return await _contentRepository.GetFileListingByUserDataGuidAsync(_documentSession, bucketName, userGuid,

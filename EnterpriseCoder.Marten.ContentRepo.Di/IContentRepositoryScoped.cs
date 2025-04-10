@@ -34,11 +34,11 @@ public interface IContentRepositoryScoped
         string newBucketName, ContentRepositoryFilePath newFilePath,
         bool autoCreateBucket = true, bool overwriteDestination = false);
 
-    Task<IList<ContentRepositoryFileInfo>> GetFileListingAsync(
+    Task<PagedContentRepositoryFileInfo> GetFileListingAsync(
         string bucketName, ContentRepositoryDirectory directory,
         int oneBasedPage, int pageSize,
         bool recursive = false);
 
-    Task<IList<ContentRepositoryFileInfo>> GetFileListingByUserGuidAsync(string bucketName, Guid userGuid,
+    Task<PagedContentRepositoryFileInfo> GetFileListingByUserGuidAsync(string bucketName, Guid userGuid,
         int oneBasedPage, int pageSize);
 }
