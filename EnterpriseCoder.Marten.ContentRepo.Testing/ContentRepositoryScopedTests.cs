@@ -427,6 +427,66 @@ public class ContentRepositoryScopedTests : IClassFixture<DatabaseTestFixture>
         Assert.Equal(guidToUse, fileInfo.UserDataGuid);
     }
 
+    [Fact]
+    public async Task FileListingPagingTest()
+    {
+        var bucketName = "default";
+
+        await _databaseHelper.ClearDatabaseAsync();
+
+        const int testArticleCount = 100;
+        const int pageSize = 20;
+
+        var testUserGuid1 = Guid.NewGuid();
+        var testUserGuid2 = Guid.NewGuid();
+
+        // Upload the test article 100 times.
+        foreach (var currentTestArticleOffset in Enumerable.Range(1, testArticleCount))
+        {
+            var guidToUse = currentTestArticleOffset % 2 == 0 ? testUserGuid1 : testUserGuid2;
+            await _UploadTestResourceAsync(bucketName, $"/directory/item{currentTestArticleOffset}.png", false, guidToUse);
+        }
+
+        await _contentRepositoryScoped.DocumentSession.SaveChangesAsync();
+
+        Assert.Equal(testArticleCount, await _databaseHelper.CountHeadersAsync());
+        Assert.Equal(TestBlockCount * testArticleCount, await _databaseHelper.CountBlocksAsync());
+        
+        // Pull in 5 pages at 20 items per page.
+        foreach (var currentPageOffset in Enumerable.Range(1, 5))
+        {
+            var fileListing = await _contentRepositoryScoped.GetFileListingAsync(bucketName, $"/directory", currentPageOffset, 20);
+            Assert.Equal(testArticleCount, fileListing.TotalItemCount);
+            Assert.Equal(testArticleCount/pageSize, fileListing.PageCount);
+            Assert.Equal(pageSize, fileListing.Count);
+            Assert.Equal(currentPageOffset, fileListing.PageNumber);
+            Assert.Equal( (currentPageOffset-1) * pageSize + 1, fileListing.FirstItemOnPage);
+            Assert.Equal( (currentPageOffset-1) * pageSize + pageSize, fileListing.LastItemOnPage);
+                
+            if (currentPageOffset == 1)
+            {
+                Assert.True(fileListing.IsFirstPage);
+                Assert.False(fileListing.IsLastPage);
+                Assert.False(fileListing.HasPreviousPage);
+                Assert.True(fileListing.HasNextPage);
+            }
+            else if (currentPageOffset == 5)
+            {
+                Assert.False(fileListing.IsFirstPage);
+                Assert.True(fileListing.IsLastPage);
+                Assert.True(fileListing.HasPreviousPage);
+                Assert.False(fileListing.HasNextPage);
+            }
+            else
+            {
+                Assert.False(fileListing.IsFirstPage);
+                Assert.False(fileListing.IsLastPage);
+                Assert.True(fileListing.HasPreviousPage);
+                Assert.True(fileListing.HasNextPage);
+            }
+        }
+    }
+
     private static string _GetTestResourceFilePath(string filename)
     {
         var assembly = Assembly.GetExecutingAssembly();
