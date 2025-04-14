@@ -53,15 +53,50 @@ public interface IContentRepository
         Stream inStream, bool autoCreateBucket = true, bool overwriteExisting = false, Guid? userGuid = null,
         long userValue = 0L);
 
+    /// <summary>
+    /// The DownloadStreamAsync method is used to read content using a standard System.IO.Stream.  The desired content is
+    /// addressed through the <paramref name="bucketName"/> and <paramref name="resourcePath"/> arguments.
+    /// </summary>
+    /// <param name="documentSession">A Marten documentSession that will be used to communicate with the database.</param>
+    /// <param name="bucketName">The name of the bucket that holds the desired content.</param>
+    /// <param name="resourcePath">A slash separated path to the resource, including filename and extension.  "/myResourcePath/myImage.png"</param>
+    /// <returns>A System.IO.Stream that contains the contents of the resource.</returns>
+    /// <exception cref="BucketNotFoundException">Thrown when the bucket named in the <paramref name="bucketName"/> argument is not found.</exception>
+    /// <exception cref="ResourceNotFoundException">Throw when the resource specified in the <paramref name="resourcePath"/> is not found.</exception>
     Task<Stream?> DownloadStreamAsync(IDocumentSession documentSession, string bucketName,
-        ContentRepositoryFilePath filePath);
+        ContentRepositoryFilePath resourcePath);
 
-    Task<bool> FileExistsAsync(IDocumentSession documentSession, string bucketName, ContentRepositoryFilePath filePath);
+    /// <summary>
+    /// The FileExistsAsync method determines if there is a resource at the given <paramref name="bucketName"/> and <paramref name="resourcePath"/> location.
+    /// </summary>
+    /// <param name="documentSession">A Marten documentSession that will be used to communicate with the database.</param>
+    /// <param name="bucketName">The name of the bucket that holds the desired content.</param>
+    /// <param name="resourcePath">A slash separated path to the resource, including filename and extension.  "/myResourcePath/myImage.png"</param>
+    /// <returns>Returns true if the resource was found.  False if it is not present in the database.</returns>
+    Task<bool> FileExistsAsync(IDocumentSession documentSession, string bucketName, ContentRepositoryFilePath resourcePath);
 
-    Task DeleteFileAsync(IDocumentSession documentSession, string bucketName, ContentRepositoryFilePath filePath);
+    /// <summary>
+    /// The DeleteFileAsync method is used to remove content from the repository.  The resource to be removed is
+    /// specified by the <paramref name="documentSession"/> and <paramref name="resourcePath"/> arguments.  If the given
+    /// resource is not found, then this method returns without error.
+    /// </summary>
+    /// <param name="documentSession">A Marten documentSession that will be used to communicate with the database.</param>
+    /// <param name="bucketName">The name of the bucket that holds the desired content.</param>
+    /// <param name="resourcePath">A slash separated path to the resource, including filename and extension.  "/myResourcePath/myImage.png"</param>
+    Task DeleteFileAsync(IDocumentSession documentSession, string bucketName, ContentRepositoryFilePath resourcePath);
 
+    /// <summary>
+    /// The GetFileInfoAsync method returns information about the resource specified in the <paramref name="bucketName"/>
+    /// and <paramref name="resourcePath"/> arguments.
+    /// </summary>
+    /// <param name="documentSession">A Marten documentSession that will be used to communicate with the database.</param>
+    /// <param name="bucketName">The name of the bucket that holds the desired content.</param>
+    /// <param name="resourcePath">A slash separated path to the resource, including filename and extension.  "/myResourcePath/myImage.png"</param>
+    /// <returns>A <see cref="ContentRepositoryFileInfo"/> that contains information about the given resource.  This method
+    /// may return a null reference if the specified bucket and resource are not found.
+    /// </returns>
     Task<ContentRepositoryFileInfo?> GetFileInfoAsync(IDocumentSession documentSession,
-        string bucketName, ContentRepositoryFilePath filePath);
+        string bucketName, ContentRepositoryFilePath resourcePath);
 
     Task RenameFileAsync(IDocumentSession documentSession,
         string oldBucketName, ContentRepositoryFilePath oldFilePath,
