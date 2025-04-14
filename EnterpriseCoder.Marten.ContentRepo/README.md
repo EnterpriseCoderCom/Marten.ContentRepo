@@ -1,6 +1,7 @@
 ﻿# TODO
 
 * [ ] Write Summary documentation
+* [ ] Need a method to lookup by user data long.
 * [X] Paged results need a better return type that gives page information.
 * [X] More unit tests around paging.
 * [X] Review exceptions that are thrown for correctness.

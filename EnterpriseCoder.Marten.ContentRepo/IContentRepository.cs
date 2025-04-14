@@ -98,21 +98,71 @@ public interface IContentRepository
     Task<ContentRepositoryFileInfo?> GetFileInfoAsync(IDocumentSession documentSession,
         string bucketName, ContentRepositoryFilePath resourcePath);
 
+    /// <summary>
+    /// The RenameFileAsync method is used to rename a resource from one name to another.  This includes moving a resource
+    /// between buckets.
+    /// </summary>
+    /// <param name="documentSession">A Marten documentSession that will be used to communicate with the database.</param>
+    /// <param name="sourceBucketName">The name of the source bucket.</param>
+    /// <param name="sourceResourcePath">The name of the resource to be renamed.</param>
+    /// <param name="destinationBucketName">The name of the destination bucket.</param>
+    /// <param name="destinationResourcePath">The new name for the resource within the <paramref name="destinationBucketName"/></param>
+    /// <param name="replaceDestination">A boolean that indicates if an error should be thrown if there is already a resource in the destination location.</param>
+    /// <exception cref="BucketNotFoundException">Thrown when either the <paramref name="sourceBucketName"/> or <paramref name="destinationBucketName"/> is not found.</exception>
+    /// <exception cref="ResourceNotFoundException">Throw when there isn't a resource at the location specified by <paramref name="sourceBucketName"/> and <paramref name="sourceResourcePath"/>.</exception>
+    /// <exception cref="OverwriteNotPermittedException">Throw when there an existing resource at the specified destination and <paramref name="replaceDestination"/> is false.</exception>
     Task RenameFileAsync(IDocumentSession documentSession,
-        string oldBucketName, ContentRepositoryFilePath oldFilePath,
-        string newBucketName, ContentRepositoryFilePath newFilePath,
+        string sourceBucketName, ContentRepositoryFilePath sourceResourcePath,
+        string destinationBucketName, ContentRepositoryFilePath destinationResourcePath,
         bool replaceDestination = false);
 
+    /// <summary>
+    /// The CopyFileAsync method is used to make a copy of an existing resource.
+    /// </summary>
+    /// <param name="documentSession">A Marten documentSession that will be used to communicate with the database.</param>
+    /// <param name="sourceBucketName">The name of the source bucket.</param>
+    /// <param name="sourceResourcePath">The name of the resource to be renamed.</param>
+    /// <param name="destinationBucketName">The name of the destination bucket.</param>
+    /// <param name="destinationResourcePath">The new name for the resource within the <paramref name="destinationBucketName"/></param>
+    /// <param name="autoCreateBucket">Set to true in order to create the destination bucket automatically.</param>
+    /// <param name="overwriteDestination">Set to true to overwrite any existing resource at the specified destination location.</param>
+    /// <exception cref="BucketNotFoundException">Thrown when either the <paramref name="sourceBucketName"/> or when <paramref name="destinationBucketName"/> is not found and <paramref name="autoCreateBucket"/> is false.</exception>
+    /// <exception cref="ResourceNotFoundException">Thrown when there isn't a resource at the location specified by <paramref name="sourceBucketName"/> and <paramref name="sourceResourcePath"/>.</exception>
+    /// <exception cref="OverwriteNotPermittedException">Thrown when <paramref name="overwriteDestination"/> is false and there's an existing resource at the given destination location.</exception>
     Task CopyFileAsync(IDocumentSession documentSession,
-        string oldBucketName, ContentRepositoryFilePath oldFilePath,
-        string newBucketName, ContentRepositoryFilePath newFilePath,
+        string sourceBucketName, ContentRepositoryFilePath sourceResourcePath,
+        string destinationBucketName, ContentRepositoryFilePath destinationResourcePath,
         bool autoCreateBucket = true, bool overwriteDestination = false);
 
+    /// <summary>
+    /// The GetFileListingAsync method is used to obtain a paged listing of all resources from the bucket specified by
+    /// <paramref name="bucketName"/> for all resources that start with <paramref name="resourcePrefix"/>.  The
+    /// returned <see cref="PagedContentRepositoryFileInfo"/> contains paging information so that large repositories
+    /// listings can be handled in a memory-safe way.
+    /// </summary>
+    /// <param name="documentSession">A Marten documentSession that will be used to communicate with the database.</param>
+    /// <param name="bucketName">The name of the bucket to be searched.</param>
+    /// <param name="resourcePrefix">The resource prefix to be searched.  For example: /images to return information about all resources that start with "/images".</param>
+    /// <param name="oneBasedPage">The one-based page to be returned by this call.</param>
+    /// <param name="pageSize">The desired size for the returned page of information.</param>
+    /// <param name="recursive">Set to true to return all resources under <paramref name="resourcePrefix"/>.  Set to false in order to return only resources that are directly in the given prefix pseudo-directory.</param>
+    /// <returns>Returns a <see cref="PagedContentRepositoryFileInfo"/> object that contains the items for the requested page as
+    /// well as information about the total number of pages.</returns>
+    /// <exception cref="BucketNotFoundException">Thrown when the bucket specified by <paramref name="bucketName"/> is not found.</exception>
     Task<PagedContentRepositoryFileInfo> GetFileListingAsync(IDocumentSession documentSession,
-        string bucketName, ContentRepositoryDirectory directory,
+        string bucketName, ContentRepositoryDirectory resourcePrefix,
         int oneBasedPage, int pageSize,
         bool recursive = false);
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="documentSession"></param>
+    /// <param name="bucketName"></param>
+    /// <param name="userGuid"></param>
+    /// <param name="oneBasedPage"></param>
+    /// <param name="pageSize"></param>
+    /// <returns></returns>
     Task<PagedContentRepositoryFileInfo> GetFileListingByUserDataGuidAsync(IDocumentSession documentSession,
         string bucketName, Guid userGuid, int oneBasedPage, int pageSize);
 }

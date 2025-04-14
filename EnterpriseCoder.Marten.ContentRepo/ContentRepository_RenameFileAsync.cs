@@ -5,48 +5,61 @@ namespace EnterpriseCoder.Marten.ContentRepo;
 
 public partial class ContentRepository
 {
+    /// <summary>
+    /// The RenameFileAsync method is used to rename a resource from one name to another.  This includes moving a resource
+    /// between buckets.
+    /// </summary>
+    /// <param name="documentSession">A Marten documentSession that will be used to communicate with the database.</param>
+    /// <param name="sourceBucketName">The name of the source bucket.</param>
+    /// <param name="sourceResourcePath">The name of the resource to be renamed.</param>
+    /// <param name="destinationBucketName">The name of the destination bucket.</param>
+    /// <param name="destinationResourcePath">The new name for the resource within the <paramref name="destinationBucketName"/></param>
+    /// <param name="replaceDestination">A boolean that indicates if an error should be thrown if there is already a resource in the destination location.</param>
+    /// <exception cref="BucketNotFoundException">Thrown when either the <paramref name="sourceBucketName"/> or <paramref name="destinationBucketName"/> is not found.</exception>
+    /// <exception cref="ResourceNotFoundException">Throw when there isn't a resource at the location specified by <paramref name="sourceBucketName"/> and <paramref name="sourceResourcePath"/>.</exception>
+    /// <exception cref="OverwriteNotPermittedException">Throw when there an existing resource at the specified destination and <paramref name="replaceDestination"/> is false.</exception>
     public async Task RenameFileAsync(IDocumentSession documentSession,
-        string oldBucketName, ContentRepositoryFilePath oldFilePath,
-        string newBucketName, ContentRepositoryFilePath newFilePath,
+        string sourceBucketName, ContentRepositoryFilePath sourceResourcePath,
+        string destinationBucketName, ContentRepositoryFilePath destinationResourcePath,
         bool replaceDestination = false)
     {
         // Lookup the bucket
-        var targetBucket = await _contentBucketProcedures.SelectBucketAsync(documentSession, oldBucketName);
+        var targetBucket = await _contentBucketProcedures.SelectBucketAsync(documentSession, sourceBucketName);
         if (targetBucket == null)
         {
-            throw new BucketNotFoundException(oldBucketName);
+            throw new BucketNotFoundException(sourceBucketName);
         }
 
         // Lookup the old resource
-        var sourceHeader = await _fileHeaderProcedures.SelectAsync(documentSession, targetBucket, oldFilePath);
+        var sourceHeader = await _fileHeaderProcedures.SelectAsync(documentSession, targetBucket, sourceResourcePath);
         if (sourceHeader == null)
         {
-            throw new ResourceNotFoundException(oldBucketName, oldFilePath);
+            throw new ResourceNotFoundException(sourceBucketName, sourceResourcePath);
         }
 
         // Lookup the new bucket
-        var newBucket = await _contentBucketProcedures.SelectBucketAsync(documentSession, newBucketName);
+        var newBucket = await _contentBucketProcedures.SelectBucketAsync(documentSession, destinationBucketName);
         if (newBucket == null)
         {
-            throw new BucketNotFoundException(newBucketName);
+            throw new BucketNotFoundException(destinationBucketName);
         }
 
         // Lookup the new resource
-        var targetHeader = await _fileHeaderProcedures.SelectAsync(documentSession, targetBucket, newFilePath);
+        var targetHeader = await _fileHeaderProcedures.SelectAsync(documentSession, targetBucket, destinationResourcePath);
         if (targetHeader != null)
         {
             if (!replaceDestination)
             {
-                throw new OverwriteNotPermittedException(newBucketName, newFilePath);
+                throw new OverwriteNotPermittedException(destinationBucketName, destinationResourcePath);
             }
 
             // Delete the file identified by newFilePath
-            await DeleteFileAsync(documentSession, oldBucketName, newFilePath);
+            await DeleteFileAsync(documentSession, sourceBucketName, destinationResourcePath);
         }
 
         sourceHeader.BucketId = newBucket.Id;
-        sourceHeader.FilePath = newFilePath;
-        sourceHeader.Directory = newFilePath.Directory;
+        sourceHeader.FilePath = destinationResourcePath;
+        sourceHeader.Directory = destinationResourcePath.Directory;
         documentSession.Store(sourceHeader);
     }
 }
