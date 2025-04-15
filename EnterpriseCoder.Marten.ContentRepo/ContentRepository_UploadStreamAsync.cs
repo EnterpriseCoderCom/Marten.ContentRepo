@@ -28,7 +28,7 @@ public partial class ContentRepository
     /// <exception cref="BucketNotFoundException">If the <paramref name="bucketName"/> is not found and <paramref name="autoCreateBucket"/> is false this exception will be thrown.</exception>
     /// <exception cref="OverwriteNotPermittedException">If the <paramref name="resourcePath"/> is already in the database and <paramref name="overwriteExisting"/> is false, this exception will be thrown./></exception>
     public async Task UploadStreamAsync(IDocumentSession documentSession, string bucketName,
-        ContentRepositoryFilePath resourcePath,
+        ContentRepositoryResourcePath resourcePath,
         Stream inStream, bool autoCreateBucket = true, bool overwriteExisting = false, Guid? userGuid = null,
         long userValue = 0L)
     {
@@ -49,7 +49,7 @@ public partial class ContentRepository
         if (overwriteExisting is false)
         {
             // See if there's an existing item with the given filePath
-            if (await FileExistsAsync(documentSession, bucketName, resourcePath))
+            if (await ResourceExistsAsync(documentSession, bucketName, resourcePath))
             {
                 // There's an existing item with the same name...throw an IOException.
                 throw new OverwriteNotPermittedException(bucketName, resourcePath);
@@ -58,7 +58,7 @@ public partial class ContentRepository
 
         // No overwrite protection...call delete to make sure 
         // there's nothing taking the incoming filePath resource name.
-        await DeleteFileAsync(documentSession, bucketName, resourcePath);
+        await DeleteResourceAsync(documentSession, bucketName, resourcePath);
 
         // Create a temp file stream to save the incoming stream into...
         using var tempFilename = new TemporaryFilenameDisposable();

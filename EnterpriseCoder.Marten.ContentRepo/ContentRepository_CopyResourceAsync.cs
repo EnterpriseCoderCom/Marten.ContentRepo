@@ -6,7 +6,7 @@ namespace EnterpriseCoder.Marten.ContentRepo;
 public partial class ContentRepository
 {
     /// <summary>
-    /// The CopyFileAsync method is used to make a copy of an existing resource from one resource location to another bucket and/or resource path.
+    /// The CopyResourceAsync method is used to make a copy of an existing resource from one resource location to another bucket and/or resource path.
     /// </summary>
     /// <param name="documentSession">A Marten documentSession that will be used to communicate with the database.</param>
     /// <param name="sourceBucketName">The name of the source bucket.</param>
@@ -18,9 +18,9 @@ public partial class ContentRepository
     /// <exception cref="BucketNotFoundException">Thrown when either the <paramref name="sourceBucketName"/> or when <paramref name="destinationBucketName"/> is not found and <paramref name="autoCreateBucket"/> is false.</exception>
     /// <exception cref="ResourceNotFoundException">Thrown when there isn't a resource at the location specified by <paramref name="sourceBucketName"/> and <paramref name="sourceResourcePath"/>.</exception>
     /// <exception cref="OverwriteNotPermittedException">Thrown when <paramref name="overwriteDestination"/> is false and there's an existing resource at the given destination location.</exception>
-    public async Task CopyFileAsync(IDocumentSession documentSession,
-        string sourceBucketName, ContentRepositoryFilePath sourceResourcePath,
-        string destinationBucketName, ContentRepositoryFilePath destinationResourcePath,
+    public async Task CopyResourceAsync(IDocumentSession documentSession,
+        string sourceBucketName, ContentRepositoryResourcePath sourceResourcePath,
+        string destinationBucketName, ContentRepositoryResourcePath destinationResourcePath,
         bool autoCreateBucket = true, bool overwriteDestination = false)
     {
         // Get the old bucket

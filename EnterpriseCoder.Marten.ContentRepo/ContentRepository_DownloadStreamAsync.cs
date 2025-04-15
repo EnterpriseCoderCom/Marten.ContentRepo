@@ -18,7 +18,7 @@ public partial class ContentRepository
     /// <exception cref="BucketNotFoundException">Thrown when the bucket named in the <paramref name="bucketName"/> argument is not found.</exception>
     /// <exception cref="ResourceNotFoundException">Throw when the resource specified in the <paramref name="resourcePath"/> is not found.</exception>
     public async Task<Stream?> DownloadStreamAsync(IDocumentSession documentSession, string bucketName,
-        ContentRepositoryFilePath resourcePath)
+        ContentRepositoryResourcePath resourcePath)
     {
         // Lookup the target bucket 
         var targetBucket = await _contentBucketProcedures.SelectBucketAsync(documentSession, bucketName);

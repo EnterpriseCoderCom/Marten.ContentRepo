@@ -41,7 +41,7 @@ public partial class ContentRepository
 
         await foreach (var nextContentItem in contentList)
         {
-            await DeleteFileAsync(documentSession, bucketName, nextContentItem.FilePath);
+            await DeleteResourceAsync(documentSession, bucketName, nextContentItem.FilePath);
         }
 
         // Delete the bucket entry itself.

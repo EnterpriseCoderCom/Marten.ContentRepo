@@ -6,7 +6,7 @@ namespace EnterpriseCoder.Marten.ContentRepo;
 public partial class ContentRepository
 {
     /// <summary>
-    /// The GetFileInfoAsync method returns information about the resource specified in the <paramref name="bucketName"/>
+    /// The GetResourceInfoAsync method returns information about the resource specified in the <paramref name="bucketName"/>
     /// and <paramref name="resourcePath"/> arguments.
     /// </summary>
     /// <param name="documentSession">A Marten documentSession that will be used to communicate with the database.</param>
@@ -15,8 +15,8 @@ public partial class ContentRepository
     /// <returns>A <see cref="ContentRepositoryFileInfo"/> that contains information about the given resource.  This method
     /// may return a null reference if the specified bucket and resource are not found.
     /// </returns>
-    public async Task<ContentRepositoryFileInfo?> GetFileInfoAsync(IDocumentSession documentSession,
-        string bucketName, ContentRepositoryFilePath resourcePath)
+    public async Task<ContentRepositoryFileInfo?> GetResourceInfoAsync(IDocumentSession documentSession,
+        string bucketName, ContentRepositoryResourcePath resourcePath)
     {
         // Lookup the target bucket
         var targetBucket = await _contentBucketProcedures.SelectBucketAsync(documentSession, bucketName);

@@ -18,9 +18,9 @@ public partial class ContentRepository
     /// <exception cref="BucketNotFoundException">Thrown when either the <paramref name="sourceBucketName"/> or <paramref name="destinationBucketName"/> is not found.</exception>
     /// <exception cref="ResourceNotFoundException">Throw when there isn't a resource at the location specified by <paramref name="sourceBucketName"/> and <paramref name="sourceResourcePath"/>.</exception>
     /// <exception cref="OverwriteNotPermittedException">Throw when there an existing resource at the specified destination and <paramref name="replaceDestination"/> is false.</exception>
-    public async Task RenameFileAsync(IDocumentSession documentSession,
-        string sourceBucketName, ContentRepositoryFilePath sourceResourcePath,
-        string destinationBucketName, ContentRepositoryFilePath destinationResourcePath,
+    public async Task RenameResourceAsync(IDocumentSession documentSession,
+        string sourceBucketName, ContentRepositoryResourcePath sourceResourcePath,
+        string destinationBucketName, ContentRepositoryResourcePath destinationResourcePath,
         bool replaceDestination = false)
     {
         // Lookup the bucket
@@ -54,7 +54,7 @@ public partial class ContentRepository
             }
 
             // Delete the file identified by newFilePath
-            await DeleteFileAsync(documentSession, sourceBucketName, destinationResourcePath);
+            await DeleteResourceAsync(documentSession, sourceBucketName, destinationResourcePath);
         }
 
         sourceHeader.BucketId = newBucket.Id;

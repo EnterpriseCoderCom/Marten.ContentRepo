@@ -11,8 +11,8 @@ public partial class ContentRepository
     /// <param name="bucketName">The name of the bucket that holds the desired content.</param>
     /// <param name="resourcePath">A slash separated path to the resource, including filename and extension.  "/myResourcePath/myImage.png"</param>
     /// <returns>Returns true if the resource was found.  False if it is not present in the database.</returns>
-    public async Task<bool> FileExistsAsync(IDocumentSession documentSession, string bucketName,
-        ContentRepositoryFilePath resourcePath)
+    public async Task<bool> ResourceExistsAsync(IDocumentSession documentSession, string bucketName,
+        ContentRepositoryResourcePath resourcePath)
     {
         // Lookup the target bucket.
         var targetBucket = await _contentBucketProcedures.SelectBucketAsync(documentSession, bucketName);

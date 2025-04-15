@@ -10,35 +10,35 @@ public interface IContentRepositoryScoped
 
     Task DeleteBucketAsync(string bucketName, bool force = false);
 
-    Task UploadStreamAsync(string bucketName, ContentRepositoryFilePath filePath,
+    Task UploadStreamAsync(string bucketName, ContentRepositoryResourcePath resourcePath,
         Stream inStream, bool autoCreateBucket = true,
         bool overwriteExisting = false,
         Guid? userGuid = null, long userValue = 0L);
 
     Task<Stream?> DownloadStreamAsync(string bucketName,
-        ContentRepositoryFilePath filePath);
+        ContentRepositoryResourcePath resourcePath);
 
-    Task<bool> FileExistsAsync(string bucketName, ContentRepositoryFilePath filePath);
+    Task<bool> ResourceExistsAsync(string bucketName, ContentRepositoryResourcePath resourcePath);
 
-    Task DeleteFileAsync(string bucketName, ContentRepositoryFilePath filePath);
+    Task DeleteResourceAsync(string bucketName, ContentRepositoryResourcePath resourcePath);
 
-    Task<ContentRepositoryFileInfo?> GetFileInfoAsync(string bucketName, ContentRepositoryFilePath filePath);
+    Task<ContentRepositoryFileInfo?> GetResourceInfoAsync(string bucketName, ContentRepositoryResourcePath resourcePath);
 
-    Task RenameFileAsync(
-        string oldBucketName, ContentRepositoryFilePath oldFilePath,
-        string newBucketName, ContentRepositoryFilePath newFilePath,
+    Task RenameResourceAsync(
+        string oldBucketName, ContentRepositoryResourcePath oldResourcePath,
+        string newBucketName, ContentRepositoryResourcePath newResourcePath,
         bool overwriteDestination = false);
 
-    Task CopyFileAsync(
-        string oldBucketName, ContentRepositoryFilePath oldFilePath,
-        string newBucketName, ContentRepositoryFilePath newFilePath,
+    Task CopyResourceAsync(
+        string oldBucketName, ContentRepositoryResourcePath oldResourcePath,
+        string newBucketName, ContentRepositoryResourcePath newResourcePath,
         bool autoCreateBucket = true, bool overwriteDestination = false);
 
-    Task<PagedContentRepositoryFileInfo> GetFileListingAsync(
+    Task<PagedContentRepositoryFileInfo> GetResourceListingAsync(
         string bucketName, ContentRepositoryDirectory directory,
         int oneBasedPage, int pageSize,
         bool recursive = false);
 
-    Task<PagedContentRepositoryFileInfo> GetFileListingByUserGuidAsync(string bucketName, Guid userGuid,
+    Task<PagedContentRepositoryFileInfo> GetResourceListingByUserGuidAsync(string bucketName, Guid userGuid,
         int oneBasedPage, int pageSize);
 }
