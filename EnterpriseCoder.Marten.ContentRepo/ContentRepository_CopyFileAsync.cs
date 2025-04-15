@@ -6,7 +6,7 @@ namespace EnterpriseCoder.Marten.ContentRepo;
 public partial class ContentRepository
 {
     /// <summary>
-    /// The CopyFileAsync method is used to make a copy of an existing resource.
+    /// The CopyFileAsync method is used to make a copy of an existing resource from one resource location to another bucket and/or resource path.
     /// </summary>
     /// <param name="documentSession">A Marten documentSession that will be used to communicate with the database.</param>
     /// <param name="sourceBucketName">The name of the source bucket.</param>

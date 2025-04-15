@@ -7,7 +7,8 @@ public partial class ContentRepository
     /// <summary>
     /// <para>
     /// <c>CreateBucketAsync</c> creates a new bucket within the system.  A bucket can hold zero to many
-    /// content files and serves as a namespace with which to organize content.
+    /// content files and serves as a namespace with which to organize content.  If a bucket with the given
+    /// name already exists, then this method returns without error.
     /// </para>
     /// </summary>
     /// <param name="documentSession">A Marten <c>IDocumentSession</c> that will be used to update the database.</param>
