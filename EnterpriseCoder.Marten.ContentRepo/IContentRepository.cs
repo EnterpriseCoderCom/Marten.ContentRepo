@@ -49,35 +49,123 @@ public interface IContentRepository
     /// <returns></returns>
     /// <exception cref="BucketNotFoundException">If the <paramref name="bucketName"/> is not found and <paramref name="autoCreateBucket"/> is false this exception will be thrown.</exception>
     /// <exception cref="OverwriteNotPermittedException">If the <paramref name="resourcePath"/> is already in the database and <paramref name="overwriteExisting"/> is false, this exception will be thrown./></exception>
-    Task UploadStreamAsync(IDocumentSession documentSession, string bucketName, ContentRepositoryFilePath resourcePath,
+    Task UploadStreamAsync(IDocumentSession documentSession, string bucketName, ContentRepositoryResourcePath resourcePath,
         Stream inStream, bool autoCreateBucket = true, bool overwriteExisting = false, Guid? userGuid = null,
         long userValue = 0L);
 
+    /// <summary>
+    /// The DownloadStreamAsync method is used to read content using a standard System.IO.Stream.  The desired content is
+    /// addressed through the <paramref name="bucketName"/> and <paramref name="resourcePath"/> arguments.
+    /// </summary>
+    /// <param name="documentSession">A Marten documentSession that will be used to communicate with the database.</param>
+    /// <param name="bucketName">The name of the bucket that holds the desired content.</param>
+    /// <param name="resourcePath">A slash separated path to the resource, including filename and extension.  "/myResourcePath/myImage.png"</param>
+    /// <returns>A System.IO.Stream that contains the contents of the resource.</returns>
+    /// <exception cref="BucketNotFoundException">Thrown when the bucket named in the <paramref name="bucketName"/> argument is not found.</exception>
+    /// <exception cref="ResourceNotFoundException">Throw when the resource specified in the <paramref name="resourcePath"/> is not found.</exception>
     Task<Stream?> DownloadStreamAsync(IDocumentSession documentSession, string bucketName,
-        ContentRepositoryFilePath filePath);
+        ContentRepositoryResourcePath resourcePath);
 
-    Task<bool> FileExistsAsync(IDocumentSession documentSession, string bucketName, ContentRepositoryFilePath filePath);
+    /// <summary>
+    /// The ResourceExistsAsync method determines if there is a resource at the given <paramref name="bucketName"/> and <paramref name="resourcePath"/> location.
+    /// </summary>
+    /// <param name="documentSession">A Marten documentSession that will be used to communicate with the database.</param>
+    /// <param name="bucketName">The name of the bucket that holds the desired content.</param>
+    /// <param name="resourcePath">A slash separated path to the resource, including filename and extension.  "/myResourcePath/myImage.png"</param>
+    /// <returns>Returns true if the resource was found.  False if it is not present in the database.</returns>
+    Task<bool> ResourceExistsAsync(IDocumentSession documentSession, string bucketName, ContentRepositoryResourcePath resourcePath);
 
-    Task DeleteFileAsync(IDocumentSession documentSession, string bucketName, ContentRepositoryFilePath filePath);
+    /// <summary>
+    /// The DeleteResourceAsync method is used to remove content from the repository.  The resource to be removed is
+    /// specified by the <paramref name="documentSession"/> and <paramref name="resourcePath"/> arguments.  If the given
+    /// resource is not found, then this method returns without error.
+    /// </summary>
+    /// <param name="documentSession">A Marten documentSession that will be used to communicate with the database.</param>
+    /// <param name="bucketName">The name of the bucket that holds the desired content.</param>
+    /// <param name="resourcePath">A slash separated path to the resource, including filename and extension.  "/myResourcePath/myImage.png"</param>
+    Task DeleteResourceAsync(IDocumentSession documentSession, string bucketName, ContentRepositoryResourcePath resourcePath);
 
-    Task<ContentRepositoryFileInfo?> GetFileInfoAsync(IDocumentSession documentSession,
-        string bucketName, ContentRepositoryFilePath filePath);
+    /// <summary>
+    /// The GetResourceListingAsync method returns information about the resource specified in the <paramref name="bucketName"/>
+    /// and <paramref name="resourcePath"/> arguments.
+    /// </summary>
+    /// <param name="documentSession">A Marten documentSession that will be used to communicate with the database.</param>
+    /// <param name="bucketName">The name of the bucket that holds the desired content.</param>
+    /// <param name="resourcePath">A slash separated path to the resource, including filename and extension.  "/myResourcePath/myImage.png"</param>
+    /// <returns>A <see cref="ContentRepositoryFileInfo"/> that contains information about the given resource.  This method
+    /// may return a null reference if the specified bucket and resource are not found.
+    /// </returns>
+    Task<ContentRepositoryFileInfo?> GetResourceInfoAsync(IDocumentSession documentSession,
+        string bucketName, ContentRepositoryResourcePath resourcePath);
 
-    Task RenameFileAsync(IDocumentSession documentSession,
-        string oldBucketName, ContentRepositoryFilePath oldFilePath,
-        string newBucketName, ContentRepositoryFilePath newFilePath,
+    /// <summary>
+    /// The RenameResourceAsync method is used to rename a resource from one name to another.  This includes moving a resource
+    /// between buckets.
+    /// </summary>
+    /// <param name="documentSession">A Marten documentSession that will be used to communicate with the database.</param>
+    /// <param name="sourceBucketName">The name of the source bucket.</param>
+    /// <param name="sourceResourcePath">The name of the resource to be renamed.</param>
+    /// <param name="destinationBucketName">The name of the destination bucket.</param>
+    /// <param name="destinationResourcePath">The new name for the resource within the <paramref name="destinationBucketName"/></param>
+    /// <param name="replaceDestination">A boolean that indicates if an error should be thrown if there is already a resource in the destination location.</param>
+    /// <exception cref="BucketNotFoundException">Thrown when either the <paramref name="sourceBucketName"/> or <paramref name="destinationBucketName"/> is not found.</exception>
+    /// <exception cref="ResourceNotFoundException">Throw when there isn't a resource at the location specified by <paramref name="sourceBucketName"/> and <paramref name="sourceResourcePath"/>.</exception>
+    /// <exception cref="OverwriteNotPermittedException">Throw when there an existing resource at the specified destination and <paramref name="replaceDestination"/> is false.</exception>
+    Task RenameResourceAsync(IDocumentSession documentSession,
+        string sourceBucketName, ContentRepositoryResourcePath sourceResourcePath,
+        string destinationBucketName, ContentRepositoryResourcePath destinationResourcePath,
         bool replaceDestination = false);
 
-    Task CopyFileAsync(IDocumentSession documentSession,
-        string oldBucketName, ContentRepositoryFilePath oldFilePath,
-        string newBucketName, ContentRepositoryFilePath newFilePath,
+    /// <summary>
+    /// The CopyFileAsync method is used to make a copy of an existing resource.
+    /// </summary>
+    /// <param name="documentSession">A Marten documentSession that will be used to communicate with the database.</param>
+    /// <param name="sourceBucketName">The name of the source bucket.</param>
+    /// <param name="sourceResourcePath">The name of the resource to be renamed.</param>
+    /// <param name="destinationBucketName">The name of the destination bucket.</param>
+    /// <param name="destinationResourcePath">The new name for the resource within the <paramref name="destinationBucketName"/></param>
+    /// <param name="autoCreateBucket">Set to true in order to create the destination bucket automatically.</param>
+    /// <param name="overwriteDestination">Set to true to overwrite any existing resource at the specified destination location.</param>
+    /// <exception cref="BucketNotFoundException">Thrown when either the <paramref name="sourceBucketName"/> or when <paramref name="destinationBucketName"/> is not found and <paramref name="autoCreateBucket"/> is false.</exception>
+    /// <exception cref="ResourceNotFoundException">Thrown when there isn't a resource at the location specified by <paramref name="sourceBucketName"/> and <paramref name="sourceResourcePath"/>.</exception>
+    /// <exception cref="OverwriteNotPermittedException">Thrown when <paramref name="overwriteDestination"/> is false and there's an existing resource at the given destination location.</exception>
+    Task CopyResourceAsync(IDocumentSession documentSession,
+        string sourceBucketName, ContentRepositoryResourcePath sourceResourcePath,
+        string destinationBucketName, ContentRepositoryResourcePath destinationResourcePath,
         bool autoCreateBucket = true, bool overwriteDestination = false);
 
-    Task<PagedContentRepositoryFileInfo> GetFileListingAsync(IDocumentSession documentSession,
-        string bucketName, ContentRepositoryDirectory directory,
+    /// <summary>
+    /// The GetFileListingAsync method is used to obtain a paged listing of all resources from the bucket specified by
+    /// <paramref name="bucketName"/> for all resources that start with <paramref name="resourcePrefix"/>.  The
+    /// returned <see cref="PagedContentRepositoryFileInfo"/> contains paging information so that large repositories
+    /// listings can be handled in a memory-safe way.
+    /// </summary>
+    /// <param name="documentSession">A Marten documentSession that will be used to communicate with the database.</param>
+    /// <param name="bucketName">The name of the bucket to be searched.</param>
+    /// <param name="resourcePrefix">The resource prefix to be searched.  For example: /images to return information about all resources that start with "/images".</param>
+    /// <param name="oneBasedPage">The one-based page to be returned by this call.</param>
+    /// <param name="pageSize">The desired size for the returned page of information.</param>
+    /// <param name="recursive">Set to true to return all resources under <paramref name="resourcePrefix"/>.  Set to false in order to return only resources that are directly in the given prefix pseudo-directory.</param>
+    /// <returns>Returns a <see cref="PagedContentRepositoryFileInfo"/> object that contains the items for the requested page as
+    /// well as information about the total number of pages.</returns>
+    /// <exception cref="BucketNotFoundException">Thrown when the bucket specified by <paramref name="bucketName"/> is not found.</exception>
+    Task<PagedContentRepositoryFileInfo> GetResourceListingAsync(IDocumentSession documentSession,
+        string bucketName, ContentRepositoryDirectory resourcePrefix,
         int oneBasedPage, int pageSize,
         bool recursive = false);
 
-    Task<PagedContentRepositoryFileInfo> GetFileListingByUserDataGuidAsync(IDocumentSession documentSession,
+    /// <summary>
+    /// The GetFileListingByUserDataGuidAsync method is used to retrieve a paged listing of resources that were saved
+    /// with a specific "user data" guid.  This can be used as a type of foreign key to a user table in order to
+    /// track quotas if desired.  The guid field associated with the user data is indexed for fast lookup.
+    /// </summary>
+    /// <param name="documentSession">A Marten documentSession that will be used to communicate with the database.</param>
+    /// <param name="bucketName">The name of the bucket to be searched.</param>
+    /// <param name="userGuid">The guid identifier that will be used in the search.</param>
+    /// <param name="oneBasedPage">The one-based page number to be queried.</param>
+    /// <param name="pageSize">The desired size for each page of resource information.</param>
+    /// <returns>Returns a <see cref="PagedContentRepositoryFileInfo"/> that contains the items for the page as well as paging information.</returns>
+    /// <exception cref="BucketNotFoundException">Thrown when the bucket specified by <paramref name="bucketName"/> is not found.</exception>
+    Task<PagedContentRepositoryFileInfo> GetResourceListingByUserDataGuidAsync(IDocumentSession documentSession,
         string bucketName, Guid userGuid, int oneBasedPage, int pageSize);
 }

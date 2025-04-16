@@ -2,7 +2,7 @@
 
 public class ContentRepositoryFileInfo
 {
-    public ContentRepositoryFilePath FilePath { get; set; } = null!;
+    public ContentRepositoryResourcePath ResourcePath { get; set; } = null!;
     public byte[] Sha256 { get; set; } = Array.Empty<byte>();
     public DateTimeOffset UpdateDateTime { get; set; }
     public long OriginalLength { get; set; }

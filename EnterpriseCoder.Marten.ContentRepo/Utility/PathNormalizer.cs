@@ -3,8 +3,19 @@ using EnterpriseCoder.Marten.ContentRepo.Exceptions;
 
 namespace EnterpriseCoder.Marten.ContentRepo.Utility;
 
+/// <summary>
+/// Provides utility methods for normalizing and splitting file system paths.
+/// </summary>
 public static class PathNormalizer
 {
+    /// <summary>
+    /// Normalizes a file system path by converting backslashes to forward slashes,
+    /// resolving relative path components ('.' and '..'), and ensuring a consistent
+    /// path format starting with a forward slash.
+    /// </summary>
+    /// <param name="path">The path to normalize.</param>
+    /// <returns>A normalized path string starting with a forward slash, or "/" if the path is empty after normalization.</returns>
+    /// <exception cref="InvalidPathException">Thrown when the path is null, empty, whitespace, or attempts to navigate above the root directory.</exception>
     internal static string NormalizePath(string path)
     {
         if (string.IsNullOrWhiteSpace(path))
@@ -64,6 +75,14 @@ public static class PathNormalizer
         return finalPath;
     }
 
+    /// <summary>
+    /// Splits a file system path into its components, removing empty parts and
+    /// rejecting relative path components ('.' and '..').
+    /// </summary>
+    /// <param name="path">The path to split.</param>
+    /// <returns>An array of path components.</returns>
+    /// <exception cref="InvalidPathException">Thrown when the path is null, empty, or whitespace.</exception>
+    /// <exception cref="InvalidCastException">Thrown when the path contains relative directory components ('.' or '..').</exception>
     internal static string[] SplitPath(string path)
     {
         if (string.IsNullOrWhiteSpace(path))

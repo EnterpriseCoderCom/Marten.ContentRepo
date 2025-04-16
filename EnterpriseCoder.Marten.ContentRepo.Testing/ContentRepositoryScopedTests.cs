@@ -45,7 +45,7 @@ public class ContentRepositoryScopedTests : IClassFixture<DatabaseTestFixture>
             await _contentRepositoryScoped.DocumentSession.SaveChangesAsync();
         }
 
-        Assert.True(await _contentRepositoryScoped.FileExistsAsync(bucketName, TestResourcePath));
+        Assert.True(await _contentRepositoryScoped.ResourceExistsAsync(bucketName, TestResourcePath));
         Assert.Equal(1, await _databaseHelper.CountHeadersAsync());
         Assert.Equal(TestBlockCount, await _databaseHelper.CountBlocksAsync());
 
@@ -78,7 +78,7 @@ public class ContentRepositoryScopedTests : IClassFixture<DatabaseTestFixture>
         // Get the file information from the database and ensure that the stored 
         // SHA256 matches.
         var fileInfo =
-            await _contentRepositoryScoped.GetFileInfoAsync(bucketName, TestResourcePath);
+            await _contentRepositoryScoped.GetResourceInfoAsync(bucketName, TestResourcePath);
         Assert.NotNull(fileInfo);
 
         // Verify that the SHA256's are the same between stored vs reloaded.
@@ -109,13 +109,13 @@ public class ContentRepositoryScopedTests : IClassFixture<DatabaseTestFixture>
         Assert.Equal(1, await _databaseHelper.CountHeadersAsync());
         Assert.Equal(TestBlockCount, await _databaseHelper.CountBlocksAsync());
 
-        await _contentRepositoryScoped.DeleteFileAsync(bucketName, TestResourcePath);
+        await _contentRepositoryScoped.DeleteResourceAsync(bucketName, TestResourcePath);
         await _contentRepositoryScoped.DocumentSession.SaveChangesAsync();
 
         Assert.Equal(0, await _databaseHelper.CountHeadersAsync());
         Assert.Equal(0, await _databaseHelper.CountBlocksAsync());
 
-        Assert.False(await _contentRepositoryScoped.FileExistsAsync(bucketName, TestResourcePath));
+        Assert.False(await _contentRepositoryScoped.ResourceExistsAsync(bucketName, TestResourcePath));
     }
 
     [Fact]
@@ -127,12 +127,12 @@ public class ContentRepositoryScopedTests : IClassFixture<DatabaseTestFixture>
 
         await _UploadTestResourceAsync();
 
-        await _contentRepositoryScoped.RenameFileAsync(bucketName, TestResourcePath, bucketName,
+        await _contentRepositoryScoped.RenameResourceAsync(bucketName, TestResourcePath, bucketName,
             "/aNewFilename/InANewPlate.png");
         await _contentRepositoryScoped.DocumentSession.SaveChangesAsync();
 
-        Assert.False(await _contentRepositoryScoped.FileExistsAsync(bucketName, TestResourcePath));
-        Assert.True(await _contentRepositoryScoped.FileExistsAsync(bucketName, "/aNewFilename/InANewPlate.png"));
+        Assert.False(await _contentRepositoryScoped.ResourceExistsAsync(bucketName, TestResourcePath));
+        Assert.True(await _contentRepositoryScoped.ResourceExistsAsync(bucketName, "/aNewFilename/InANewPlate.png"));
     }
 
     [Fact]
@@ -170,7 +170,7 @@ public class ContentRepositoryScopedTests : IClassFixture<DatabaseTestFixture>
         Assert.Equal(1, await _databaseHelper.CountHeadersAsync());
         Assert.Equal(TestBlockCount, await _databaseHelper.CountBlocksAsync());
 
-        await _contentRepositoryScoped.CopyFileAsync(bucketName, TestResourcePath, bucketName,
+        await _contentRepositoryScoped.CopyResourceAsync(bucketName, TestResourcePath, bucketName,
             "/newPath/anotherBird.png");
 
         await _contentRepositoryScoped.DocumentSession.SaveChangesAsync();
@@ -179,7 +179,7 @@ public class ContentRepositoryScopedTests : IClassFixture<DatabaseTestFixture>
         Assert.Equal(TestBlockCount * 2, await _databaseHelper.CountBlocksAsync());
 
         await Assert.ThrowsAsync<OverwriteNotPermittedException>(async () =>
-            await _contentRepositoryScoped.CopyFileAsync(bucketName, TestResourcePath, bucketName, TestResourcePath));
+            await _contentRepositoryScoped.CopyResourceAsync(bucketName, TestResourcePath, bucketName, TestResourcePath));
     }
 
     [Fact]
@@ -246,7 +246,7 @@ public class ContentRepositoryScopedTests : IClassFixture<DatabaseTestFixture>
         // ===================================================================================
         // Try to get a listing with no recursion...should be zero.
         // ===================================================================================
-        var fileListing = await _contentRepositoryScoped.GetFileListingAsync(bucketName,
+        var fileListing = await _contentRepositoryScoped.GetResourceListingAsync(bucketName,
             "/directory", 1, 200);
         Assert.Equal(0, fileListing.Count);
 
@@ -254,7 +254,7 @@ public class ContentRepositoryScopedTests : IClassFixture<DatabaseTestFixture>
         // Get a listing for the files that we uploaded with recursive listing
         // ===================================================================================
         HashSet<string> compareSet = new HashSet<string>(masterTrackingSet);
-        fileListing = await _contentRepositoryScoped.GetFileListingAsync(bucketName, "/directory",
+        fileListing = await _contentRepositoryScoped.GetResourceListingAsync(bucketName, "/directory",
             1, 200, true);
         Assert.Equal(1, fileListing.PageNumber);
         Assert.Equal(100, fileListing.TotalItemCount);
@@ -267,7 +267,7 @@ public class ContentRepositoryScopedTests : IClassFixture<DatabaseTestFixture>
         Assert.Equal(testArticleCount * subItemCount, fileListing.Count);
         foreach (var nextItem in fileListing)
         {
-            compareSet.Remove(nextItem.FilePath);
+            compareSet.Remove(nextItem.ResourcePath);
         }
 
         Assert.True(compareSet.Count == 0);
@@ -300,13 +300,13 @@ public class ContentRepositoryScopedTests : IClassFixture<DatabaseTestFixture>
         // Get a listing for the files that we uploaded.  Get them all at once.
         // ===================================================================================
         var compareSet = new HashSet<string>(masterTrackingSet);
-        var fileListing = await _contentRepositoryScoped.GetFileListingAsync(
+        var fileListing = await _contentRepositoryScoped.GetResourceListingAsync(
             bucketName, "/directory", 1, 200);
 
         Assert.Equal(testArticleCount, fileListing.Count);
         foreach (var nextItem in fileListing)
         {
-            compareSet.Remove(nextItem.FilePath);
+            compareSet.Remove(nextItem.ResourcePath);
         }
 
         Assert.True(compareSet.Count == 0);
@@ -318,10 +318,10 @@ public class ContentRepositoryScopedTests : IClassFixture<DatabaseTestFixture>
         var pageCount = testArticleCount / 25;
         for (var nextPage = 1; nextPage <= pageCount; nextPage++)
         {
-            fileListing = await _contentRepositoryScoped.GetFileListingAsync(bucketName, "/directory", nextPage, 25);
+            fileListing = await _contentRepositoryScoped.GetResourceListingAsync(bucketName, "/directory", nextPage, 25);
             foreach (var nextItem in fileListing)
             {
-                compareSet.Remove(nextItem.FilePath);
+                compareSet.Remove(nextItem.ResourcePath);
             }
         }
 
@@ -356,7 +356,7 @@ public class ContentRepositoryScopedTests : IClassFixture<DatabaseTestFixture>
         // Use the first user guid and make sure we can select 1/2 of the data.
         // ===================================================================================
         var returnList =
-            await _contentRepositoryScoped.GetFileListingByUserGuidAsync(bucketName, testUserGuid1, 1, 200);
+            await _contentRepositoryScoped.GetResourceListingByUserGuidAsync(bucketName, testUserGuid1, 1, 200);
         Assert.Equal(testArticleCount / 2, returnList.Count);
         Assert.Equal(1, returnList.PageCount);
         Assert.Equal(50, returnList.TotalItemCount);
@@ -365,7 +365,7 @@ public class ContentRepositoryScopedTests : IClassFixture<DatabaseTestFixture>
         // Use the second user guid and make sure we can select 1/2 of the data.
         // ===================================================================================
         returnList =
-            await _contentRepositoryScoped.GetFileListingByUserGuidAsync(bucketName, testUserGuid2, 1, 200);
+            await _contentRepositoryScoped.GetResourceListingByUserGuidAsync(bucketName, testUserGuid2, 1, 200);
         Assert.Equal(testArticleCount / 2, returnList.Count);
         Assert.Equal(1, returnList.PageCount);
         Assert.Equal(50, returnList.TotalItemCount);
@@ -384,16 +384,16 @@ public class ContentRepositoryScopedTests : IClassFixture<DatabaseTestFixture>
         await _UploadTestResourceAsync(bucketName, "/testItem.png", false, guidToUse, testValue);
         await _contentRepositoryScoped.DocumentSession.SaveChangesAsync();
 
-        var fileInfo = await _contentRepositoryScoped.GetFileInfoAsync(bucketName, "/testItem.png");
+        var fileInfo = await _contentRepositoryScoped.GetResourceInfoAsync(bucketName, "/testItem.png");
         Assert.NotNull(fileInfo);
         Assert.Equal(testValue, fileInfo!.UserDataLong);
         Assert.Equal(guidToUse, fileInfo.UserDataGuid);
 
         // Copy the file to another location.
-        await _contentRepositoryScoped.CopyFileAsync(bucketName, "/testItem.png", bucketName, "/testItem2.png");
+        await _contentRepositoryScoped.CopyResourceAsync(bucketName, "/testItem.png", bucketName, "/testItem2.png");
         await _contentRepositoryScoped.DocumentSession.SaveChangesAsync();
 
-        fileInfo = await _contentRepositoryScoped.GetFileInfoAsync(bucketName, "/testItem2.png");
+        fileInfo = await _contentRepositoryScoped.GetResourceInfoAsync(bucketName, "/testItem2.png");
         Assert.NotNull(fileInfo);
         Assert.Equal(testValue, fileInfo!.UserDataLong);
         Assert.Equal(guidToUse, fileInfo.UserDataGuid);
@@ -412,16 +412,16 @@ public class ContentRepositoryScopedTests : IClassFixture<DatabaseTestFixture>
         await _UploadTestResourceAsync(bucketName, "/testItem.png", false, guidToUse, testValue);
         await _contentRepositoryScoped.DocumentSession.SaveChangesAsync();
 
-        var fileInfo = await _contentRepositoryScoped.GetFileInfoAsync(bucketName, "/testItem.png");
+        var fileInfo = await _contentRepositoryScoped.GetResourceInfoAsync(bucketName, "/testItem.png");
         Assert.NotNull(fileInfo);
         Assert.Equal(testValue, fileInfo!.UserDataLong);
         Assert.Equal(guidToUse, fileInfo.UserDataGuid);
 
         // Copy the file to another location.
-        await _contentRepositoryScoped.RenameFileAsync(bucketName, "/testItem.png", bucketName, "/testItem2.png");
+        await _contentRepositoryScoped.RenameResourceAsync(bucketName, "/testItem.png", bucketName, "/testItem2.png");
         await _contentRepositoryScoped.DocumentSession.SaveChangesAsync();
 
-        fileInfo = await _contentRepositoryScoped.GetFileInfoAsync(bucketName, "/testItem2.png");
+        fileInfo = await _contentRepositoryScoped.GetResourceInfoAsync(bucketName, "/testItem2.png");
         Assert.NotNull(fileInfo);
         Assert.Equal(testValue, fileInfo!.UserDataLong);
         Assert.Equal(guidToUse, fileInfo.UserDataGuid);
@@ -455,7 +455,7 @@ public class ContentRepositoryScopedTests : IClassFixture<DatabaseTestFixture>
         // Pull in 5 pages at 20 items per page.
         foreach (var currentPageOffset in Enumerable.Range(1, 5))
         {
-            var fileListing = await _contentRepositoryScoped.GetFileListingAsync(bucketName, $"/directory", currentPageOffset, 20);
+            var fileListing = await _contentRepositoryScoped.GetResourceListingAsync(bucketName, $"/directory", currentPageOffset, 20);
             Assert.Equal(testArticleCount, fileListing.TotalItemCount);
             Assert.Equal(testArticleCount/pageSize, fileListing.PageCount);
             Assert.Equal(pageSize, fileListing.Count);
@@ -510,7 +510,7 @@ public class ContentRepositoryScopedTests : IClassFixture<DatabaseTestFixture>
             await _contentRepositoryScoped.DocumentSession.SaveChangesAsync();
         }
 
-        Assert.True(await _contentRepositoryScoped.FileExistsAsync(bucketName, TestResourcePath));
+        Assert.True(await _contentRepositoryScoped.ResourceExistsAsync(bucketName, TestResourcePath));
     }
 
     private async Task _UploadTestResourceAsync(string bucketName, string resourceFilename, bool saveAfterUpdate = true,
@@ -531,7 +531,7 @@ public class ContentRepositoryScopedTests : IClassFixture<DatabaseTestFixture>
 
         if (saveAfterUpdate)
         {
-            Assert.True(await _contentRepositoryScoped.FileExistsAsync(bucketName, resourceFilename));
+            Assert.True(await _contentRepositoryScoped.ResourceExistsAsync(bucketName, resourceFilename));
         }
     }
 }

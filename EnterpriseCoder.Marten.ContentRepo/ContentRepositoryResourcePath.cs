@@ -3,11 +3,11 @@ using EnterpriseCoder.Marten.ContentRepo.Utility;
 
 namespace EnterpriseCoder.Marten.ContentRepo;
 
-public sealed class ContentRepositoryFilePath : IComparable<ContentRepositoryFilePath>
+public sealed class ContentRepositoryResourcePath : IComparable<ContentRepositoryResourcePath>
 {
     private readonly string _resourcePath;
 
-    public ContentRepositoryFilePath(string resourcePath)
+    public ContentRepositoryResourcePath(string resourcePath)
     {
         ArgumentNullException.ThrowIfNull(resourcePath);
         if (resourcePath.Trim() == "/")
@@ -20,7 +20,7 @@ public sealed class ContentRepositoryFilePath : IComparable<ContentRepositoryFil
 
     #region IComparable<ContentFilePath> Members
 
-    public int CompareTo(ContentRepositoryFilePath? other)
+    public int CompareTo(ContentRepositoryResourcePath? other)
     {
         return string.Compare(_resourcePath, other?._resourcePath, StringComparison.Ordinal);
     }
@@ -29,28 +29,28 @@ public sealed class ContentRepositoryFilePath : IComparable<ContentRepositoryFil
 
     #region Implicit Operators
 
-    public static implicit operator string(ContentRepositoryFilePath contentRepositoryFilePath)
+    public static implicit operator string(ContentRepositoryResourcePath contentRepositoryResourcePath)
     {
-        return contentRepositoryFilePath.Path;
+        return contentRepositoryResourcePath.Path;
     }
 
-    public static implicit operator ContentRepositoryFilePath(string resourcePath)
+    public static implicit operator ContentRepositoryResourcePath(string resourcePath)
     {
-        return new ContentRepositoryFilePath(resourcePath);
+        return new ContentRepositoryResourcePath(resourcePath);
     }
 
     #endregion
 
     #region Equality Members
 
-    private bool Equals(ContentRepositoryFilePath other)
+    private bool Equals(ContentRepositoryResourcePath other)
     {
         return _resourcePath == other._resourcePath;
     }
 
     public override bool Equals(object? obj)
     {
-        return ReferenceEquals(this, obj) || (obj is ContentRepositoryFilePath other && Equals(other));
+        return ReferenceEquals(this, obj) || (obj is ContentRepositoryResourcePath other && Equals(other));
     }
 
     public override int GetHashCode()

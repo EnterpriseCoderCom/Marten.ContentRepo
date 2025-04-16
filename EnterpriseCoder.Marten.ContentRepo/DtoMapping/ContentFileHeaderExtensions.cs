@@ -8,7 +8,7 @@ public static class ContentFileHeaderExtensions
     {
         return new ContentRepositoryFileInfo
         {
-            FilePath = inHeader.FilePath,
+            ResourcePath = inHeader.FilePath,
             StoredLength = inHeader.StoredLength,
             UserDataLong = inHeader.UserDataLong,
             UserDataGuid = inHeader.UserDataGuid,

@@ -7,8 +7,18 @@ namespace EnterpriseCoder.Marten.ContentRepo;
 
 public partial class ContentRepository
 {
+    /// <summary>
+    /// The DownloadStreamAsync method is used to read content using a standard System.IO.Stream.  The desired content is
+    /// addressed through the <paramref name="bucketName"/> and <paramref name="resourcePath"/> arguments.
+    /// </summary>
+    /// <param name="documentSession">A Marten documentSession that will be used to communicate with the database.</param>
+    /// <param name="bucketName">The name of the bucket that holds the desired content.</param>
+    /// <param name="resourcePath">A slash separated path to the resource, including filename and extension.  "/myResourcePath/myImage.png"</param>
+    /// <returns>A System.IO.Stream that contains the contents of the resource.</returns>
+    /// <exception cref="BucketNotFoundException">Thrown when the bucket named in the <paramref name="bucketName"/> argument is not found.</exception>
+    /// <exception cref="ResourceNotFoundException">Throw when the resource specified in the <paramref name="resourcePath"/> is not found.</exception>
     public async Task<Stream?> DownloadStreamAsync(IDocumentSession documentSession, string bucketName,
-        ContentRepositoryFilePath filePath)
+        ContentRepositoryResourcePath resourcePath)
     {
         // Lookup the target bucket 
         var targetBucket = await _contentBucketProcedures.SelectBucketAsync(documentSession, bucketName);
@@ -18,11 +28,11 @@ public partial class ContentRepository
         }
 
         // Select the header for the given resource.
-        var targetHeader = await _fileHeaderProcedures.SelectAsync(documentSession, targetBucket, filePath);
+        var targetHeader = await _fileHeaderProcedures.SelectAsync(documentSession, targetBucket, resourcePath);
         if (targetHeader is null)
         {
             // If there's no header, then there's no such resource.
-            throw new ResourceNotFoundException(bucketName, filePath);
+            throw new ResourceNotFoundException(bucketName, resourcePath);
         }
 
         // Create a temporary filename to write into as we load the file from the database

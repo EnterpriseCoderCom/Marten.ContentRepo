@@ -24,68 +24,68 @@ public class ContentRepositoryScoped : IContentRepositoryScoped
         await _contentRepository.DeleteBucketAsync(_documentSession, bucketName, force);
     }
 
-    public async Task UploadStreamAsync(string bucketName, ContentRepositoryFilePath filePath, Stream inStream,
+    public async Task UploadStreamAsync(string bucketName, ContentRepositoryResourcePath resourcePath, Stream inStream,
         bool autoCreateBucket = true,
         bool overwriteExisting = false,
         Guid? userGuid = null,
         long userValue = 0L)
     {
-        await _contentRepository.UploadStreamAsync(_documentSession, bucketName, filePath, inStream, autoCreateBucket,
+        await _contentRepository.UploadStreamAsync(_documentSession, bucketName, resourcePath, inStream, autoCreateBucket,
             overwriteExisting, userGuid, userValue);
     }
 
-    public async Task<Stream?> DownloadStreamAsync(string bucketName, ContentRepositoryFilePath filePath)
+    public async Task<Stream?> DownloadStreamAsync(string bucketName, ContentRepositoryResourcePath resourcePath)
     {
-        return await _contentRepository.DownloadStreamAsync(_documentSession, bucketName, filePath);
+        return await _contentRepository.DownloadStreamAsync(_documentSession, bucketName, resourcePath);
     }
 
-    public async Task<bool> FileExistsAsync(string bucketName, ContentRepositoryFilePath filePath)
+    public async Task<bool> ResourceExistsAsync(string bucketName, ContentRepositoryResourcePath resourcePath)
     {
-        return await _contentRepository.FileExistsAsync(_documentSession, bucketName, filePath);
+        return await _contentRepository.ResourceExistsAsync(_documentSession, bucketName, resourcePath);
     }
 
-    public async Task DeleteFileAsync(string bucketName, ContentRepositoryFilePath filePath)
+    public async Task DeleteResourceAsync(string bucketName, ContentRepositoryResourcePath resourcePath)
     {
-        await _contentRepository.DeleteFileAsync(_documentSession, bucketName, filePath);
+        await _contentRepository.DeleteResourceAsync(_documentSession, bucketName, resourcePath);
     }
 
-    public async Task<ContentRepositoryFileInfo?> GetFileInfoAsync(string bucketName,
-        ContentRepositoryFilePath filePath)
+    public async Task<ContentRepositoryFileInfo?> GetResourceInfoAsync(string bucketName,
+        ContentRepositoryResourcePath resourcePath)
     {
-        return await _contentRepository.GetFileInfoAsync(_documentSession, bucketName, filePath);
+        return await _contentRepository.GetResourceInfoAsync(_documentSession, bucketName, resourcePath);
     }
 
-    public async Task RenameFileAsync(
-        string oldBucketName, ContentRepositoryFilePath oldFilePath,
-        string newBucketName, ContentRepositoryFilePath newFilePath,
+    public async Task RenameResourceAsync(
+        string oldBucketName, ContentRepositoryResourcePath oldResourcePath,
+        string newBucketName, ContentRepositoryResourcePath newResourcePath,
         bool overwriteDestination = false)
     {
-        await _contentRepository.RenameFileAsync(_documentSession, oldBucketName, oldFilePath, newBucketName,
-            newFilePath,
+        await _contentRepository.RenameResourceAsync(_documentSession, oldBucketName, oldResourcePath, newBucketName,
+            newResourcePath,
             overwriteDestination);
     }
 
-    public async Task CopyFileAsync(string oldBucket, ContentRepositoryFilePath oldFilePath, string newBucket,
-        ContentRepositoryFilePath newFilePath,
+    public async Task CopyResourceAsync(string oldBucket, ContentRepositoryResourcePath oldResourcePath, string newBucket,
+        ContentRepositoryResourcePath newResourcePath,
         bool autoCreateBucket = true, bool overwriteDestination = false)
     {
-        await _contentRepository.CopyFileAsync(_documentSession, oldBucket, oldFilePath, newBucket, newFilePath,
+        await _contentRepository.CopyResourceAsync(_documentSession, oldBucket, oldResourcePath, newBucket, newResourcePath,
             autoCreateBucket, overwriteDestination);
     }
 
-    public async Task<PagedContentRepositoryFileInfo> GetFileListingAsync(string bucketName,
+    public async Task<PagedContentRepositoryFileInfo> GetResourceListingAsync(string bucketName,
         ContentRepositoryDirectory directory,
         int oneBasedPage, int pageSize, bool recursive = false)
     {
-        return await _contentRepository.GetFileListingAsync(_documentSession, bucketName, directory, oneBasedPage,
+        return await _contentRepository.GetResourceListingAsync(_documentSession, bucketName, directory, oneBasedPage,
             pageSize,
             recursive);
     }
 
-    public async Task<PagedContentRepositoryFileInfo> GetFileListingByUserGuidAsync(string bucketName, Guid userGuid,
+    public async Task<PagedContentRepositoryFileInfo> GetResourceListingByUserGuidAsync(string bucketName, Guid userGuid,
         int oneBasedPage, int pageSize)
     {
-        return await _contentRepository.GetFileListingByUserDataGuidAsync(_documentSession, bucketName, userGuid,
+        return await _contentRepository.GetResourceListingByUserDataGuidAsync(_documentSession, bucketName, userGuid,
             oneBasedPage, pageSize);
     }
 
