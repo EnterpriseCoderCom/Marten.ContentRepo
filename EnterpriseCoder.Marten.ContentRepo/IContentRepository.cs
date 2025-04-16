@@ -31,6 +31,8 @@ public interface IContentRepository
     /// <returns></returns>
     Task DeleteBucketAsync(IDocumentSession documentSession, string bucketName, bool force = false);
 
+    Task<Guid> BucketExistsAsync(IDocumentSession documentSession, string bucketName);
+    
     /// <summary>
     /// <para>
     /// The UploadStreamAsync method is used to insert content contained in <paramref name="inStream"/> into the

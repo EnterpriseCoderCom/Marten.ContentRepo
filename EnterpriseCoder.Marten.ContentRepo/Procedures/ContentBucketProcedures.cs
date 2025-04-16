@@ -31,6 +31,11 @@ public class ContentBucketProcedures
         return await session.QueryAsync(new QuerySelectBucketByName { BucketName = bucketName });
     }
 
+    public async Task<ContentBucket?> SelectBucketByIdAsync(IDocumentSession session, Guid bucketId)
+    {
+        return await session.LoadAsync<ContentBucket>(bucketId);
+    }
+
     public async Task DeleteBucketAsync(IDocumentSession session, string bucketName)
     {
         var bucket = await SelectBucketAsync(session, bucketName);
