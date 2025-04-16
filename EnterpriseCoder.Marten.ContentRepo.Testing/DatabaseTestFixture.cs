@@ -31,7 +31,8 @@ public class DatabaseTestFixture : IDisposable
             options.DatabaseSchemaName = "unittesting";
             options.AutoCreateSchemaObjects = AutoCreate.All;
             options.Connection(connectionBuilder.ToString());
-        });
+        })
+        .UseLightweightSessions();
         services.AddMartenContentRepo();
         services.AddSingleton<DatabaseHelper>();
 

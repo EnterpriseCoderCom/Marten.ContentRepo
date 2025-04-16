@@ -34,4 +34,6 @@ public class DatabaseHelper
     {
         return await _session.Query<ContentBucket>().CountAsync();
     }
+
+    public IDocumentSession Session => _session;
 }

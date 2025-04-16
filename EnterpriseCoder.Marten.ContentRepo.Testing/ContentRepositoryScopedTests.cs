@@ -1,6 +1,7 @@
 using System.Reflection;
 using System.Security.Cryptography;
 using EnterpriseCoder.Marten.ContentRepo.Di;
+using EnterpriseCoder.Marten.ContentRepo.Entities;
 using EnterpriseCoder.Marten.ContentRepo.Exceptions;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit.Abstractions;
@@ -23,7 +24,7 @@ public class ContentRepositoryScopedTests : IClassFixture<DatabaseTestFixture>
         _contentRepositoryScoped = databaseFixture.ServiceProvider.GetRequiredService<IContentRepositoryScoped>();
         _databaseHelper = databaseFixture.ServiceProvider.GetRequiredService<DatabaseHelper>();
     }
-
+    
     [Fact]
     public async Task UploadAndRetrieve()
     {
