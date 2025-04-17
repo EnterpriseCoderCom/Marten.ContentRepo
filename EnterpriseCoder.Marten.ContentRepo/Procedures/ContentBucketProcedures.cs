@@ -8,22 +8,25 @@ public class ContentBucketProcedures
 {
     public async Task<ContentBucket> CreateBucketAsync(IDocumentSession session, string bucketName)
     {
-        var newBucket = new ContentBucket
+        using (var localSession = session.DocumentStore.LightweightSession())
         {
-            // Id is assigned by the constructor.
-            BucketName = bucketName
-        };
+            var newBucket = new ContentBucket
+            {
+                // Id is assigned by the constructor.
+                BucketName = bucketName
+            };
 
-        // Store the newly created bucket.
-        session.Store(newBucket);
+            // Store the newly created bucket.
+            localSession.Store(newBucket);
 
-        // Immediately commit so that future lookups by name succeed.
-        // Marten is not able to query items that are not by Id (especially in a LightweightSession)
-        // and since Buckets are looked up by name...we need to immediately save the bucket to the database
-        // so other code will actually be able to lookup the bucket's ID.
-        await session.SaveChangesAsync();
+            // Immediately commit so that future lookups by name succeed.
+            // Marten is not able to query items that are not by Id (especially in a LightweightSession)
+            // and since Buckets are looked up by name...we need to immediately save the bucket to the database
+            // so other code will actually be able to lookup the bucket's ID.
+            await localSession.SaveChangesAsync();
 
-        return newBucket;
+            return newBucket;
+        }
     }
 
     public async Task<ContentBucket?> SelectBucketAsync(IDocumentSession session, string bucketName)

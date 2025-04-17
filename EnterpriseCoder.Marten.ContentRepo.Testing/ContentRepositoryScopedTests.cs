@@ -8,7 +8,7 @@ using Xunit.Abstractions;
 
 namespace EnterpriseCoder.Marten.ContentRepo.Testing;
 
-public class ContentRepositoryScopedTests : IClassFixture<DatabaseTestFixture>
+public class ContentRepositoryScopedTests : IClassFixture<DatabaseTestFixture>, IDisposable
 {
     private const string TestFilename = "angrybird.png";
     private const string TestResourcePath = "/resources/angrybird.png";
@@ -16,11 +16,9 @@ public class ContentRepositoryScopedTests : IClassFixture<DatabaseTestFixture>
 
     private readonly IContentRepositoryScoped _contentRepositoryScoped;
     private readonly DatabaseHelper _databaseHelper;
-    private readonly ITestOutputHelper _output;
 
-    public ContentRepositoryScopedTests(DatabaseTestFixture databaseFixture, ITestOutputHelper output)
+    public ContentRepositoryScopedTests(DatabaseTestFixture databaseFixture)
     {
-        _output = output;
         _contentRepositoryScoped = databaseFixture.ServiceProvider.GetRequiredService<IContentRepositoryScoped>();
         _databaseHelper = databaseFixture.ServiceProvider.GetRequiredService<DatabaseHelper>();
     }
@@ -534,5 +532,10 @@ public class ContentRepositoryScopedTests : IClassFixture<DatabaseTestFixture>
         {
             Assert.True(await _contentRepositoryScoped.ResourceExistsAsync(bucketName, resourceFilename));
         }
+    }
+
+    public void Dispose()
+    {
+        _contentRepositoryScoped.DocumentSession.EjectAllPendingChanges();
     }
 }

@@ -23,10 +23,15 @@ public interface IContentRepository
     /// <paramref name="force"/> is set to true, all content resources in the bucket will be deleted.
     /// </para> 
     /// </summary>
+    /// <remarks>
+    /// Transaction Control:  This method will delete items within the bucket 100 items at a time.  This is done
+    /// using a separate database transaction.  The bucket deletion itself is not committed until changes are saved
+    /// on the incoming <paramref name="documentSession"/> reference. 
+    /// </remarks>
     /// <param name="documentSession">A Marten <c>IDocumentSession</c> that will be used to update the database.</param>
     /// <param name="bucketName">The name of the content bucket to be created.</param>
     /// <param name="force">Set this value to <c>true</c> to force the destruction of a non-empty bucket.</param>
-    /// <exception cref="DeleteFailureException">
+    /// <exception cref="BucketNotEmptyException">
     /// <param>If <paramref name="force"/> is <c>false</c> and the bucket is not empty, then a DeleteFailureException will be thrown.</param></exception>
     /// <returns></returns>
     Task DeleteBucketAsync(IDocumentSession documentSession, string bucketName, bool force = false);

@@ -89,17 +89,12 @@ var pagedFileListing = repo.GetFileListingAsync(
 ```
 
 
-
-
-
-
-
-
 # TODO
 
 * [ ] Write Summary documentation
 * [ ] Need a method to lookup by user data long.
 * [ ] BucketExistsAsync - this removes the need to commit prematurely
+* [ ] ListBucketsAsync
 * [X] Paged results need a better return type that gives page information.
 * [X] More unit tests around paging.
 * [X] Review exceptions that are thrown for correctness.
