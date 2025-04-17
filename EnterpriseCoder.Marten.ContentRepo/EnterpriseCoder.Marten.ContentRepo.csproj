@@ -5,6 +5,8 @@
         <Nullable>enable</Nullable>
         <TargetFrameworks>net6.0;net8.0</TargetFrameworks>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <Copyright>(c) 2025 Russell E. Elledge</Copyright>
+        <Company>Russell Elledge</Company>
     </PropertyGroup>
 
     <ItemGroup>
