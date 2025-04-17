@@ -6,7 +6,8 @@
         <TargetFrameworks>net6.0;net8.0</TargetFrameworks>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
         <Copyright>(c) 2025 Russell E. Elledge </Copyright>
-        <PackageLicenseUrl>https://mit-license.org/</PackageLicenseUrl>
+        <license>https://mit-license.org/</license>
+        <Version>0.0.92-alpha</Version>
     </PropertyGroup>
 
     <ItemGroup>
