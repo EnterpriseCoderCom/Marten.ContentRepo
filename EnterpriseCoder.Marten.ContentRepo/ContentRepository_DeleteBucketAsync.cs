@@ -13,10 +13,15 @@ public partial class ContentRepository
     /// <paramref name="force"/> is set to true, all content resources in the bucket will be deleted.
     /// </para> 
     /// </summary>
+    /// <remarks>
+    /// Transaction Control:  This method will delete items within the bucket 100 items at a time.  This is done
+    /// using a separate database transaction.  The bucket deletion itself is not committed until changes are saved
+    /// on the incoming <paramref name="documentSession"/> reference. 
+    /// </remarks>
     /// <param name="documentSession">A Marten <c>IDocumentSession</c> that will be used to update the database.</param>
     /// <param name="bucketName">The name of the content bucket to be created.</param>
     /// <param name="force">Set this value to <c>true</c> to force the destruction of a non-empty bucket.</param>
-    /// <exception cref="DeleteFailureException">
+    /// <exception cref="BucketNotEmptyException">
     /// <param>If <paramref name="force"/> is <c>false</c> and the bucket is not empty, then a DeleteFailureException will be thrown.</param></exception>
     /// <returns></returns>
     public async Task DeleteBucketAsync(IDocumentSession documentSession, string bucketName, bool force = false)
@@ -32,16 +37,23 @@ public partial class ContentRepository
         var hasContent = await documentSession.Query<ContentFileHeader>().AnyAsync(x => x.BucketId == targetBucket.Id);
         if (hasContent && force == false)
         {
-            throw new DeleteFailureException(bucketName, "*");
+            throw new BucketNotEmptyException(bucketName, "*");
         }
 
-        // Destroy all content in the bucket...
-        var contentList = documentSession.Query<ContentFileHeader>()
-            .Where(x => x.Directory.StartsWith("/")).ToAsyncEnumerable();
-
-        await foreach (var nextContentItem in contentList)
+        // Get a repeated page listing - delete 100 items at a time until there are none left.
+        var contentList = await GetResourceListingAsync(documentSession, bucketName, "/", 1, 100, true);
+        while (contentList.Count > 0)
         {
-            await DeleteResourceAsync(documentSession, bucketName, nextContentItem.FilePath);
+            foreach (var nextContentItem in contentList)
+            {
+                using (var localSession = documentSession.DocumentStore.LightweightSession())
+                {
+                    await DeleteResourceAsync(localSession, bucketName, nextContentItem.ResourcePath);
+                    await localSession.SaveChangesAsync();
+                }
+            }
+
+            contentList = await GetResourceListingAsync(documentSession, bucketName, "/", 1, 100, true);
         }
 
         // Delete the bucket entry itself.

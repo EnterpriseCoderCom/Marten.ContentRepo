@@ -1,8 +1,8 @@
 ﻿namespace EnterpriseCoder.Marten.ContentRepo.Exceptions;
 
-public class DeleteFailureException : Exception
+public class BucketNotEmptyException : Exception
 {
-    public DeleteFailureException(string bucketName, string resourceName) : base(
+    public BucketNotEmptyException(string bucketName, string resourceName) : base(
         $"{bucketName}: {resourceName} cannot be deleted")
     {
     }

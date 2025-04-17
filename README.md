@@ -3,6 +3,9 @@
 
 ## Overview
 
+This library is licensed under the MIT license.
+https://mit-license.org/
+
 This library can be used to create a content repository within a 
 PostgreSQL database.  This library utilizes MartenDb and requires a
 Marten **IDocumentSession** instance to do it's work against the
