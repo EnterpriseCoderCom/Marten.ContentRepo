@@ -7,6 +7,7 @@
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
         <Copyright>(c) 2025 Russell E. Elledge</Copyright>
         <Company>Russell Elledge</Company>
+        <PackageLicenseUrl>https://mit-license.org/</PackageLicenseUrl>
     </PropertyGroup>
 
     <ItemGroup>

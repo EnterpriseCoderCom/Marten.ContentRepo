@@ -5,6 +5,8 @@
         <Nullable>enable</Nullable>
         <TargetFrameworks>net6.0;net8.0</TargetFrameworks>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <Copyright>(c) 2025 Russell E. Elledge </Copyright>
+        <PackageLicenseUrl>https://mit-license.org/</PackageLicenseUrl>
     </PropertyGroup>
 
     <ItemGroup>
