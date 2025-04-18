@@ -4,10 +4,11 @@ namespace EnterpriseCoder.Marten.ContentRepo.DtoMapping;
 
 public static class ContentFileHeaderExtensions
 {
-    public static ContentRepositoryFileInfo ToContentFileInfoDto(this ContentFileHeader inHeader)
+    public static ContentRepositoryResourceInfo ToContentFileInfoDto(this ContentFileHeader inHeader, string bucketName)
     {
-        return new ContentRepositoryFileInfo
+        return new ContentRepositoryResourceInfo
         {
+            BucketName = bucketName,
             ResourcePath = inHeader.FilePath,
             StoredLength = inHeader.StoredLength,
             UserDataLong = inHeader.UserDataLong,

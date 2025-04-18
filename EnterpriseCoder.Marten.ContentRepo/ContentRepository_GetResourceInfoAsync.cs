@@ -13,10 +13,10 @@ public partial class ContentRepository
     /// <param name="bucketName">The name of the bucket that holds the desired content.</param>
     /// <param name="resourcePath">A slash separated path to the resource, including filename and extension.
     /// "/myResourcePath/myImage.png"</param>
-    /// <returns>A <see cref="ContentRepositoryFileInfo"/> that contains information about the given resource.  This method
+    /// <returns>A <see cref="ContentRepositoryResourceInfo"/> that contains information about the given resource.  This method
     /// may return a null reference if the specified bucket and resource are not found.
     /// </returns>
-    public async Task<ContentRepositoryFileInfo?> GetResourceInfoAsync(IDocumentSession documentSession,
+    public async Task<ContentRepositoryResourceInfo?> GetResourceInfoAsync(IDocumentSession documentSession,
         string bucketName, ContentRepositoryResourcePath resourcePath)
     {
         // Lookup the target bucket
@@ -28,6 +28,6 @@ public partial class ContentRepository
 
         // Lookup the target resource
         var targetHeader = await _fileHeaderProcedures.SelectAsync(documentSession, targetBucket, resourcePath);
-        return targetHeader?.ToContentFileInfoDto();
+        return targetHeader?.ToContentFileInfoDto(targetBucket.BucketName);
     }
 }

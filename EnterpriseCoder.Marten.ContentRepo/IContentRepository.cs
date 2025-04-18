@@ -136,10 +136,10 @@ public interface IContentRepository
     /// <param name="bucketName">The name of the bucket that holds the desired content.</param>
     /// <param name="resourcePath">A slash separated path to the resource, including filename and extension.
     /// "/myResourcePath/myImage.png"</param>
-    /// <returns>A <see cref="ContentRepositoryFileInfo"/> that contains information about the given resource.  This method
+    /// <returns>A <see cref="ContentRepositoryResourceInfo"/> that contains information about the given resource.  This method
     /// may return a null reference if the specified bucket and resource are not found.
     /// </returns>
-    Task<ContentRepositoryFileInfo?> GetResourceInfoAsync(IDocumentSession documentSession,
+    Task<ContentRepositoryResourceInfo?> GetResourceInfoAsync(IDocumentSession documentSession,
         string bucketName, ContentRepositoryResourcePath resourcePath);
 
     /// <summary>
@@ -181,7 +181,7 @@ public interface IContentRepository
     /// <summary>
     /// The GetResourceListingAsync method is used to get a paged listing of all resources from the bucket specified by
     /// <paramref name="bucketName"/> for all resources that start with <paramref name="resourcePrefix"/>.  The
-    /// returned <see cref="PagedContentRepositoryFileInfo"/> contains paging information so that large repositories
+    /// returned <see cref="PagedContentRepositoryResourceInfo"/> contains paging information so that large repositories
     /// listings can be handled in a memory-safe way.
     /// </summary>
     /// <param name="documentSession">A Marten documentSession that will be used to communicate with the database.</param>
@@ -190,11 +190,11 @@ public interface IContentRepository
     /// <param name="oneBasedPage">The one-based page to be returned by this call.</param>
     /// <param name="pageSize">The desired size for the returned page of information.</param>
     /// <param name="recursive">Default: false.  Set to true to return all resources under <paramref name="resourcePrefix"/>.  Set too false to return only resources that are directly in the given prefix pseudo-directory.</param>
-    /// <returns>Returns a <see cref="PagedContentRepositoryFileInfo"/> object that contains the items for the requested page as
+    /// <returns>Returns a <see cref="PagedContentRepositoryResourceInfo"/> object that contains the items for the requested page as
     /// well as information about the total number of pages.</returns>
     /// <exception cref="BucketNotFoundException">Thrown when the bucket specified by <paramref name="bucketName"/> is not found.</exception>
-    /// <see cref="PagedContentRepositoryFileInfo"/>
-    Task<PagedContentRepositoryFileInfo> GetResourceListingAsync(IDocumentSession documentSession,
+    /// <see cref="PagedContentRepositoryResourceInfo"/>
+    Task<PagedContentRepositoryResourceInfo> GetResourceListingAsync(IDocumentSession documentSession,
         string bucketName, ContentRepositoryDirectory resourcePrefix,
         int oneBasedPage, int pageSize,
         bool recursive = false);
@@ -209,9 +209,9 @@ public interface IContentRepository
     /// <param name="userGuid">The guid identifier that will be used in the search.</param>
     /// <param name="oneBasedPage">The one-based page number to be queried.</param>
     /// <param name="pageSize">The desired size for each page of resource information.</param>
-    /// <returns>Returns a <see cref="PagedContentRepositoryFileInfo"/> that contains the items for the page as well as paging information.</returns>
+    /// <returns>Returns a <see cref="PagedContentRepositoryResourceInfo"/> that contains the items for the page as well as paging information.</returns>
     /// <exception cref="BucketNotFoundException">Thrown when the bucket specified by <paramref name="bucketName"/> is not found.</exception>
-    /// <see cref="PagedContentRepositoryFileInfo"/>   
-    Task<PagedContentRepositoryFileInfo> GetResourceListingByUserDataGuidAsync(IDocumentSession documentSession,
+    /// <see cref="PagedContentRepositoryResourceInfo"/>   
+    Task<PagedContentRepositoryResourceInfo> GetResourceListingByUserDataGuidAsync(IDocumentSession documentSession,
         string bucketName, Guid userGuid, int oneBasedPage, int pageSize);
 }

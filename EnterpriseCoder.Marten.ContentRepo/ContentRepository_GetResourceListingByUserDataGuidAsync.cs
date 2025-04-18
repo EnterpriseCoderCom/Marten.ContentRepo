@@ -17,10 +17,10 @@ public partial class ContentRepository
     /// <param name="userGuid">The guid identifier that will be used in the search.</param>
     /// <param name="oneBasedPage">The one-based page number to be queried.</param>
     /// <param name="pageSize">The desired size for each page of resource information.</param>
-    /// <returns>Returns a <see cref="PagedContentRepositoryFileInfo"/> that contains the items for the page as well as paging information.</returns>
+    /// <returns>Returns a <see cref="PagedContentRepositoryResourceInfo"/> that contains the items for the page as well as paging information.</returns>
     /// <exception cref="BucketNotFoundException">Thrown when the bucket specified by <paramref name="bucketName"/> is not found.</exception>
-    /// <see cref="PagedContentRepositoryFileInfo"/>   
-    public async Task<PagedContentRepositoryFileInfo> GetResourceListingByUserDataGuidAsync(
+    /// <see cref="PagedContentRepositoryResourceInfo"/>   
+    public async Task<PagedContentRepositoryResourceInfo> GetResourceListingByUserDataGuidAsync(
         IDocumentSession documentSession,
         string bucketName, Guid userGuid, int oneBasedPage, int pageSize)
     {
@@ -34,6 +34,6 @@ public partial class ContentRepository
             await _fileHeaderProcedures.SelectByUserGuid(documentSession, targetBucket, userGuid, oneBasedPage,
                 pageSize);
 
-        return new PagedContentRepositoryFileInfo(pageList);
+        return new PagedContentRepositoryResourceInfo(pageList, targetBucket.BucketName);
     }
 }
