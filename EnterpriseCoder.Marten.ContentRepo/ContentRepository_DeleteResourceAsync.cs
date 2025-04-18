@@ -11,7 +11,8 @@ public partial class ContentRepository
     /// </summary>
     /// <param name="documentSession">A Marten documentSession that will be used to communicate with the database.</param>
     /// <param name="bucketName">The name of the bucket that holds the desired content.</param>
-    /// <param name="resourcePath">A slash separated path to the resource, including filename and extension.  "/myResourcePath/myImage.png"</param>
+    /// <param name="resourcePath">A slash separated path to the resource, including filename and extension.
+    /// "/myResourcePath/myImage.png"</param>
     public async Task DeleteResourceAsync(IDocumentSession documentSession, string bucketName,
         ContentRepositoryResourcePath resourcePath)
     {
