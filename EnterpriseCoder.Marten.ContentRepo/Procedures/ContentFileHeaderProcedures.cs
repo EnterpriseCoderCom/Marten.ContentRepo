@@ -29,6 +29,16 @@ public class ContentFileHeaderProcedures
         return pageList;
     }
 
+    public async Task<IPagedList<ContentFileHeader>> SelectByUserLong(IDocumentSession documentSession,
+        ContentBucket targetBucket, long userLong, int pageNumber, int pageSize)
+    {
+        IPagedList<ContentFileHeader> pageList = await documentSession.Query<ContentFileHeader>()
+            .Where(x => x.UserDataLong == userLong && x.BucketId == targetBucket.Id)
+            .ToPagedListAsync(pageNumber, pageSize);
+
+        return pageList;
+    }
+
     public Task DeleteAsync(IDocumentSession documentSession, ContentFileHeader targetHeader)
     {
         documentSession.Delete<ContentFileHeader>(targetHeader.Id);

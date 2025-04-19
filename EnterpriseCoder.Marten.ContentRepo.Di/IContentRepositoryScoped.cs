@@ -43,6 +43,9 @@ public interface IContentRepositoryScoped
         int oneBasedPage, int pageSize,
         bool recursive = false);
 
-    Task<PagedContentRepositoryResourceInfo> GetResourceListingByUserGuidAsync(string bucketName, Guid userGuid,
+    Task<PagedContentRepositoryResourceInfo> GetResourceListingByUserDataGuidAsync(string bucketName, Guid userGuid,
         int oneBasedPage, int pageSize);
+    
+    Task<PagedContentRepositoryResourceInfo> GetResourceListingByUserDataLongAsync(
+        string bucketName, long userLong, int oneBasedPage, int pageSize);
 }

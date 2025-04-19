@@ -40,7 +40,8 @@ public class ContentRepositoryScoped : IContentRepositoryScoped
         Guid? userGuid = null,
         long userValue = 0L)
     {
-        await _contentRepository.UploadStreamAsync(_documentSession, bucketName, resourcePath, inStream, autoCreateBucket,
+        await _contentRepository.UploadStreamAsync(_documentSession, bucketName, resourcePath, inStream,
+            autoCreateBucket,
             overwriteExisting, userGuid, userValue);
     }
 
@@ -75,11 +76,13 @@ public class ContentRepositoryScoped : IContentRepositoryScoped
             overwriteDestination);
     }
 
-    public async Task CopyResourceAsync(string oldBucket, ContentRepositoryResourcePath oldResourcePath, string newBucket,
+    public async Task CopyResourceAsync(string oldBucket, ContentRepositoryResourcePath oldResourcePath,
+        string newBucket,
         ContentRepositoryResourcePath newResourcePath,
         bool autoCreateBucket = true, bool overwriteDestination = false)
     {
-        await _contentRepository.CopyResourceAsync(_documentSession, oldBucket, oldResourcePath, newBucket, newResourcePath,
+        await _contentRepository.CopyResourceAsync(_documentSession, oldBucket, oldResourcePath, newBucket,
+            newResourcePath,
             autoCreateBucket, overwriteDestination);
     }
 
@@ -92,10 +95,18 @@ public class ContentRepositoryScoped : IContentRepositoryScoped
             recursive);
     }
 
-    public async Task<PagedContentRepositoryResourceInfo> GetResourceListingByUserGuidAsync(string bucketName, Guid userGuid,
+    public async Task<PagedContentRepositoryResourceInfo> GetResourceListingByUserDataGuidAsync(string bucketName,
+        Guid userGuid,
         int oneBasedPage, int pageSize)
     {
         return await _contentRepository.GetResourceListingByUserDataGuidAsync(_documentSession, bucketName, userGuid,
+            oneBasedPage, pageSize);
+    }
+
+    public async Task<PagedContentRepositoryResourceInfo> GetResourceListingByUserDataLongAsync(string bucketName,
+        long userLong, int oneBasedPage, int pageSize)
+    {
+        return await _contentRepository.GetResourceListingByUserDataLongAsync(_documentSession, bucketName, userLong,
             oneBasedPage, pageSize);
     }
 

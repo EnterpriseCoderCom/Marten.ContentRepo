@@ -21,10 +21,10 @@ public class ContentRepositoryScopedTests : IClassFixture<DatabaseTestFixture>, 
     {
         _contentRepositoryScoped = databaseFixture.ServiceProvider.GetRequiredService<IContentRepositoryScoped>();
         _databaseHelper = databaseFixture.ServiceProvider.GetRequiredService<DatabaseHelper>();
-        
+
         _databaseHelper.ClearDatabaseAsync().Wait();
     }
-    
+
     [Fact]
     public async Task UploadAndRetrieve()
     {
@@ -97,7 +97,7 @@ public class ContentRepositoryScopedTests : IClassFixture<DatabaseTestFixture>, 
     public async Task UploadAndDeleteFile()
     {
         var bucketName = "default";
-        
+
         await _UploadTestResourceAsync();
 
         Assert.Equal(1, await _databaseHelper.CountHeadersAsync());
@@ -167,7 +167,8 @@ public class ContentRepositoryScopedTests : IClassFixture<DatabaseTestFixture>, 
         Assert.Equal(TestBlockCount * 2, await _databaseHelper.CountBlocksAsync());
 
         await Assert.ThrowsAsync<OverwriteNotPermittedException>(async () =>
-            await _contentRepositoryScoped.CopyResourceAsync(bucketName, TestResourcePath, bucketName, TestResourcePath));
+            await _contentRepositoryScoped.CopyResourceAsync(bucketName, TestResourcePath, bucketName,
+                TestResourcePath));
     }
 
     [Fact]
@@ -300,7 +301,8 @@ public class ContentRepositoryScopedTests : IClassFixture<DatabaseTestFixture>, 
         var pageCount = testArticleCount / 25;
         for (var nextPage = 1; nextPage <= pageCount; nextPage++)
         {
-            fileListing = await _contentRepositoryScoped.GetResourceListingAsync(bucketName, "/directory", nextPage, 25);
+            fileListing =
+                await _contentRepositoryScoped.GetResourceListingAsync(bucketName, "/directory", nextPage, 25);
             foreach (var nextItem in fileListing)
             {
                 compareSet.Remove(nextItem.ResourcePath);
@@ -336,7 +338,7 @@ public class ContentRepositoryScopedTests : IClassFixture<DatabaseTestFixture>, 
         // Use the first user guid and make sure we can select 1/2 of the data.
         // ===================================================================================
         var returnList =
-            await _contentRepositoryScoped.GetResourceListingByUserGuidAsync(bucketName, testUserGuid1, 1, 200);
+            await _contentRepositoryScoped.GetResourceListingByUserDataGuidAsync(bucketName, testUserGuid1, 1, 200);
         Assert.Equal(testArticleCount / 2, returnList.Count);
         Assert.Equal(1, returnList.PageCount);
         Assert.Equal(50, returnList.TotalItemCount);
@@ -345,7 +347,48 @@ public class ContentRepositoryScopedTests : IClassFixture<DatabaseTestFixture>, 
         // Use the second user guid and make sure we can select 1/2 of the data.
         // ===================================================================================
         returnList =
-            await _contentRepositoryScoped.GetResourceListingByUserGuidAsync(bucketName, testUserGuid2, 1, 200);
+            await _contentRepositoryScoped.GetResourceListingByUserDataGuidAsync(bucketName, testUserGuid2, 1, 200);
+        Assert.Equal(testArticleCount / 2, returnList.Count);
+        Assert.Equal(1, returnList.PageCount);
+        Assert.Equal(50, returnList.TotalItemCount);
+    }
+
+    [Fact]
+    public async Task GetByUserDataLongTest()
+    {
+        var bucketName = "default";
+
+        const int testArticleCount = 100;
+
+        var testUserLong1 = 1_000_025L;
+        var testUserLong2 = -55L;
+
+        // Upload the test article 100 times.
+        foreach (var i in Enumerable.Range(1, testArticleCount))
+        {
+            var longToUse = i % 2 == 0 ? testUserLong1 : testUserLong2;
+            await _UploadTestResourceAsync(bucketName, $"/directory/item{i}.png", false, Guid.Empty, longToUse);
+        }
+
+        await _contentRepositoryScoped.DocumentSession.SaveChangesAsync();
+
+        Assert.Equal(testArticleCount, await _databaseHelper.CountHeadersAsync());
+        Assert.Equal(TestBlockCount * testArticleCount, await _databaseHelper.CountBlocksAsync());
+
+        // ===================================================================================
+        // Use the first user guid and make sure we can select 1/2 of the data.
+        // ===================================================================================
+        var returnList =
+            await _contentRepositoryScoped.GetResourceListingByUserDataLongAsync(bucketName, testUserLong1, 1, 200);
+        Assert.Equal(testArticleCount / 2, returnList.Count);
+        Assert.Equal(1, returnList.PageCount);
+        Assert.Equal(50, returnList.TotalItemCount);
+
+        // ===================================================================================
+        // Use the second user guid and make sure we can select 1/2 of the data.
+        // ===================================================================================
+        returnList =
+            await _contentRepositoryScoped.GetResourceListingByUserDataLongAsync(bucketName, testUserLong2, 1, 200);
         Assert.Equal(testArticleCount / 2, returnList.Count);
         Assert.Equal(1, returnList.PageCount);
         Assert.Equal(50, returnList.TotalItemCount);
@@ -418,25 +461,28 @@ public class ContentRepositoryScopedTests : IClassFixture<DatabaseTestFixture>, 
         foreach (var currentTestArticleOffset in Enumerable.Range(1, testArticleCount))
         {
             var guidToUse = currentTestArticleOffset % 2 == 0 ? testUserGuid1 : testUserGuid2;
-            await _UploadTestResourceAsync(bucketName, $"/directory/item{currentTestArticleOffset}.png", false, guidToUse);
+            await _UploadTestResourceAsync(bucketName, $"/directory/item{currentTestArticleOffset}.png", false,
+                guidToUse);
         }
 
         await _contentRepositoryScoped.DocumentSession.SaveChangesAsync();
 
         Assert.Equal(testArticleCount, await _databaseHelper.CountHeadersAsync());
         Assert.Equal(TestBlockCount * testArticleCount, await _databaseHelper.CountBlocksAsync());
-        
+
         // Pull in 5 pages at 20 items per page.
         foreach (var currentPageOffset in Enumerable.Range(1, 5))
         {
-            var fileListing = await _contentRepositoryScoped.GetResourceListingAsync(bucketName, $"/directory", currentPageOffset, 20);
+            var fileListing =
+                await _contentRepositoryScoped.GetResourceListingAsync(bucketName, $"/directory", currentPageOffset,
+                    20);
             Assert.Equal(testArticleCount, fileListing.TotalItemCount);
-            Assert.Equal(testArticleCount/pageSize, fileListing.PageCount);
+            Assert.Equal(testArticleCount / pageSize, fileListing.PageCount);
             Assert.Equal(pageSize, fileListing.Count);
             Assert.Equal(currentPageOffset, fileListing.PageNumber);
-            Assert.Equal( (currentPageOffset-1) * pageSize + 1, fileListing.FirstItemOnPage);
-            Assert.Equal( (currentPageOffset-1) * pageSize + pageSize, fileListing.LastItemOnPage);
-                
+            Assert.Equal((currentPageOffset - 1) * pageSize + 1, fileListing.FirstItemOnPage);
+            Assert.Equal((currentPageOffset - 1) * pageSize + pageSize, fileListing.LastItemOnPage);
+
             if (currentPageOffset == 1)
             {
                 Assert.True(fileListing.IsFirstPage);
@@ -519,32 +565,32 @@ public class ContentRepositoryScopedTests : IClassFixture<DatabaseTestFixture>, 
             var bucketName = $"bucket{i}";
             bucketNames.Add(bucketName);
             await _contentRepositoryScoped.CreateBucketAsync(bucketName);
-            
+
             // Don't call SaveChangesAsync.  CreateBucketAsync does that on a secondary session, and we want to test
             // to ensure that is the case.
         }
-        
+
         // Eject the changes from the session
         _contentRepositoryScoped.DocumentSession.EjectAllPendingChanges();
-        
+
         // Now we should be able to get a listing of all buckets...10 items at a time.
         foreach (var pageNumber in Enumerable.Range(1, 10))
         {
             var bucketPageListing = await _contentRepositoryScoped.ListBucketsAsync(pageNumber, 10);
-            foreach( string nextBucketName in bucketPageListing )
+            foreach (string nextBucketName in bucketPageListing)
             {
                 bucketNames.Remove(nextBucketName);
-                
+
                 Assert.Equal(pageNumber, bucketPageListing.PageNumber);
                 Assert.Equal(bucketCount, bucketPageListing.TotalItemCount);
                 Assert.Equal(10, bucketPageListing.Count);
             }
         }
-        
+
         // We should have no buckets left.
         Assert.Empty(bucketNames);
     }
-    
+
     public void Dispose()
     {
         _contentRepositoryScoped.DocumentSession.EjectAllPendingChanges();
