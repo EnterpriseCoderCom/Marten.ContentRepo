@@ -24,6 +24,16 @@ public class ContentRepositoryScoped : IContentRepositoryScoped
         await _contentRepository.DeleteBucketAsync(_documentSession, bucketName, force);
     }
 
+    public async Task<Guid> BucketExistsAsync(string bucketName)
+    {
+        return await _contentRepository.BucketExistsAsync(_documentSession, bucketName);
+    }
+
+    public async Task<PagedBucketNameListing> ListBucketsAsync(int oneBasedPageNumber, int pageSize)
+    {
+        return await _contentRepository.ListBucketsAsync(_documentSession, oneBasedPageNumber, pageSize);
+    }
+
     public async Task UploadStreamAsync(string bucketName, ContentRepositoryResourcePath resourcePath, Stream inStream,
         bool autoCreateBucket = true,
         bool overwriteExisting = false,

@@ -21,17 +21,14 @@ public class ContentRepositoryScopedTests : IClassFixture<DatabaseTestFixture>, 
     {
         _contentRepositoryScoped = databaseFixture.ServiceProvider.GetRequiredService<IContentRepositoryScoped>();
         _databaseHelper = databaseFixture.ServiceProvider.GetRequiredService<DatabaseHelper>();
+        
+        _databaseHelper.ClearDatabaseAsync().Wait();
     }
     
     [Fact]
     public async Task UploadAndRetrieve()
     {
         var bucketName = "default";
-
-        // ===================================================================================
-        // Clear the database tables.
-        // ===================================================================================
-        await _databaseHelper.ClearDatabaseAsync();
 
         // ===================================================================================
         // Load the test article into the database.
@@ -100,9 +97,7 @@ public class ContentRepositoryScopedTests : IClassFixture<DatabaseTestFixture>, 
     public async Task UploadAndDeleteFile()
     {
         var bucketName = "default";
-
-        await _databaseHelper.ClearDatabaseAsync();
-
+        
         await _UploadTestResourceAsync();
 
         Assert.Equal(1, await _databaseHelper.CountHeadersAsync());
@@ -122,8 +117,6 @@ public class ContentRepositoryScopedTests : IClassFixture<DatabaseTestFixture>, 
     {
         var bucketName = "default";
 
-        await _databaseHelper.ClearDatabaseAsync();
-
         await _UploadTestResourceAsync();
 
         await _contentRepositoryScoped.RenameResourceAsync(bucketName, TestResourcePath, bucketName,
@@ -138,8 +131,6 @@ public class ContentRepositoryScopedTests : IClassFixture<DatabaseTestFixture>, 
     public async Task OverwriteTest()
     {
         var bucketName = "default";
-
-        await _databaseHelper.ClearDatabaseAsync();
 
         await _UploadTestResourceAsync();
 
@@ -162,8 +153,6 @@ public class ContentRepositoryScopedTests : IClassFixture<DatabaseTestFixture>, 
     {
         var bucketName = "default";
 
-        await _databaseHelper.ClearDatabaseAsync();
-
         await _UploadTestResourceAsync();
 
         Assert.Equal(1, await _databaseHelper.CountHeadersAsync());
@@ -185,8 +174,6 @@ public class ContentRepositoryScopedTests : IClassFixture<DatabaseTestFixture>, 
     public async Task DeleteBucketTest()
     {
         var bucketName = "default";
-
-        await _databaseHelper.ClearDatabaseAsync();
 
         const int testArticleCount = 20;
         const int subItemCount = 5;
@@ -217,8 +204,6 @@ public class ContentRepositoryScopedTests : IClassFixture<DatabaseTestFixture>, 
     public async Task FileListingRecursiveTest()
     {
         var bucketName = "default";
-
-        await _databaseHelper.ClearDatabaseAsync();
 
         const int testArticleCount = 20;
         const int subItemCount = 5;
@@ -277,8 +262,6 @@ public class ContentRepositoryScopedTests : IClassFixture<DatabaseTestFixture>, 
     {
         var bucketName = "default";
 
-        await _databaseHelper.ClearDatabaseAsync();
-
         const int testArticleCount = 100;
 
         HashSet<string> masterTrackingSet = new HashSet<string>(testArticleCount);
@@ -332,8 +315,6 @@ public class ContentRepositoryScopedTests : IClassFixture<DatabaseTestFixture>, 
     {
         var bucketName = "default";
 
-        await _databaseHelper.ClearDatabaseAsync();
-
         const int testArticleCount = 100;
 
         var testUserGuid1 = Guid.NewGuid();
@@ -375,8 +356,6 @@ public class ContentRepositoryScopedTests : IClassFixture<DatabaseTestFixture>, 
     {
         var bucketName = "default";
 
-        await _databaseHelper.ClearDatabaseAsync();
-
         var guidToUse = Guid.NewGuid();
         var testValue = Random.Shared.NextInt64();
 
@@ -403,8 +382,6 @@ public class ContentRepositoryScopedTests : IClassFixture<DatabaseTestFixture>, 
     {
         var bucketName = "default";
 
-        await _databaseHelper.ClearDatabaseAsync();
-
         var guidToUse = Guid.NewGuid();
         var testValue = Random.Shared.NextInt64();
 
@@ -430,8 +407,6 @@ public class ContentRepositoryScopedTests : IClassFixture<DatabaseTestFixture>, 
     public async Task FileListingPagingTest()
     {
         var bucketName = "default";
-
-        await _databaseHelper.ClearDatabaseAsync();
 
         const int testArticleCount = 100;
         const int pageSize = 20;
@@ -534,6 +509,42 @@ public class ContentRepositoryScopedTests : IClassFixture<DatabaseTestFixture>, 
         }
     }
 
+    [Fact]
+    public async Task BucketListingTest()
+    {
+        int bucketCount = 100;
+        HashSet<string> bucketNames = new HashSet<string>();
+        foreach (var i in Enumerable.Range(1, bucketCount))
+        {
+            var bucketName = $"bucket{i}";
+            bucketNames.Add(bucketName);
+            await _contentRepositoryScoped.CreateBucketAsync(bucketName);
+            
+            // Don't call SaveChangesAsync.  CreateBucketAsync does that on a secondary session, and we want to test
+            // to ensure that is the case.
+        }
+        
+        // Eject the changes from the session
+        _contentRepositoryScoped.DocumentSession.EjectAllPendingChanges();
+        
+        // Now we should be able to get a listing of all buckets...10 items at a time.
+        foreach (var pageNumber in Enumerable.Range(1, 10))
+        {
+            var bucketPageListing = await _contentRepositoryScoped.ListBucketsAsync(pageNumber, 10);
+            foreach( string nextBucketName in bucketPageListing )
+            {
+                bucketNames.Remove(nextBucketName);
+                
+                Assert.Equal(pageNumber, bucketPageListing.PageNumber);
+                Assert.Equal(bucketCount, bucketPageListing.TotalItemCount);
+                Assert.Equal(10, bucketPageListing.Count);
+            }
+        }
+        
+        // We should have no buckets left.
+        Assert.Empty(bucketNames);
+    }
+    
     public void Dispose()
     {
         _contentRepositoryScoped.DocumentSession.EjectAllPendingChanges();

@@ -10,6 +10,10 @@ public interface IContentRepositoryScoped
 
     Task DeleteBucketAsync(string bucketName, bool force = false);
 
+    Task<Guid> BucketExistsAsync(string bucketName);
+
+    Task<PagedBucketNameListing> ListBucketsAsync(int oneBasedPageNumber, int pageSize);
+    
     Task UploadStreamAsync(string bucketName, ContentRepositoryResourcePath resourcePath,
         Stream inStream, bool autoCreateBucket = true,
         bool overwriteExisting = false,

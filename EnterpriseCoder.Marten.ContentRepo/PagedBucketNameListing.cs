@@ -1,28 +1,21 @@
 ﻿using System.Collections;
-using EnterpriseCoder.Marten.ContentRepo.DtoMapping;
 using EnterpriseCoder.Marten.ContentRepo.Entities;
 using Marten.Pagination;
 
 namespace EnterpriseCoder.Marten.ContentRepo;
 
 /// <summary>
-/// The <c>PagedContentRepositoryResourceInfo</c> class is a wrapper around a <c>IPagedList</c> that
-/// contains a list of <c>ContentRepositoryResourceInfo</c> objects.  This class is used to return
-/// a paged listing of resources from the repository.
+/// The <c>PagedBucketNameListing</c> class is a wrapper around a <c>IPagedList</c> that
+/// contains a list of bucket names.  This class is used to return a paged listing of buckets
+/// from the repository.
 /// </summary>
-public class PagedContentRepositoryResourceInfo : IPagedList<ContentRepositoryResourceInfo>
+public class PagedBucketNameListing : IPagedList<string>
 {
-    private readonly List<ContentRepositoryResourceInfo> _items;
+    private readonly List<string> _items;
 
-    internal PagedContentRepositoryResourceInfo(IPagedList<ContentFileHeader> items, string bucketName)
+    internal PagedBucketNameListing(IPagedList<ContentBucket> items)
     {
-        var itemList = new List<ContentRepositoryResourceInfo>();
-        foreach (var nextItem in items)
-        {
-            itemList.Add(nextItem.ToContentFileInfoDto(bucketName));
-        }
-
-        _items = itemList;
+        _items = new List<string>(items.Select(x => x.BucketName));
         Count = items.Count;
         PageNumber = items.PageNumber;
         PageSize = items.PageSize;
@@ -36,7 +29,7 @@ public class PagedContentRepositoryResourceInfo : IPagedList<ContentRepositoryRe
         LastItemOnPage = items.LastItemOnPage;
     }
 
-    public IEnumerator<ContentRepositoryResourceInfo> GetEnumerator()
+    public IEnumerator<string> GetEnumerator()
     {
         return _items.GetEnumerator();
     }
@@ -46,7 +39,7 @@ public class PagedContentRepositoryResourceInfo : IPagedList<ContentRepositoryRe
         return GetEnumerator();
     }
 
-    public ContentRepositoryResourceInfo this[int index] => _items[index];
+    public string this[int index] => _items[index];
 
     public long Count { get; }
     public long PageNumber { get; }
