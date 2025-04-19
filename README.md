@@ -91,8 +91,8 @@ var pagedFileListing = repo.GetFileListingAsync(
 
 # TODO
 
-* [ ] Write Summary documentation
-* [ ] Need a method to lookup by user data long.
+* [ ] Write documents for scoped content repo
+* [X] Need a method to lookup by user data long.
 * [X] BucketExistsAsync
 * [X] ListBucketsAsync
 * [X] Paged results need a better return type that gives page information.

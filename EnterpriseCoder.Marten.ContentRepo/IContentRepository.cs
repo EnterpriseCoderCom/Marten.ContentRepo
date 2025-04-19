@@ -14,7 +14,7 @@ namespace EnterpriseCoder.Marten.ContentRepo;
 /// <item><description>All bucket creation is committed immediately using a separate session.  This is a design decision
 /// that makes it so this library works with any of the available Marten session types.</description></item>
 /// <item><description>The DeleteBucketAsync call removes resources for the bucket in a series of secondary session
-/// commits, one page at a time.  This ensures that even in the case of a huge bucket, memory allocate is kept reasonable.
+/// commits, one page at a time.  This ensures that even in the case of a huge bucket, memory allocation is kept reasonable.
 /// The deletion of the actual bucket is still a part of the incoming documentSession.</description></item>
 /// </list>
 /// </remarks>
