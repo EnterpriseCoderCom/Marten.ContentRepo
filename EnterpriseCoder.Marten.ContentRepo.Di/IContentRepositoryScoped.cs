@@ -22,7 +22,7 @@ public interface IContentRepositoryScoped
 
     Task DeleteResourceAsync(string bucketName, ContentRepositoryResourcePath resourcePath);
 
-    Task<ContentRepositoryFileInfo?> GetResourceInfoAsync(string bucketName, ContentRepositoryResourcePath resourcePath);
+    Task<ContentRepositoryResourceInfo?> GetResourceInfoAsync(string bucketName, ContentRepositoryResourcePath resourcePath);
 
     Task RenameResourceAsync(
         string oldBucketName, ContentRepositoryResourcePath oldResourcePath,
@@ -34,11 +34,11 @@ public interface IContentRepositoryScoped
         string newBucketName, ContentRepositoryResourcePath newResourcePath,
         bool autoCreateBucket = true, bool overwriteDestination = false);
 
-    Task<PagedContentRepositoryFileInfo> GetResourceListingAsync(
+    Task<PagedContentRepositoryResourceInfo> GetResourceListingAsync(
         string bucketName, ContentRepositoryDirectory directory,
         int oneBasedPage, int pageSize,
         bool recursive = false);
 
-    Task<PagedContentRepositoryFileInfo> GetResourceListingByUserGuidAsync(string bucketName, Guid userGuid,
+    Task<PagedContentRepositoryResourceInfo> GetResourceListingByUserGuidAsync(string bucketName, Guid userGuid,
         int oneBasedPage, int pageSize);
 }

@@ -3,11 +3,8 @@
 
 ## Overview
 
-This library is licensed under the MIT license.
-https://mit-license.org/
-
 This library can be used to create a content repository within a 
-PostgreSQL database.  This library utilizes MartenDb and requires a
+PostgreSQL database.  This library uses MartenDb and requires a
 Marten **IDocumentSession** instance to do it's work against the
 PostgreSQL database.  All methods related to the core ContentRepository
 class are implemented using Async/Await.
@@ -15,7 +12,7 @@ class are implemented using Async/Await.
 Content resources are mapped using addressing similar to an Amazon S3
 bucket.  Each resource is stored and retrieved using...
 
-* A bucket name (e.g.  "default" or "userImageResources")
+* A bucket name (e.g. "default" or "userImageResources")
 * A virtual path (e.g. /images/userImage.png)
 
 "ContentRepo" will, using Marten, automatically create the tables that

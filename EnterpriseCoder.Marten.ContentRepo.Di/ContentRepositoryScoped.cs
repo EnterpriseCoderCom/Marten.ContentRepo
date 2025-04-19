@@ -49,7 +49,7 @@ public class ContentRepositoryScoped : IContentRepositoryScoped
         await _contentRepository.DeleteResourceAsync(_documentSession, bucketName, resourcePath);
     }
 
-    public async Task<ContentRepositoryFileInfo?> GetResourceInfoAsync(string bucketName,
+    public async Task<ContentRepositoryResourceInfo?> GetResourceInfoAsync(string bucketName,
         ContentRepositoryResourcePath resourcePath)
     {
         return await _contentRepository.GetResourceInfoAsync(_documentSession, bucketName, resourcePath);
@@ -73,7 +73,7 @@ public class ContentRepositoryScoped : IContentRepositoryScoped
             autoCreateBucket, overwriteDestination);
     }
 
-    public async Task<PagedContentRepositoryFileInfo> GetResourceListingAsync(string bucketName,
+    public async Task<PagedContentRepositoryResourceInfo> GetResourceListingAsync(string bucketName,
         ContentRepositoryDirectory directory,
         int oneBasedPage, int pageSize, bool recursive = false)
     {
@@ -82,7 +82,7 @@ public class ContentRepositoryScoped : IContentRepositoryScoped
             recursive);
     }
 
-    public async Task<PagedContentRepositoryFileInfo> GetResourceListingByUserGuidAsync(string bucketName, Guid userGuid,
+    public async Task<PagedContentRepositoryResourceInfo> GetResourceListingByUserGuidAsync(string bucketName, Guid userGuid,
         int oneBasedPage, int pageSize)
     {
         return await _contentRepository.GetResourceListingByUserDataGuidAsync(_documentSession, bucketName, userGuid,

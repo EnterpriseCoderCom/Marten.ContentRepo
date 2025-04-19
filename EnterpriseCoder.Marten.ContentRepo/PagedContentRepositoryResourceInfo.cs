@@ -5,16 +5,21 @@ using Marten.Pagination;
 
 namespace EnterpriseCoder.Marten.ContentRepo;
 
-public class PagedContentRepositoryFileInfo : IPagedList<ContentRepositoryFileInfo>
+/// <summary>
+/// The <c>PagedContentRepositoryResourceInfo</c> class is a wrapper around a <c>IPagedList</c> that
+/// contains a list of <c>ContentRepositoryResourceInfo</c> objects.  This class is used to return
+/// a paged listing of resources from the repository.
+/// </summary>
+public class PagedContentRepositoryResourceInfo : IPagedList<ContentRepositoryResourceInfo>
 {
-    private readonly List<ContentRepositoryFileInfo> _items;
+    private readonly List<ContentRepositoryResourceInfo> _items;
 
-    public PagedContentRepositoryFileInfo(IPagedList<ContentFileHeader> items)
+    public PagedContentRepositoryResourceInfo(IPagedList<ContentFileHeader> items, string bucketName)
     {
-        var itemList = new List<ContentRepositoryFileInfo>();
+        var itemList = new List<ContentRepositoryResourceInfo>();
         foreach (var nextItem in items)
         {
-            itemList.Add(nextItem.ToContentFileInfoDto());
+            itemList.Add(nextItem.ToContentFileInfoDto(bucketName));
         }
 
         _items = itemList;
@@ -31,7 +36,7 @@ public class PagedContentRepositoryFileInfo : IPagedList<ContentRepositoryFileIn
         LastItemOnPage = items.LastItemOnPage;
     }
 
-    public IEnumerator<ContentRepositoryFileInfo> GetEnumerator()
+    public IEnumerator<ContentRepositoryResourceInfo> GetEnumerator()
     {
         return _items.GetEnumerator();
     }
@@ -41,7 +46,7 @@ public class PagedContentRepositoryFileInfo : IPagedList<ContentRepositoryFileIn
         return GetEnumerator();
     }
 
-    public ContentRepositoryFileInfo this[int index] => _items[index];
+    public ContentRepositoryResourceInfo this[int index] => _items[index];
 
     public long Count { get; }
     public long PageNumber { get; }

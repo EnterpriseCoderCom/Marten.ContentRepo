@@ -10,7 +10,7 @@ public partial class ContentRepository
     /// <summary>
     /// The GetResourceListingAsync method is used to get a paged listing of all resources from the bucket specified by
     /// <paramref name="bucketName"/> for all resources that start with <paramref name="resourcePrefix"/>.  The
-    /// returned <see cref="PagedContentRepositoryFileInfo"/> contains paging information so that large repositories
+    /// returned <see cref="PagedContentRepositoryResourceInfo"/> contains paging information so that large repositories
     /// listings can be handled in a memory-safe way.
     /// </summary>
     /// <param name="documentSession">A Marten documentSession that will be used to communicate with the database.</param>
@@ -19,11 +19,11 @@ public partial class ContentRepository
     /// <param name="oneBasedPage">The one-based page to be returned by this call.</param>
     /// <param name="pageSize">The desired size for the returned page of information.</param>
     /// <param name="recursive">Default: false.  Set to true to return all resources under <paramref name="resourcePrefix"/>.  Set too false to return only resources that are directly in the given prefix pseudo-directory.</param>
-    /// <returns>Returns a <see cref="PagedContentRepositoryFileInfo"/> object that contains the items for the requested page as
+    /// <returns>Returns a <see cref="PagedContentRepositoryResourceInfo"/> object that contains the items for the requested page as
     /// well as information about the total number of pages.</returns>
     /// <exception cref="BucketNotFoundException">Thrown when the bucket specified by <paramref name="bucketName"/> is not found.</exception>
-    /// <see cref="PagedContentRepositoryFileInfo"/>
-    public async Task<PagedContentRepositoryFileInfo> GetResourceListingAsync(IDocumentSession documentSession,
+    /// <see cref="PagedContentRepositoryResourceInfo"/>
+    public async Task<PagedContentRepositoryResourceInfo> GetResourceListingAsync(IDocumentSession documentSession,
         string bucketName, ContentRepositoryDirectory resourcePrefix, int oneBasedPage, int pageSize,
         bool recursive = false)
     {
@@ -53,6 +53,6 @@ public partial class ContentRepository
         var pagedList = await baseQuery.ToPagedListAsync(oneBasedPage, pageSize);
 
         // Convert to a list and return.
-        return new PagedContentRepositoryFileInfo(pagedList);
+        return new PagedContentRepositoryResourceInfo(pagedList, targetBucket.BucketName);
     }
 }
