@@ -7,6 +7,12 @@
         <IsPackable>false</IsPackable>
 
         <TargetFrameworks>net6.0;net8.0</TargetFrameworks>
+
+        <Version>0.0.93-alpha</Version>
+
+        <Authors>Russell E Elledge</Authors>
+
+        <Copyright>(c) 2025 Russell E Elledge</Copyright>
     </PropertyGroup>
 
     <ItemGroup>

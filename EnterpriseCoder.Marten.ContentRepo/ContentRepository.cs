@@ -3,18 +3,20 @@
 namespace EnterpriseCoder.Marten.ContentRepo;
 
 /// <summary>
-/// Represents a repository implementation for managing content resources and their interactions using an S3-like bucket-based structure.
+/// The <c>ContentRepository</c> class implements the <c>IContentRepository</c> interface. This clas is used to managing
+/// content repositories, allowing operations such as creating and deleting buckets, uploading and downloading resources,
+/// and managing files and metadata.
 /// </summary>
 /// <remarks>
-/// The <c>ContentRepository</c> class provides methods to perform operations such as creating, deleting, and managing buckets.
-/// It also facilitates resource-level operations such as uploading, downloading, renaming, copying, and deletion of resources,
-/// along with querying metadata and existence of resources.
-///
-/// This class requires an IDocumentSession instance from Marten in order to perform it's work.  This allows for database
-/// connections to be defined outside of this library.
-///
-/// Transaction control is also delegated to outside of this library. Generally, <c>ContentRepository</c> will not attempt
-/// to control transaction scope.   
+/// Transaction Control:  All methods in this interface require a Marten <c>IDocumentSession</c> reference.  It is the
+/// responsibility of the caller to ensure that the session is properly committed or rolled back with these exceptions:
+/// <list type="bullet">
+/// <item><description>All bucket creation is committed immediately using a separate session.  This is a design decision
+/// that makes it so this library works with any of the available Marten session types.</description></item>
+/// <item><description>The DeleteBucketAsync call removes resources for the bucket in a series of secondary session
+/// commits, one page at a time.  This ensures that even in the case of a huge bucket, memory allocate is kept reasonable.
+/// The deletion of the actual bucket is still a part of the incoming documentSession.</description></item>
+/// </list>
 /// </remarks>
 /// <seealso cref="IContentRepository"/>
 public partial class ContentRepository : IContentRepository
@@ -22,6 +24,6 @@ public partial class ContentRepository : IContentRepository
     private const int FileBlockSize = 65535;
 
     private readonly ContentBucketProcedures _contentBucketProcedures = new();
-    private readonly ContentFileBlockProcedures _fileBlockProcedures = new();
-    private readonly ContentFileHeaderProcedures _fileHeaderProcedures = new();
+    private readonly ContentResourceBlockProcedures _resourceBlockProcedures = new();
+    private readonly ContentResourceHeaderProcedures _resourceHeaderProcedures = new();
 }

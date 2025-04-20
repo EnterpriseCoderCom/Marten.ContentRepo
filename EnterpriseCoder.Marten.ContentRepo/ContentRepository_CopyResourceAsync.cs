@@ -6,15 +6,15 @@ namespace EnterpriseCoder.Marten.ContentRepo;
 public partial class ContentRepository
 {
     /// <summary>
-    /// The CopyResourceAsync method is used to make a copy of an existing resource from one resource location to another bucket and/or resource path.
+    /// The CopyFileAsync method is used to make a copy of an existing resource.
     /// </summary>
     /// <param name="documentSession">A Marten documentSession that will be used to communicate with the database.</param>
     /// <param name="sourceBucketName">The name of the source bucket.</param>
     /// <param name="sourceResourcePath">The name of the resource to be renamed.</param>
     /// <param name="destinationBucketName">The name of the destination bucket.</param>
     /// <param name="destinationResourcePath">The new name for the resource within the <paramref name="destinationBucketName"/></param>
-    /// <param name="autoCreateBucket">Set to true in order to create the destination bucket automatically.</param>
-    /// <param name="overwriteDestination">Set to true to overwrite any existing resource at the specified destination location.</param>
+    /// <param name="autoCreateBucket">Default: true.  Set to true to create the destination bucket automatically.</param>
+    /// <param name="overwriteDestination">Default: false.  Set to true to overwrite any existing resource at the specified destination location.</param>
     /// <exception cref="BucketNotFoundException">Thrown when either the <paramref name="sourceBucketName"/> or when <paramref name="destinationBucketName"/> is not found and <paramref name="autoCreateBucket"/> is false.</exception>
     /// <exception cref="ResourceNotFoundException">Thrown when there isn't a resource at the location specified by <paramref name="sourceBucketName"/> and <paramref name="sourceResourcePath"/>.</exception>
     /// <exception cref="OverwriteNotPermittedException">Thrown when <paramref name="overwriteDestination"/> is false and there's an existing resource at the given destination location.</exception>
@@ -31,7 +31,7 @@ public partial class ContentRepository
         }
 
         // Lookup the old resource
-        var sourceHeader = await _fileHeaderProcedures.SelectAsync(documentSession, oldBucket, sourceResourcePath);
+        var sourceHeader = await _resourceHeaderProcedures.SelectAsync(documentSession, oldBucket, sourceResourcePath);
         if (sourceHeader == null)
         {
             throw new ResourceNotFoundException(sourceBucketName, sourceResourcePath);
@@ -50,7 +50,7 @@ public partial class ContentRepository
         }
 
         // Lookup the new resource
-        var targetHeader = await _fileHeaderProcedures.SelectAsync(documentSession, newBucket, destinationResourcePath);
+        var targetHeader = await _resourceHeaderProcedures.SelectAsync(documentSession, newBucket, destinationResourcePath);
         if (targetHeader != null)
         {
             if (!overwriteDestination)

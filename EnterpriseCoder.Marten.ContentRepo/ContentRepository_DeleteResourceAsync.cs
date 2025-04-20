@@ -11,7 +11,8 @@ public partial class ContentRepository
     /// </summary>
     /// <param name="documentSession">A Marten documentSession that will be used to communicate with the database.</param>
     /// <param name="bucketName">The name of the bucket that holds the desired content.</param>
-    /// <param name="resourcePath">A slash separated path to the resource, including filename and extension.  "/myResourcePath/myImage.png"</param>
+    /// <param name="resourcePath">A slash separated path to the resource, including filename and extension.
+    /// "/myResourcePath/myImage.png"</param>
     public async Task DeleteResourceAsync(IDocumentSession documentSession, string bucketName,
         ContentRepositoryResourcePath resourcePath)
     {
@@ -23,16 +24,16 @@ public partial class ContentRepository
         }
 
         // Lookup the target resource
-        var targetHeader = await _fileHeaderProcedures.SelectAsync(documentSession, targetBucket, resourcePath);
+        var targetHeader = await _resourceHeaderProcedures.SelectAsync(documentSession, targetBucket, resourcePath);
         if (targetHeader is null)
         {
             return;
         }
 
         // Delete all file blocks associated with this header.
-        await _fileBlockProcedures.DeleteAsync(documentSession, targetHeader);
+        await _resourceBlockProcedures.DeleteAsync(documentSession, targetHeader);
 
         // Delete the header itself.
-        await _fileHeaderProcedures.DeleteAsync(documentSession, targetHeader);
+        await _resourceHeaderProcedures.DeleteAsync(documentSession, targetHeader);
     }
 }

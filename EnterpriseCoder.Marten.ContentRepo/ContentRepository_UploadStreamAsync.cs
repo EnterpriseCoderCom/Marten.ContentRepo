@@ -16,15 +16,18 @@ public partial class ContentRepository
     /// by <paramref name="resourcePath"/>.
     /// </para>
     /// </summary>
+    /// <remarks>
+    /// Transaction Control:  This method will insert the content into the session specified by <paramref name="documentSession"/>,
+    /// but does not <c>Save</c> the session.
+    /// </remarks>
     /// <param name="documentSession">A Marten documentSession that will be used to communicate with the database.</param>
     /// <param name="bucketName">The name of the bucket in which to place the content.</param>
     /// <param name="resourcePath">A slash separated path to the resource, including filename and extension.  "/myResourcePath/myImage.png"</param>
     /// <param name="inStream">A <c>Stream</c> that contains the content to be inserted into the database.</param>
-    /// <param name="autoCreateBucket">Whether the bucket specified by <paramref name="bucketName"/> should automatically be created if it is not already present.</param>
-    /// <param name="overwriteExisting"><c>true</c> when this call should overwrite any existing resource of the same bucket and file path.</param>
-    /// <param name="userGuid">A <c>GUID</c> user specified value.  Defaults to Guid.Empty.  This value is indexed in the database for fast future lookups.  You may want to use this for referencing a user that performed the upload of the content.</param>
-    /// <param name="userValue">A <c>long</c> user specified value that can be used to track data related to the content entry.  This value is indexed in the database for fast lookup.  Perhaps a download counter or a primary key value to another document.</param>
-    /// <returns></returns>
+    /// <param name="autoCreateBucket">Default: true.  Whether the bucket specified by <paramref name="bucketName"/> should automatically be created if it is not already present.</param>
+    /// <param name="overwriteExisting">Default: false. True when this call should overwrite any existing resource of the same bucket and file path.</param>
+    /// <param name="userGuid">Default:  Guid.Empty.  A <c>GUID</c> user specified value.  Defaults to Guid.Empty.  This value is indexed in the database for fast future lookups.  You may want to use this for referencing a user that performed the upload of the content.</param>
+    /// <param name="userValue">Default: 0 (zero).  A <c>long</c> user specified value that can be used to track data related to the content entry.  This value is indexed in the database for fast lookup.  Perhaps a download counter or a primary key value to another document.</param>
     /// <exception cref="BucketNotFoundException">If the <paramref name="bucketName"/> is not found and <paramref name="autoCreateBucket"/> is false this exception will be thrown.</exception>
     /// <exception cref="OverwriteNotPermittedException">If the <paramref name="resourcePath"/> is already in the database and <paramref name="overwriteExisting"/> is false, this exception will be thrown./></exception>
     public async Task UploadStreamAsync(IDocumentSession documentSession, string bucketName,
@@ -115,12 +118,12 @@ public partial class ContentRepository
         FileInfo fileInfo = new(tempFilename.FilePath);
 
         // Create a new header document.
-        var header = new ContentFileHeader
+        var header = new ContentResourceHeader
         {
             // Id is automatically assigned in constructor
             BucketId = targetBucket.Id,
             Directory = resourcePath.Directory,
-            FilePath = resourcePath,
+            ResourcePath = resourcePath,
             OriginalLength = originalFileSize,
             StoredLength = fileInfo.Length,
             Sha256 = sha256Hash,
@@ -129,7 +132,7 @@ public partial class ContentRepository
         };
 
         // Save the header to the database.
-        await _fileHeaderProcedures.UpsertAsync(documentSession, header);
+        await _resourceHeaderProcedures.UpsertAsync(documentSession, header);
 
         // Reopen the compressed temp file so we can chunk it up into the database.
         using (var tempInStream = new FileStream(tempFilename.FilePath, FileMode.Open))
@@ -148,16 +151,16 @@ public partial class ContentRepository
                 Buffer.BlockCopy(buffer, 0, saveBuffer, 0, readCount);
 
                 // Create the ContentFileBlock that will be written to the database.
-                var nextBlock = new ContentFileBlock
+                var nextBlock = new ContentResourceBlock
                 {
                     // Id is assigned by constructor
-                    ParentFileHeaderId = header.Id,
+                    ParentResourceHeaderId = header.Id,
                     BlockSequenceNumber = sequenceNumber++,
                     BlockData = saveBuffer
                 };
 
                 // Do the physical storage.
-                await _fileBlockProcedures.UpsertAsync(documentSession, nextBlock);
+                await _resourceBlockProcedures.UpsertAsync(documentSession, nextBlock);
             }
         }
     }
