@@ -8,7 +8,8 @@
         <Copyright>(c) 2025 Russell E. Elledge</Copyright>
         <Company>Russell Elledge</Company>
         <license>https://mit-license.org/</license>
-        <Version>0.0.92-alpha</Version>
+        <Version>0.0.93-alpha</Version>
+        <RepositoryUrl>https://github.com/EnterpriseCoderCom/Marten.ContentRepo</RepositoryUrl>
     </PropertyGroup>
 
     <ItemGroup>
