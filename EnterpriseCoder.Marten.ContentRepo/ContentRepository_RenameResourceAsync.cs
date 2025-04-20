@@ -31,7 +31,7 @@ public partial class ContentRepository
         }
 
         // Lookup the old resource
-        var sourceHeader = await _fileHeaderProcedures.SelectAsync(documentSession, targetBucket, sourceResourcePath);
+        var sourceHeader = await _resourceHeaderProcedures.SelectAsync(documentSession, targetBucket, sourceResourcePath);
         if (sourceHeader == null)
         {
             throw new ResourceNotFoundException(sourceBucketName, sourceResourcePath);
@@ -45,7 +45,7 @@ public partial class ContentRepository
         }
 
         // Lookup the new resource
-        var targetHeader = await _fileHeaderProcedures.SelectAsync(documentSession, targetBucket, destinationResourcePath);
+        var targetHeader = await _resourceHeaderProcedures.SelectAsync(documentSession, targetBucket, destinationResourcePath);
         if (targetHeader != null)
         {
             if (!replaceDestination)
@@ -58,7 +58,7 @@ public partial class ContentRepository
         }
 
         sourceHeader.BucketId = newBucket.Id;
-        sourceHeader.FilePath = destinationResourcePath;
+        sourceHeader.ResourcePath = destinationResourcePath;
         sourceHeader.Directory = destinationResourcePath.Directory;
         documentSession.Store(sourceHeader);
     }

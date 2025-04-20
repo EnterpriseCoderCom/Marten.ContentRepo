@@ -14,20 +14,20 @@ public class DatabaseHelper
 
     public async Task ClearDatabaseAsync()
     {
-        _session.DeleteWhere<ContentFileBlock>(x => true);
-        _session.DeleteWhere<ContentFileHeader>(x => true);
+        _session.DeleteWhere<ContentResourceBlock>(x => true);
+        _session.DeleteWhere<ContentResourceHeader>(x => true);
         _session.DeleteWhere<ContentBucket>(x => true);
         await _session.SaveChangesAsync();
     }
 
     public async Task<int> CountHeadersAsync()
     {
-        return await _session.Query<ContentFileHeader>().CountAsync();
+        return await _session.Query<ContentResourceHeader>().CountAsync();
     }
 
     public async Task<int> CountBlocksAsync()
     {
-        return await _session.Query<ContentFileBlock>().CountAsync();
+        return await _session.Query<ContentResourceBlock>().CountAsync();
     }
 
     public async Task<int> CountBucketsAsync()

@@ -34,7 +34,7 @@ public partial class ContentRepository
         }
 
         // See if there is any content in the bucket
-        var hasContent = await documentSession.Query<ContentFileHeader>().AnyAsync(x => x.BucketId == targetBucket.Id);
+        var hasContent = await documentSession.Query<ContentResourceHeader>().AnyAsync(x => x.BucketId == targetBucket.Id);
         if (hasContent && force == false)
         {
             throw new BucketNotEmptyException(bucketName, "*");

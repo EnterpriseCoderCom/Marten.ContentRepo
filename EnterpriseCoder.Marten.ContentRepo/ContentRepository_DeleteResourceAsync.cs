@@ -24,16 +24,16 @@ public partial class ContentRepository
         }
 
         // Lookup the target resource
-        var targetHeader = await _fileHeaderProcedures.SelectAsync(documentSession, targetBucket, resourcePath);
+        var targetHeader = await _resourceHeaderProcedures.SelectAsync(documentSession, targetBucket, resourcePath);
         if (targetHeader is null)
         {
             return;
         }
 
         // Delete all file blocks associated with this header.
-        await _fileBlockProcedures.DeleteAsync(documentSession, targetHeader);
+        await _resourceBlockProcedures.DeleteAsync(documentSession, targetHeader);
 
         // Delete the header itself.
-        await _fileHeaderProcedures.DeleteAsync(documentSession, targetHeader);
+        await _resourceHeaderProcedures.DeleteAsync(documentSession, targetHeader);
     }
 }

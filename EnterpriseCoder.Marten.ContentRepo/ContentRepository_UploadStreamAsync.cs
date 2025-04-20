@@ -118,12 +118,12 @@ public partial class ContentRepository
         FileInfo fileInfo = new(tempFilename.FilePath);
 
         // Create a new header document.
-        var header = new ContentFileHeader
+        var header = new ContentResourceHeader
         {
             // Id is automatically assigned in constructor
             BucketId = targetBucket.Id,
             Directory = resourcePath.Directory,
-            FilePath = resourcePath,
+            ResourcePath = resourcePath,
             OriginalLength = originalFileSize,
             StoredLength = fileInfo.Length,
             Sha256 = sha256Hash,
@@ -132,7 +132,7 @@ public partial class ContentRepository
         };
 
         // Save the header to the database.
-        await _fileHeaderProcedures.UpsertAsync(documentSession, header);
+        await _resourceHeaderProcedures.UpsertAsync(documentSession, header);
 
         // Reopen the compressed temp file so we can chunk it up into the database.
         using (var tempInStream = new FileStream(tempFilename.FilePath, FileMode.Open))
@@ -151,16 +151,16 @@ public partial class ContentRepository
                 Buffer.BlockCopy(buffer, 0, saveBuffer, 0, readCount);
 
                 // Create the ContentFileBlock that will be written to the database.
-                var nextBlock = new ContentFileBlock
+                var nextBlock = new ContentResourceBlock
                 {
                     // Id is assigned by constructor
-                    ParentFileHeaderId = header.Id,
+                    ParentResourceHeaderId = header.Id,
                     BlockSequenceNumber = sequenceNumber++,
                     BlockData = saveBuffer
                 };
 
                 // Do the physical storage.
-                await _fileBlockProcedures.UpsertAsync(documentSession, nextBlock);
+                await _resourceBlockProcedures.UpsertAsync(documentSession, nextBlock);
             }
         }
     }

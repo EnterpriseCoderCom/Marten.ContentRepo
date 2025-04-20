@@ -27,7 +27,7 @@ public partial class ContentRepository
         }
 
         // Lookup the target resource
-        var targetHeader = await _fileHeaderProcedures.SelectAsync(documentSession, targetBucket, resourcePath);
+        var targetHeader = await _resourceHeaderProcedures.SelectAsync(documentSession, targetBucket, resourcePath);
         return targetHeader?.ToContentFileInfoDto(targetBucket.BucketName);
     }
 }

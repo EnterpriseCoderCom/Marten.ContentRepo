@@ -28,7 +28,7 @@ public partial class ContentRepository
         }
 
         // Select the header for the given resource.
-        var targetHeader = await _fileHeaderProcedures.SelectAsync(documentSession, targetBucket, resourcePath);
+        var targetHeader = await _resourceHeaderProcedures.SelectAsync(documentSession, targetBucket, resourcePath);
         if (targetHeader is null)
         {
             // If there's no header, then there's no such resource.
@@ -45,7 +45,7 @@ public partial class ContentRepository
             {
                 // Read the blocks using an IAsyncEnumerable so we aren't reading all block
                 // information into memory in one shot.
-                var blockResults = _fileBlockProcedures.Select(documentSession, targetHeader);
+                var blockResults = _resourceBlockProcedures.Select(documentSession, targetHeader);
 
                 // Write out the blocks one at a time into the temporary stream.
                 await foreach (var nextBlock in blockResults)

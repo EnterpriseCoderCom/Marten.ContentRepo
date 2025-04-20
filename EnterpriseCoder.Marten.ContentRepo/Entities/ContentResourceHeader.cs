@@ -3,12 +3,12 @@ using UUIDNext;
 
 namespace EnterpriseCoder.Marten.ContentRepo.Entities;
 
-public class ContentFileHeader
+public class ContentResourceHeader
 {
     [Identity] public Guid Id { get; set; } = Uuid.NewDatabaseFriendly(Database.PostgreSql);
 
     [DuplicateField] public Guid BucketId { get; set; } = Guid.Empty;
-    [DuplicateField] public string FilePath { get; set; } = string.Empty;
+    [DuplicateField] public string ResourcePath { get; set; } = string.Empty;
     public byte[] Sha256 { get; set; } = Array.Empty<byte>();
     public DateTimeOffset UpdatedDateTime { get; set; } = DateTimeOffset.UtcNow;
     public long OriginalLength { get; set; }

@@ -14,7 +14,7 @@ public class PagedContentRepositoryResourceInfo : IPagedList<ContentRepositoryRe
 {
     private readonly List<ContentRepositoryResourceInfo> _items;
 
-    internal PagedContentRepositoryResourceInfo(IPagedList<ContentFileHeader> items, string bucketName)
+    internal PagedContentRepositoryResourceInfo(IPagedList<ContentResourceHeader> items, string bucketName)
     {
         var itemList = new List<ContentRepositoryResourceInfo>();
         foreach (var nextItem in items)

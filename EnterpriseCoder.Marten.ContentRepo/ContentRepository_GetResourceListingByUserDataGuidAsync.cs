@@ -30,8 +30,8 @@ public partial class ContentRepository
             throw new BucketNotFoundException(bucketName);
         }
 
-        IPagedList<ContentFileHeader> pageList =
-            await _fileHeaderProcedures.SelectByUserGuid(documentSession, targetBucket, userGuid, oneBasedPage,
+        IPagedList<ContentResourceHeader> pageList =
+            await _resourceHeaderProcedures.SelectByUserGuid(documentSession, targetBucket, userGuid, oneBasedPage,
                 pageSize);
 
         return new PagedContentRepositoryResourceInfo(pageList, targetBucket.BucketName);

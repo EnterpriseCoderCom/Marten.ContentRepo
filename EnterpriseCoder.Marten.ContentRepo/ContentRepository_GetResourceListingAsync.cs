@@ -37,7 +37,7 @@ public partial class ContentRepository
             throw new BucketNotFoundException(bucketName);
         }
 
-        IQueryable<ContentFileHeader> baseQuery = documentSession.Query<ContentFileHeader>();
+        IQueryable<ContentResourceHeader> baseQuery = documentSession.Query<ContentResourceHeader>();
         if (recursive)
         {
             // StartsWith so we get the Directory plus anything under it.
