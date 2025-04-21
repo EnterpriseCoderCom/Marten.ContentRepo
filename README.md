@@ -83,6 +83,45 @@ used for manipulating content.
 * BucketExistsAsync - Check to see if a bucket with a given name already exists.
 * ListBucketsAsync - Obtain a listing of all available buckets (paged)
 
+```csharp
+IDocumentSession documentSession;
+IContentRespoitoryScoped repo;
+
+// We could just create the bucket.  CreateBucketAsync completes without error
+// if the bucket already exists.
+if( await repo.BucketExistsAsych("myBucket") is false ) 
+{
+    await repo.CreateBucketAsych("myBucket");
+    
+    // Don't forget to save your changes!  Either...
+    await documentSession.SaveChangesAsync();
+    
+    // Or like this...
+    await repo.DocumentSession.SaveChangesAsync();
+}
+
+// List the names of all buckets (paged)
+int itemsPerPage = 10;
+PagedBucketNameListing pageListing = repo.ListBucketsAsync(1, itemsPerPage);
+
+for( int pageNumber = 1 ; pageNumber <= pageListing.PageCount ; pageNumber++ ) 
+{
+    if( pageNumber > 1 ) 
+    {
+        pageListing = repo.ListBucketsAsync(pageNumber, itemsPerPage);
+    }
+    
+    foreach( string nextBucketName in pageListing ) 
+    {
+        Console.WriteLine($"Bucket: {nextBucketName}");
+    }
+}
+
+// Destroy a bucket, along with all of it's contents.
+await repo.DeleteBucketAsync("myBucket", force: true);
+await documentSession.SaveChangesAsync();
+```
+
 ### Content
 * UploadStreamAsync - Upload the contents of a C# System.Io.Stream into the repository.
 * DownloadStreamAsync - Read a previously uploaded resource from the database as a System.Io.Stream.
@@ -91,6 +130,32 @@ used for manipulating content.
 * GetResourceInfoAsync - Get information about an uploaded resource (resource size, creation time, etc)
 * RenameResourceAsync - Rename/Move a resource, even between buckets.
 * CopyResourceAsync - Make a copy of a resource.
+
+```csharp
+IDocumentSession documentSession;
+IContentRespoitoryScoped repo;
+
+using FileStream myFileString = File.OpenRead("MyImage.png");
+
+// Upload a file into the repository...will fail if the resource already exists, 
+// or there's no such bucket.
+await repo.UploadStreamAsync("myBucket", "/images/MyImage.png", myFileStream);
+
+// Upload a file into the repository...overwrite existing and auto-create the bucket.
+await repo.UploadStreamAsync("myBucket", "/images/MyImage.png", myFileStream, 
+    autoCreateBucket: true, overwriteExisting: true);
+
+// Save your changes through the documentSession, or you can get the 
+// session through the DocumentSession property of the repo.
+await repo.DocumentSession.SaveChangesAsync();
+// or...
+await documentSession.SaveChangesAsync();
+
+// Download a document from the repository
+using readStream = await repo.DownloadStreamAsync("myBucket", "/images/MyImage.png");
+httpResponse.ContentType = "image/png";
+readStream.CopyTo(httpResponse.OutputStream);
+```
 
 ## Content Listing
 * GetResourceListingAsync - Get a paged listing of resources based on a bucket and prefix mask.
@@ -105,7 +170,6 @@ to get all resources that start with "/images":
 
 ```csharp
 IDocumentSession documentSession;
-
 IContentRespoitory repo = new ContentRepository();
 
 int itemsPerPage = 50;
@@ -119,7 +183,7 @@ var pagedResourceListing = repo.GetResourceListingAsync(
     true); // recursive
 
 // Loop through the pages
-foreach( var nextPageNumber = 1 ; nextPageNumber <= pagedResourceListing.PageCount ; i++ )
+for( var nextPageNumber = 1 ; nextPageNumber <= pagedResourceListing.PageCount ; i++ )
 {
     // Since we just got page 1, we don't fetch it again...
     if( nextPageNumber > 1 )
