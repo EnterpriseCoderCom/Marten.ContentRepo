@@ -3,10 +3,10 @@
 
 ## Overview
 
-**EnterpriseCoder.Marten.ContentRepo** can be used to create a content repository within 
-a PostgreSQL database.  This library uses MartenDb and requires a
-Marten **IDocumentSession** instance to do its work against the
-database.  
+**EnterpriseCoder.Marten.ContentRepo** is a C#, .NET 6+ library that can be used to 
+create a content repository within a PostgreSQL database.  
+This library uses MartenDb and requires a Marten **IDocumentSession** instance to do 
+its work against the database.  
 
 * Bucket + ResourcePath/Prefix system similar to Amazon S3
 * Requires PostgreSQL + MartenDb
@@ -41,16 +41,21 @@ If you prefer to use dependency injection, use the ContentRepositoryScoped class
 EnterpriseCoder.Marten.ContentRepo.Di library.
 
 ```csharp
-// Configure ContentRepo for use with Dependency Injection
+// Configure ContentRepo for use with Dependency Injection.  This registers a singleton
+// IContentRepository and scoped instances for IContentRepositoryScoped.
 services.AddMartenContentRepo();
 
 // IContentRepositoryScoped is the interface that can now be injected.
-public async Task MyMethod( IContentRepositoryScoped repo ) 
+public class MyService : IMyService
 {
-    // Note that using DI, the IDocumentSession will automatically be
-    // injected into the ContentRepositoryScoped instance.
-    await repo.CreateBucketAsync("myBucket");
-}        
+    private readonly IContentRepositoryScoped _repo;
+    
+    // Using constructor injection or method injection for ASP.NET minimal APIs
+    public MyService( IContentRepositoryScoped repo ) 
+    {
+        _repo = repo;
+    }
+}
 ```
 
 ## Paths
@@ -95,18 +100,44 @@ used for manipulating content.
 While "ContentRepo" requires that content paths be in the form of a
 path, the path is only a key to look up the resource.
 
-Resource listings can be obtained by using a "path prefix".  For example, 
+Resource listings can be obtained by using a "path prefix."  For example, 
 to get all resources that start with "/images":
 
 ```csharp
 IDocumentSession documentSession;
 
 IContentRespoitory repo = new ContentRepository();
+
+int itemsPerPage = 50;
+
+// Get page 1's information.  This also gives us the page range information.
 var pagedResourceListing = repo.GetResourceListingAsync(
     documentSession,
     "myBucket",
     "/images",
-    1, 50, // page 1, 50 items per page.
+    1, itemsPerPage, 
     true); // recursive
+
+// Loop through the pages
+foreach( var nextPageNumber = 1 ; nextPageNumber <= pagedResourceListing.PageCount ; i++ )
+{
+    // Since we just got page 1, we don't fetch it again...
+    if( nextPageNumber > 1 )
+    {
+        // Move to the next page of results.
+        pagedResourceListing = repo.GetResourceListingAsync(
+            documentSession,
+            "myBucket",
+            "/images",
+            nextPageNumber, itemsPerPage,
+            true); // recursive        
+    }
+    
+    foreach( var nextItem in pagedResourceListing )
+    {
+        // Process the items in this page of results
+    }
+}
+
 ```
 
