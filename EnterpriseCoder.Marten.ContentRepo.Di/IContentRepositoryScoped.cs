@@ -63,7 +63,7 @@ public interface IContentRepositoryScoped
     /// <param name="bucketName">The name of the content bucket.</param>
     /// <returns>Return true if the bucket name specified by <paramref name="bucketName"/> exists in the database.
     /// Otherwise, it returns false.</returns>
-    Task<Guid> BucketExistsAsync(string bucketName);
+    Task<bool> BucketExistsAsync(string bucketName);
 
     /// <summary>
     /// The ListBucketsAsync method returns a paged listing of all buckets in the repository.  The returned
