@@ -77,7 +77,7 @@ public class ContentRepositoryScoped : IContentRepositoryScoped
     /// <param name="bucketName">The name of the content bucket.</param>
     /// <returns>Return true if the bucket name specified by <paramref name="bucketName"/> exists in the database.
     /// Otherwise, it returns false.</returns>
-    public async Task<Guid> BucketExistsAsync(string bucketName)
+    public async Task<bool> BucketExistsAsync(string bucketName)
     {
         return await _contentRepository.BucketExistsAsync(_documentSession, bucketName);
     }

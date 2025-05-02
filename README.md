@@ -8,9 +8,10 @@ create a content repository within a PostgreSQL database.
 This library uses MartenDb and requires a Marten **IDocumentSession** instance to do 
 its work against the database.  
 
+### EnterpriseCoder.Marten.ContentRepo
 * Bucket + ResourcePath/Prefix system similar to Amazon S3
 * Requires PostgreSQL + MartenDb
-* Implemented as three tables 
+* Implemented as three tables
   * ContentBucket - mt_doc_contentbucket
   * ContentResourceHeader - mt_doc_contentresourceheader
   * ContentResourceBlock - mt_doc_contentresourceblock
@@ -21,11 +22,18 @@ its work against the database.
 * **EnterpriseCoder.Marten.ContentRepo.Di** library adds a "scoped" ContentRepositoryScoped class that works with dependency injection.
 * Where possible, compiled queries have been used to improve performance.
 
+### EnterpriseCoder.Marten.ContentRepo.Di
+* Provides a ContentRepositoryScoped class that allows for "scoped" Marten IDocumentSessions using Microsoft Dependency Injection.
+
+### EnterpriseCoder.Marten.ContentRepo.AspNet
+* Map content repository locations to server URLs in an ASP.NET server.
+
 ## Getting Started
 
 ContentRepository is the core class and can be instantiated directly as shown in the example below.  Note that this
 class contains no internal state information, so creating more than one copy is not an issue. 
 
+### EnterpriseCoder.Marten.ContentRepo
 ```csharp
 using EnterpriseCoder.Marten.ContentRepo;
 
@@ -35,8 +43,8 @@ IContentRepository repo = new ContentRepository();
 // IDocumentSession from Marten.
 IDocumentSession documentSession;
 await repo.CreateBucketAsync(documentSession, "myBucket");
-
 ```
+### EnterpriseCoder.Marten.ContentRepo.Di
 If you prefer to use dependency injection, use the ContentRepositoryScoped class found in the
 EnterpriseCoder.Marten.ContentRepo.Di library.
 
@@ -56,6 +64,28 @@ public class MyService : IMyService
         _repo = repo;
     }
 }
+```
+### EnterpriseCoder.Marten.ContentRepo.AspNet
+```csharp
+// Add the content repository to DI
+builder.Services.AddMartenContentRepo();
+
+// Set up URL to ContentRepo path mappings.
+builder.Services.MapContentRepository(config =>
+{
+    config
+        .AddMapping(
+            uriPathPrefix: "/images", 
+            bucketName: "images", contentPathPrefix: "/userImages")
+        .AddMapping(
+            uriPathPrefix: "/documents", 
+            bucketName: "documents", contentPathPrefix: "/userDocuments");
+});
+
+// After your application is built...
+// Insert the middleware to handle content repository requests
+app.UseContentRepository();
+
 ```
 
 ## Paths

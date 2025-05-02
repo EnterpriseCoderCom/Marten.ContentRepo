@@ -12,9 +12,9 @@ public partial class ContentRepository
     /// <param name="bucketName">The name of the content bucket.</param>
     /// <returns>Return true if the bucket name specified by <paramref name="bucketName"/> exists in the database.
     /// Otherwise, it returns false.</returns>
-    public async Task<Guid> BucketExistsAsync(IDocumentSession documentSession, string bucketName)
+    public async Task<bool> BucketExistsAsync(IDocumentSession documentSession, string bucketName)
     {
         var targetBucket = await _contentBucketProcedures.SelectBucketAsync(documentSession, bucketName);
-        return targetBucket?.Id ?? Guid.Empty;
+        return targetBucket != null;
     }
 }

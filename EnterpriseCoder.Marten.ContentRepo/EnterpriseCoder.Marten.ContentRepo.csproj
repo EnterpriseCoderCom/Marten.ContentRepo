@@ -6,9 +6,9 @@
         <TargetFrameworks>net6.0;net8.0</TargetFrameworks>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
         <Copyright>(c) 2025 Russell E. Elledge</Copyright>
-        <Company>Russell Elledge</Company>
+        <Company>Russell E Elledge</Company>
         <license>https://mit-license.org/</license>
-        <Version>0.0.94-alpha</Version>
+        <Version>0.0.95-alpha</Version>
         <RepositoryUrl>https://github.com/EnterpriseCoderCom/Marten.ContentRepo</RepositoryUrl>
     </PropertyGroup>
 

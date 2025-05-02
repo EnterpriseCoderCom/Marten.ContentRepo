@@ -1,0 +1,25 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <TargetFrameworks>net8.0;net6.0</TargetFrameworks>
+        <Copyright>(c) 2025 Russell E. Elledge</Copyright>
+        <Company>Russell E Elledge</Company>
+        <license>https://mit-license.org/</license>
+        <Version>0.0.95-alpha</Version>
+        <RepositoryUrl>https://github.com/EnterpriseCoderCom/Marten.ContentRepo</RepositoryUrl>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Microsoft.AspNetCore.Http" Version="2.3.0" />
+      <PackageReference Include="Microsoft.AspNetCore.StaticFiles" Version="2.3.0" />
+      <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.2" />
+      <PackageReference Include="Microsoft.Extensions.Hosting" Version="6.0.1" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\EnterpriseCoder.Marten.ContentRepo.Di\EnterpriseCoder.Marten.ContentRepo.Di.csproj" />
+    </ItemGroup>
+
+</Project>

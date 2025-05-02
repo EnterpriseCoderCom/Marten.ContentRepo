@@ -17,6 +17,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Docs", "Docs", "{C582F71D-F
 		README.md = README.md
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EnterpriseCoder.Marten.ContentRepo.AspNet", "EnterpriseCoder.Marten.ContentRepo.AspNet\EnterpriseCoder.Marten.ContentRepo.AspNet.csproj", "{7B5292AA-B440-48FE-8747-02EE1060464C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EnterpriseCoder.Marten.ContentRepo.AspNet.Testing", "EnterpriseCoder.Marten.ContentRepo.AspNet.Testing\EnterpriseCoder.Marten.ContentRepo.AspNet.Testing.csproj", "{02A54AC4-F8BC-4142-8F8E-C1C7E3678A5B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -35,5 +39,13 @@ Global
 		{6A66A930-A2F2-45C1-811C-4A481422AD1B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6A66A930-A2F2-45C1-811C-4A481422AD1B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6A66A930-A2F2-45C1-811C-4A481422AD1B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7B5292AA-B440-48FE-8747-02EE1060464C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7B5292AA-B440-48FE-8747-02EE1060464C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7B5292AA-B440-48FE-8747-02EE1060464C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7B5292AA-B440-48FE-8747-02EE1060464C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{02A54AC4-F8BC-4142-8F8E-C1C7E3678A5B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{02A54AC4-F8BC-4142-8F8E-C1C7E3678A5B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{02A54AC4-F8BC-4142-8F8E-C1C7E3678A5B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{02A54AC4-F8BC-4142-8F8E-C1C7E3678A5B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
