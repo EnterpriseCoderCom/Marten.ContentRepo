@@ -10,10 +10,12 @@
         <license>https://mit-license.org/</license>
         <Version>0.0.96-beta</Version>
         <RepositoryUrl>https://github.com/EnterpriseCoderCom/Marten.ContentRepo</RepositoryUrl>
+        <RepositoryType>git</RepositoryType>
+        <PackageTags>CDN;marten;postgres</PackageTags>
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Marten" Version="7.39.5"/>
+        <PackageReference Include="Marten" Version="7.40.3" />
         <PackageReference Include="UUIDNext" Version="4.1.1"/>
     </ItemGroup>
 
