@@ -8,8 +8,10 @@
         <Copyright>(c) 2025 Russell E. Elledge</Copyright>
         <Company>Russell E Elledge</Company>
         <license>https://mit-license.org/</license>
-        <Version>0.0.96-beta</Version>
+        <Version>0.0.97</Version>
         <RepositoryUrl>https://github.com/EnterpriseCoderCom/Marten.ContentRepo</RepositoryUrl>
+        <RepositoryType>git</RepositoryType>
+        <PackageTags>CDN;marten;postgres;asp.net;dotnet</PackageTags>
     </PropertyGroup>
 
     <ItemGroup>
