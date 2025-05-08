@@ -42,6 +42,16 @@ public class ContentRepositoryMiddleware
                     return;
                 }
 
+                // Check for If-None-Match header.
+                string resourceETag = Convert.ToHexString(resourceInfo.Sha256);
+                var ifNoneMatch = context.Request.Headers["If-None-Match"];
+                if (ifNoneMatch == resourceETag)
+                {
+                    context.Response.StatusCode = StatusCodes.Status304NotModified;
+                    context.Response.ContentLength = 0;
+                    return;
+                }
+                
                 // Get the extension for the resource
                 string extension = resourceInfo.ResourcePath.FileExtension;
 
@@ -64,7 +74,10 @@ public class ContentRepositoryMiddleware
                     context.Response.StatusCode = StatusCodes.Status404NotFound;
                     return;
                 }
-
+                
+                // Set the etag for the returned resource.
+                context.Response.Headers["ETag"] = resourceETag;
+                
                 // Copy the stream to the response.
                 await resourceStream.CopyToAsync(context.Response.Body);
 
