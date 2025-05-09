@@ -23,7 +23,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EnterpriseCoder.Marten.Cont
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "GitHubActions", "GitHubActions", "{C31730EB-BF5B-460E-A899-028E504A1A5E}"
 	ProjectSection(SolutionItems) = preProject
-		.github\workflows\publish-nuget.yml = .github\workflows\publish-nuget.yml
+		.github\workflows\nuget-publish.yml = .github\workflows\nuget-publish.yml
 	EndProjectSection
 EndProject
 Global
