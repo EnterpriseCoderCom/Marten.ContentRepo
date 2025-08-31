@@ -75,7 +75,7 @@ public interface IContentRepository
     /// <param name="pageSize">The desired size for the returned page of information.</param>
     /// <returns>Returns a <see cref="PagedBucketNameListing"/> object that contains the items for the requested page.</returns>
     Task<PagedBucketNameListing> ListBucketsAsync(IDocumentSession documentSession, int oneBasedPageNumber, int pageSize);
-    
+
     /// <summary>
     /// <para>
     /// The UploadStreamAsync method is used to insert content contained in <paramref name="inStream"/> into the
@@ -95,12 +95,13 @@ public interface IContentRepository
     /// <param name="overwriteExisting">Default: false. True when this call should overwrite any existing resource of the same bucket and file path.</param>
     /// <param name="userGuid">Default:  Guid.Empty.  A <c>GUID</c> user specified value.  Defaults to Guid.Empty.  This value is indexed in the database for fast future lookups.  You may want to use this for referencing a user that performed the upload of the content.</param>
     /// <param name="userValue">Default: 0 (zero).  A <c>long</c> user specified value that can be used to track data related to the content entry.  This value is indexed in the database for fast lookup.  Perhaps a download counter or a primary key value to another document.</param>
+    /// <param name="uploadProgressCallback">If provided, this callback will be invoked for each block uploaded for the inStream.</param>
     /// <exception cref="BucketNotFoundException">If the <paramref name="bucketName"/> is not found and <paramref name="autoCreateBucket"/> is false this exception will be thrown.</exception>
     /// <exception cref="OverwriteNotPermittedException">If the <paramref name="resourcePath"/> is already in the database and <paramref name="overwriteExisting"/> is false, this exception will be thrown./></exception>
     Task UploadStreamAsync(IDocumentSession documentSession, string bucketName,
         ContentRepositoryResourcePath resourcePath,
         Stream inStream, bool autoCreateBucket = true, bool overwriteExisting = false, Guid? userGuid = null,
-        long userValue = 0L);
+        long userValue = 0L, IUploadProgressCallback? uploadProgressCallback = null);
 
     /// <summary>
     /// The DownloadStreamAsync method is used to read content using a standard System.IO.Stream.  The desired content is
