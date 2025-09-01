@@ -38,7 +38,8 @@ public partial class ContentRepository
                 continue; // we've already seen this directory.
             }
             
-            var newDirectory = new ContentRepositoryDirectoryInfo(nextItem.Directory, childDirectory);
+            ContentRepositoryDirectory childDirectoryFullPath = baseDirectory + "/" + childDirectory;
+            var newDirectory = new ContentRepositoryDirectoryInfo(childDirectoryFullPath, childDirectory);
             returnList.Add(newDirectory);
             
             seenDirectories.Add(childDirectory);
