@@ -159,5 +159,10 @@ public class ContentRepositoryDirectory : IComparable<ContentRepositoryDirectory
         return PathNormalizer.SplitPath(_resourcePath);
     }
 
+    public override string ToString()
+    {
+        return Path;
+    }
+
     #endregion
 }

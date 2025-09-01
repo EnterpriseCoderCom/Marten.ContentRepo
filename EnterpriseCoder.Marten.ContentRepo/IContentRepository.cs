@@ -240,4 +240,8 @@ public interface IContentRepository
     /// <see cref="PagedContentRepositoryResourceInfo"/>   
     Task<PagedContentRepositoryResourceInfo> GetResourceListingByUserDataLongAsync(IDocumentSession documentSession,
         string bucketName, long userLong, int oneBasedPage, int pageSize);
+    
+    Task<IReadOnlyList<ContentRepositoryDirectoryInfo>> GetDirectoryListingAsync(IDocumentSession documentSession,
+        string bucketName,
+        ContentRepositoryDirectory baseDirectory);
 }
