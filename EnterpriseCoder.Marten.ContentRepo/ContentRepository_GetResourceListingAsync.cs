@@ -41,12 +41,12 @@ public partial class ContentRepository
         if (recursive)
         {
             // StartsWith so we get the Directory plus anything under it.
-            baseQuery = baseQuery.Where(x => x.Directory.StartsWith(directoryString));
+            baseQuery = baseQuery.Where(x => x.BucketId == targetBucket.Id && x.Directory.StartsWith(directoryString));
         }
         else
         {
             // Direct equality of the Directory field.
-            baseQuery = baseQuery.Where(x => x.Directory == directoryString);
+            baseQuery = baseQuery.Where(x => x.BucketId == targetBucket.Id && x.Directory == directoryString);
         }
 
         // Ask Marten for a paged result.

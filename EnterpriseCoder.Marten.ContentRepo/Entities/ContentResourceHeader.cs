@@ -13,7 +13,7 @@ public class ContentResourceHeader
     public DateTimeOffset UpdatedDateTime { get; set; } = DateTimeOffset.UtcNow;
     public long OriginalLength { get; set; }
     public long StoredLength { get; set; }
-
+    
     [DuplicateField] public string Directory { get; set; } = string.Empty;
 
     // User custom data guid - useful for referring to an owner or uploader.
@@ -21,4 +21,6 @@ public class ContentResourceHeader
 
     // User custom data long - useful for download count
     [DuplicateField] public long UserDataLong { get; set; }
+    
+    public Dictionary<string, string> Metadata { get; set; } = new();
 }

@@ -40,4 +40,6 @@ public class ContentRepositoryResourceInfo
     /// is indexed in the repository for fast lookup.
     /// </summary>
     public long UserDataLong { get; set; }
+    
+    public Dictionary<string,string> Metadata { get; set; } = new();
 }

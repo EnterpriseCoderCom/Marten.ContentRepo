@@ -15,7 +15,8 @@ public static class ContentFileHeaderExtensions
             UserDataGuid = inHeader.UserDataGuid,
             Sha256 = inHeader.Sha256,
             OriginalLength = inHeader.OriginalLength,
-            UpdateDateTime = inHeader.UpdatedDateTime
+            UpdateDateTime = inHeader.UpdatedDateTime,
+            Metadata = new Dictionary<string, string>(inHeader.Metadata)
         };
     }
 }

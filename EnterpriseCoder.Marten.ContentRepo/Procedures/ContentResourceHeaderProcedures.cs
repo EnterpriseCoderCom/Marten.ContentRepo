@@ -23,7 +23,7 @@ public class ContentResourceHeaderProcedures
         ContentBucket targetBucket, Guid userGuid, int pageNumber, int pageSize)
     {
         IPagedList<ContentResourceHeader> pageList = await documentSession.Query<ContentResourceHeader>()
-            .Where(x => x.UserDataGuid == userGuid && x.BucketId == targetBucket.Id)
+            .Where(x => x.BucketId == targetBucket.Id && x.UserDataGuid == userGuid)
             .ToPagedListAsync(pageNumber, pageSize);
 
         return pageList;
@@ -33,7 +33,7 @@ public class ContentResourceHeaderProcedures
         ContentBucket targetBucket, long userLong, int pageNumber, int pageSize)
     {
         IPagedList<ContentResourceHeader> pageList = await documentSession.Query<ContentResourceHeader>()
-            .Where(x => x.UserDataLong == userLong && x.BucketId == targetBucket.Id)
+            .Where(x => x.BucketId == targetBucket.Id && x.UserDataLong == userLong)
             .ToPagedListAsync(pageNumber, pageSize);
 
         return pageList;

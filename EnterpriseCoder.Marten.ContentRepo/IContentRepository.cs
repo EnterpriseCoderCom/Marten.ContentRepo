@@ -74,7 +74,8 @@ public interface IContentRepository
     /// <param name="oneBasedPageNumber">The one-based page number to be returned by this call.</param>
     /// <param name="pageSize">The desired size for the returned page of information.</param>
     /// <returns>Returns a <see cref="PagedBucketNameListing"/> object that contains the items for the requested page.</returns>
-    Task<PagedBucketNameListing> ListBucketsAsync(IDocumentSession documentSession, int oneBasedPageNumber, int pageSize);
+    Task<PagedBucketNameListing> ListBucketsAsync(IDocumentSession documentSession, int oneBasedPageNumber,
+        int pageSize);
 
     /// <summary>
     /// <para>
@@ -115,6 +116,9 @@ public interface IContentRepository
     /// <exception cref="ResourceNotFoundException">Throw when the resource specified in the <paramref name="resourcePath"/> is not found.</exception>
     Task<Stream?> DownloadStreamAsync(IDocumentSession documentSession, string bucketName,
         ContentRepositoryResourcePath resourcePath);
+
+    Task<Tuple<Stream, ContentRepositoryResourceInfo>> DownloadStreamWithHeaderAsync(IDocumentSession documentSession,
+        string bucketName, ContentRepositoryResourcePath resourcePath);
 
     /// <summary>
     /// The ResourceExistsAsync method determines if there is a resource at the given <paramref name="bucketName"/> and
@@ -240,8 +244,11 @@ public interface IContentRepository
     /// <see cref="PagedContentRepositoryResourceInfo"/>   
     Task<PagedContentRepositoryResourceInfo> GetResourceListingByUserDataLongAsync(IDocumentSession documentSession,
         string bucketName, long userLong, int oneBasedPage, int pageSize);
-    
+
     Task<IReadOnlyList<ContentRepositoryDirectoryInfo>> GetDirectoryListingAsync(IDocumentSession documentSession,
         string bucketName,
         ContentRepositoryDirectory baseDirectory);
+
+    Task UpdateResourceMetaDataAsync(IDocumentSession documentSession, string bucketName,
+        ContentRepositoryResourcePath resourcePath, IReadOnlyDictionary<string, string> updatedMetaData);
 }
