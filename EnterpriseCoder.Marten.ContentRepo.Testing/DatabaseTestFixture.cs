@@ -1,4 +1,5 @@
 ﻿using EnterpriseCoder.Marten.ContentRepo.Di;
+using JasperFx;
 using Marten;
 using Microsoft.Extensions.DependencyInjection;
 using Npgsql;

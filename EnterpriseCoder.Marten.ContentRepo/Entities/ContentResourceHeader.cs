@@ -1,11 +1,10 @@
 ﻿using Marten.Schema;
-using UUIDNext;
 
 namespace EnterpriseCoder.Marten.ContentRepo.Entities;
 
 public class ContentResourceHeader
 {
-    [Identity] public Guid Id { get; set; } = Uuid.NewDatabaseFriendly(Database.PostgreSql);
+    [Identity] public Guid Id { get; set; } = Guid.CreateVersion7();
 
     [DuplicateField] public Guid BucketId { get; set; } = Guid.Empty;
     [DuplicateField] public string ResourcePath { get; set; } = string.Empty;

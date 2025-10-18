@@ -2,6 +2,7 @@ using System.Diagnostics;
 using System.Reflection;
 using EnterpriseCoder.Marten.ContentRepo.AspNet;
 using EnterpriseCoder.Marten.ContentRepo.Di;
+using JasperFx;
 using Marten;
 using Npgsql;
 using Weasel.Core;

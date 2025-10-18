@@ -3,7 +3,7 @@
     <PropertyGroup>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
-        <TargetFrameworks>net6.0;net8.0</TargetFrameworks>
+        <TargetFramework>net9.0</TargetFramework>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
         <Copyright>(c) 2025 Russell E. Elledge</Copyright>
         <Company>Russell E Elledge</Company>
@@ -15,8 +15,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Marten" Version="7.40.3" />
-        <PackageReference Include="UUIDNext" Version="4.1.1"/>
+        <PackageReference Include="Marten" Version="8.7.0" />
     </ItemGroup>
 
 </Project>

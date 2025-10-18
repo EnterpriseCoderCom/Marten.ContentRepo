@@ -3,7 +3,7 @@
     <PropertyGroup>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
-        <TargetFrameworks>net8.0;net6.0</TargetFrameworks>
+        <TargetFramework>net9.0</TargetFramework>
         <Copyright>(c) 2025 Russell E. Elledge</Copyright>
         <Company>Russell E Elledge</Company>
         <license>https://mit-license.org/</license>
@@ -16,8 +16,8 @@
     <ItemGroup>
       <PackageReference Include="Microsoft.AspNetCore.Http" Version="2.3.0" />
       <PackageReference Include="Microsoft.AspNetCore.StaticFiles" Version="2.3.0" />
-      <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.2" />
-      <PackageReference Include="Microsoft.Extensions.Hosting" Version="6.0.1" />
+      <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.0" />
+      <PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.0" />
     </ItemGroup>
 
     <ItemGroup>
