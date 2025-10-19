@@ -36,7 +36,7 @@ public partial class ContentRepository
         Stream inStream, bool autoCreateBucket = true, bool overwriteExisting = false, Guid? userGuid = null,
         long userValue = 0L, IUploadProgressCallback? uploadProgressCallback = null)
     {
-        long expectedLength = inStream.Length;
+        long expectedLength = inStream.CanSeek ? inStream.Length : 0;
         
         // Make sure the bucket exists
         var targetBucket = await _contentBucketProcedures.SelectBucketAsync(documentSession, bucketName);
