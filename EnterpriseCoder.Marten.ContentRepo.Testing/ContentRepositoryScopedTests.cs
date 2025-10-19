@@ -8,20 +8,25 @@ using Xunit.Abstractions;
 
 namespace EnterpriseCoder.Marten.ContentRepo.Testing;
 
+[Collection("Sequential")]
 public class ContentRepositoryScopedTests : IClassFixture<DatabaseTestFixture>, IDisposable
 {
     private const string TestFilename = "angrybird.png";
     private const string TestResourcePath = "/resources/angrybird.png";
     private const int TestBlockCount = 8;
 
+    private readonly IServiceScope _scope;
     private readonly IContentRepositoryScoped _contentRepositoryScoped;
     private readonly DatabaseHelper _databaseHelper;
 
     public ContentRepositoryScopedTests(DatabaseTestFixture databaseFixture)
     {
-        _contentRepositoryScoped = databaseFixture.ServiceProvider.GetRequiredService<IContentRepositoryScoped>();
-        _databaseHelper = databaseFixture.ServiceProvider.GetRequiredService<DatabaseHelper>();
+        _scope = databaseFixture.ServiceProvider.CreateScope();
+        _contentRepositoryScoped = _scope.ServiceProvider.GetRequiredService<IContentRepositoryScoped>();
+        _databaseHelper = _scope.ServiceProvider.GetRequiredService<DatabaseHelper>();
 
+        // Clear any pending changes from previous tests
+        _contentRepositoryScoped.DocumentSession.EjectAllPendingChanges();
         _databaseHelper.ClearDatabaseAsync().Wait();
     }
 
@@ -594,5 +599,7 @@ public class ContentRepositoryScopedTests : IClassFixture<DatabaseTestFixture>, 
     public void Dispose()
     {
         _contentRepositoryScoped.DocumentSession.EjectAllPendingChanges();
+        _databaseHelper.ClearDatabaseAsync().Wait();
+        _scope.Dispose();
     }
 }

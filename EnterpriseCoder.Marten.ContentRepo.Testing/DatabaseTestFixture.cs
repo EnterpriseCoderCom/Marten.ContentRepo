@@ -35,7 +35,7 @@ public class DatabaseTestFixture : IDisposable
         })
         .UseLightweightSessions();
         services.AddMartenContentRepo();
-        services.AddSingleton<DatabaseHelper>();
+        services.AddScoped<DatabaseHelper>();
 
         ServiceProvider = services.BuildServiceProvider();
     }

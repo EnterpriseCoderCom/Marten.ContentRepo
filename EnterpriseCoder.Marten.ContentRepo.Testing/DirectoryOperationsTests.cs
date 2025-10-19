@@ -8,21 +8,33 @@ namespace EnterpriseCoder.Marten.ContentRepo.Testing;
 
 public class DirectoryOperationsTests : IClassFixture<DatabaseTestFixture>, IDisposable
 {
+    private readonly IServiceScope _scope;
     private readonly IContentRepositoryScoped _contentRepositoryScoped;
     private readonly DatabaseHelper _databaseHelper;
     private readonly string _testBucket = "test-bucket";
 
     public DirectoryOperationsTests(DatabaseTestFixture databaseFixture)
     {
-        _contentRepositoryScoped = databaseFixture.ServiceProvider.GetRequiredService<IContentRepositoryScoped>();
-        _databaseHelper = databaseFixture.ServiceProvider.GetRequiredService<DatabaseHelper>();
+        _scope = databaseFixture.ServiceProvider.CreateScope();
+        _contentRepositoryScoped = _scope.ServiceProvider.GetRequiredService<IContentRepositoryScoped>();
+        _databaseHelper = _scope.ServiceProvider.GetRequiredService<DatabaseHelper>();
 
+        // Clear any pending changes from previous tests
+        _contentRepositoryScoped.DocumentSession.EjectAllPendingChanges();
         _databaseHelper.ClearDatabaseAsync().Wait();
     }
 
     public void Dispose()
     {
-        _databaseHelper.ClearDatabaseAsync().Wait();
+        try
+        {
+            _contentRepositoryScoped.DocumentSession.EjectAllPendingChanges();
+            _databaseHelper.ClearDatabaseAsync().Wait();
+        }
+        finally
+        {
+            _scope.Dispose();
+        }
     }
 
     private async Task CreateBucketAsync(string bucketName)

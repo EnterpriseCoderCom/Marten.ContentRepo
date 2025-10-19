@@ -16,6 +16,7 @@ public class DatabaseHelper
     {
         _session.DeleteWhere<ContentResourceBlock>(x => true);
         _session.DeleteWhere<ContentResourceHeader>(x => true);
+        _session.DeleteWhere<ContentDirectory>(x => true);
         _session.DeleteWhere<ContentBucket>(x => true);
         await _session.SaveChangesAsync();
     }
