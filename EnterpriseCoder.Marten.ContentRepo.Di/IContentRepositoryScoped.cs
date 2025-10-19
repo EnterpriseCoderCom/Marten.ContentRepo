@@ -223,7 +223,66 @@ public interface IContentRepositoryScoped
     /// <param name="pageSize">The number of resources to include per page in the paginated results.</param>
     /// <returns>A <c>PagedContentRepositoryResourceInfo</c> object containing the paginated list of resources.</returns>
     /// <exception cref="BucketNotFoundException">Thrown when the bucket specified by <paramref name="bucketName"/> is not found.</exception>
-    /// <see cref="PagedContentRepositoryResourceInfo"/>   
+    /// <see cref="PagedContentRepositoryResourceInfo"/>
     Task<PagedContentRepositoryResourceInfo> GetResourceListingByUserDataLongAsync(
         string bucketName, long userLong, int oneBasedPage, int pageSize);
+
+    /// <summary>
+    /// Creates an empty directory in the specified bucket.
+    /// </summary>
+    /// <param name="bucketName">The name of the bucket in which to create the directory.</param>
+    /// <param name="directoryPath">A slash-separated path to the directory.</param>
+    /// <exception cref="BucketNotFoundException">Thrown when the bucket is not found.</exception>
+    /// <exception cref="DirectoryAlreadyExistsException">Thrown when a directory already exists at the specified path.</exception>
+    /// <returns>A task that represents the asynchronous operation.</returns>
+    Task CreateDirectoryAsync(string bucketName, ContentRepositoryDirectory directoryPath);
+
+    /// <summary>
+    /// Creates an empty directory in the specified bucket, with auto-creation of the bucket if needed.
+    /// </summary>
+    /// <param name="bucketName">The name of the bucket in which to create the directory.</param>
+    /// <param name="directoryPath">A slash-separated path to the directory.</param>
+    /// <param name="autoCreateBucket">Default: true. Whether to create the bucket if it does not exist.</param>
+    /// <exception cref="BucketNotFoundException">Thrown when the bucket is not found and autoCreateBucket is false.</exception>
+    /// <exception cref="DirectoryAlreadyExistsException">Thrown when a directory already exists at the specified path.</exception>
+    /// <returns>A task that represents the asynchronous operation.</returns>
+    Task CreateDirectoryAsync(string bucketName, ContentRepositoryDirectory directoryPath, bool autoCreateBucket);
+
+    /// <summary>
+    /// Deletes a directory from the specified bucket.
+    /// </summary>
+    /// <param name="bucketName">The name of the bucket containing the directory.</param>
+    /// <param name="directoryPath">The path to the directory to delete.</param>
+    /// <exception cref="DirectoryNotFoundException">Thrown when the directory is not found.</exception>
+    /// <exception cref="DirectoryNotEmptyException">Thrown when the directory is not empty and force is false.</exception>
+    /// <returns>A task that represents the asynchronous operation.</returns>
+    Task DeleteDirectoryAsync(string bucketName, ContentRepositoryDirectory directoryPath);
+
+    /// <summary>
+    /// Deletes a directory from the specified bucket, with optional force deletion of contents.
+    /// </summary>
+    /// <param name="bucketName">The name of the bucket containing the directory.</param>
+    /// <param name="directoryPath">The path to the directory to delete.</param>
+    /// <param name="force">Default: false. If true, deletes the directory even if it contains files.</param>
+    /// <exception cref="DirectoryNotFoundException">Thrown when the directory is not found.</exception>
+    /// <exception cref="DirectoryNotEmptyException">Thrown when the directory is not empty and force is false.</exception>
+    /// <returns>A task that represents the asynchronous operation.</returns>
+    Task DeleteDirectoryAsync(string bucketName, ContentRepositoryDirectory directoryPath, bool force);
+
+    /// <summary>
+    /// Checks if a directory exists in the specified bucket.
+    /// </summary>
+    /// <param name="bucketName">The name of the bucket.</param>
+    /// <param name="directoryPath">The path to the directory.</param>
+    /// <returns>True if the directory exists; otherwise, false.</returns>
+    Task<bool> DirectoryExistsAsync(string bucketName, ContentRepositoryDirectory directoryPath);
+
+    /// <summary>
+    /// Gets a listing of directories and files in the specified directory path.
+    /// </summary>
+    /// <param name="bucketName">The name of the bucket.</param>
+    /// <param name="directoryPath">The directory path to list.</param>
+    /// <returns>A read-only list of ContentRepositoryDirectoryInfo objects.</returns>
+    /// <exception cref="BucketNotFoundException">Thrown when the bucket is not found.</exception>
+    Task<IReadOnlyList<ContentRepositoryDirectoryInfo>> GetDirectoryListingAsync(string bucketName, ContentRepositoryDirectory directoryPath);
 }
