@@ -25,12 +25,19 @@ public class DirectoryOperationsTests : IClassFixture<DatabaseTestFixture>, IDis
         _databaseHelper.ClearDatabaseAsync().Wait();
     }
 
+    private async Task CreateBucketAsync(string bucketName)
+    {
+        await _contentRepositoryScoped.CreateBucketAsync(bucketName);
+        await _contentRepositoryScoped.DocumentSession.SaveChangesAsync();
+    }
+
     #region CreateDirectoryAsync Tests
 
     [Fact]
     public async Task CreateDirectoryAsync_WithValidPath_CreatesDirectory()
     {
         // Arrange
+        await CreateBucketAsync(_testBucket);
         var directoryPath = new ContentRepositoryDirectory("/projects");
 
         // Act
@@ -46,6 +53,7 @@ public class DirectoryOperationsTests : IClassFixture<DatabaseTestFixture>, IDis
     public async Task CreateDirectoryAsync_WithNestedPath_CreatesNestedDirectory()
     {
         // Arrange
+        await CreateBucketAsync(_testBucket);
         var dir1 = new ContentRepositoryDirectory("/projects");
         var dir2 = new ContentRepositoryDirectory("/projects/2024");
 
@@ -63,6 +71,7 @@ public class DirectoryOperationsTests : IClassFixture<DatabaseTestFixture>, IDis
     public async Task CreateDirectoryAsync_WithDuplicatePath_ThrowsException()
     {
         // Arrange
+        await CreateBucketAsync(_testBucket);
         var directoryPath = new ContentRepositoryDirectory("/projects");
         await _contentRepositoryScoped.CreateDirectoryAsync(_testBucket, directoryPath);
         await _contentRepositoryScoped.DocumentSession.SaveChangesAsync();
@@ -106,6 +115,7 @@ public class DirectoryOperationsTests : IClassFixture<DatabaseTestFixture>, IDis
     public async Task CreateDirectoryAsync_WithMultiLevelNesting_CreatesAll()
     {
         // Arrange
+        await CreateBucketAsync(_testBucket);
         var paths = new[]
         {
             new ContentRepositoryDirectory("/assets"),
@@ -132,6 +142,7 @@ public class DirectoryOperationsTests : IClassFixture<DatabaseTestFixture>, IDis
     public async Task CreateDirectoryAsync_WithRootDirectory_CreatesRoot()
     {
         // Arrange
+        await CreateBucketAsync(_testBucket);
         var rootPath = new ContentRepositoryDirectory("/");
 
         // Act
@@ -151,6 +162,7 @@ public class DirectoryOperationsTests : IClassFixture<DatabaseTestFixture>, IDis
     public async Task DeleteDirectoryAsync_WithEmptyDirectory_Succeeds()
     {
         // Arrange
+        await CreateBucketAsync(_testBucket);
         var directoryPath = new ContentRepositoryDirectory("/projects");
         await _contentRepositoryScoped.CreateDirectoryAsync(_testBucket, directoryPath);
         await _contentRepositoryScoped.DocumentSession.SaveChangesAsync();
@@ -168,6 +180,7 @@ public class DirectoryOperationsTests : IClassFixture<DatabaseTestFixture>, IDis
     public async Task DeleteDirectoryAsync_WithFilesNoForce_ThrowsException()
     {
         // Arrange
+        await CreateBucketAsync(_testBucket);
         var directoryPath = new ContentRepositoryDirectory("/projects");
         var filePath = new ContentRepositoryResourcePath("/projects/file.txt");
 
@@ -188,6 +201,7 @@ public class DirectoryOperationsTests : IClassFixture<DatabaseTestFixture>, IDis
     public async Task DeleteDirectoryAsync_WithFilesForce_DeletesAll()
     {
         // Arrange
+        await CreateBucketAsync(_testBucket);
         var directoryPath = new ContentRepositoryDirectory("/projects");
         var filePath = new ContentRepositoryResourcePath("/projects/file.txt");
 
@@ -211,6 +225,7 @@ public class DirectoryOperationsTests : IClassFixture<DatabaseTestFixture>, IDis
     public async Task DeleteDirectoryAsync_WithNonExistentDirectory_ThrowsException()
     {
         // Arrange
+        await CreateBucketAsync(_testBucket);
         var directoryPath = new ContentRepositoryDirectory("/projects");
 
         // Act & Assert
@@ -223,6 +238,7 @@ public class DirectoryOperationsTests : IClassFixture<DatabaseTestFixture>, IDis
     public async Task DeleteDirectoryAsync_WithNestedFiles_ForceDeletesAll()
     {
         // Arrange
+        await CreateBucketAsync(_testBucket);
         var dir1 = new ContentRepositoryDirectory("/data");
         var dir2 = new ContentRepositoryDirectory("/data/backups");
         var filePath1 = new ContentRepositoryResourcePath("/data/config.txt");
@@ -255,6 +271,7 @@ public class DirectoryOperationsTests : IClassFixture<DatabaseTestFixture>, IDis
     public async Task DeleteDirectoryAsync_WithMultipleFiles_NoForceLeavesOtherDirectories()
     {
         // Arrange
+        await CreateBucketAsync(_testBucket);
         var dir1 = new ContentRepositoryDirectory("/photos");
         var dir2 = new ContentRepositoryDirectory("/videos");
 
@@ -285,6 +302,7 @@ public class DirectoryOperationsTests : IClassFixture<DatabaseTestFixture>, IDis
     public async Task DirectoryExistsAsync_WithExistingExplicitDirectory_ReturnsTrue()
     {
         // Arrange
+        await CreateBucketAsync(_testBucket);
         var directoryPath = new ContentRepositoryDirectory("/projects");
         await _contentRepositoryScoped.CreateDirectoryAsync(_testBucket, directoryPath);
         await _contentRepositoryScoped.DocumentSession.SaveChangesAsync();
@@ -300,6 +318,7 @@ public class DirectoryOperationsTests : IClassFixture<DatabaseTestFixture>, IDis
     public async Task DirectoryExistsAsync_WithNonExistentDirectory_ReturnsFalse()
     {
         // Arrange
+        await CreateBucketAsync(_testBucket);
         var directoryPath = new ContentRepositoryDirectory("/projects");
 
         // Act
@@ -313,6 +332,7 @@ public class DirectoryOperationsTests : IClassFixture<DatabaseTestFixture>, IDis
     public async Task DirectoryExistsAsync_WithImplicitDirectory_ReturnsFalse()
     {
         // Arrange
+        await CreateBucketAsync(_testBucket);
         var filePath = new ContentRepositoryResourcePath("/projects/file.txt");
         using (var stream = new MemoryStream(Encoding.UTF8.GetBytes("content")))
         {
@@ -333,6 +353,7 @@ public class DirectoryOperationsTests : IClassFixture<DatabaseTestFixture>, IDis
     public async Task DirectoryExistsAsync_WithMultipleLevels_IdentifiesEachLevel()
     {
         // Arrange
+        await CreateBucketAsync(_testBucket);
         var root = new ContentRepositoryDirectory("/");
         var level1 = new ContentRepositoryDirectory("/data");
         var level2 = new ContentRepositoryDirectory("/data/backup");
@@ -354,6 +375,7 @@ public class DirectoryOperationsTests : IClassFixture<DatabaseTestFixture>, IDis
     public async Task GetDirectoryListingAsync_WithExplicitDirectories_ReturnsAll()
     {
         // Arrange
+        await CreateBucketAsync(_testBucket);
         await _contentRepositoryScoped.CreateDirectoryAsync(
             _testBucket, new ContentRepositoryDirectory("/photos"));
         await _contentRepositoryScoped.CreateDirectoryAsync(
@@ -374,6 +396,7 @@ public class DirectoryOperationsTests : IClassFixture<DatabaseTestFixture>, IDis
     public async Task GetDirectoryListingAsync_WithMixedContent_ReturnsAllUnique()
     {
         // Arrange
+        await CreateBucketAsync(_testBucket);
         // Create explicit directory
         await _contentRepositoryScoped.CreateDirectoryAsync(
             _testBucket, new ContentRepositoryDirectory("/photos"));
@@ -400,6 +423,7 @@ public class DirectoryOperationsTests : IClassFixture<DatabaseTestFixture>, IDis
     public async Task GetDirectoryListingAsync_WithEmptyDirectory_ReturnsEmpty()
     {
         // Arrange
+        await CreateBucketAsync(_testBucket);
         // Act
         var listing = await _contentRepositoryScoped.GetDirectoryListingAsync(
             _testBucket, new ContentRepositoryDirectory("/"));
@@ -412,6 +436,7 @@ public class DirectoryOperationsTests : IClassFixture<DatabaseTestFixture>, IDis
     public async Task GetDirectoryListingAsync_WithNestedDirectories_ReturnsOnlyDirectChildren()
     {
         // Arrange
+        await CreateBucketAsync(_testBucket);
         await _contentRepositoryScoped.CreateDirectoryAsync(
             _testBucket, new ContentRepositoryDirectory("/root"));
         await _contentRepositoryScoped.CreateDirectoryAsync(
@@ -434,6 +459,7 @@ public class DirectoryOperationsTests : IClassFixture<DatabaseTestFixture>, IDis
     public async Task GetDirectoryListingAsync_WithMixedLevels_FiltersByParent()
     {
         // Arrange
+        await CreateBucketAsync(_testBucket);
         await _contentRepositoryScoped.CreateDirectoryAsync(
             _testBucket, new ContentRepositoryDirectory("/root"));
         await _contentRepositoryScoped.CreateDirectoryAsync(
@@ -455,6 +481,7 @@ public class DirectoryOperationsTests : IClassFixture<DatabaseTestFixture>, IDis
     public async Task GetDirectoryListingAsync_WithDuplicateImplicitExplicit_ReturnsOnceEach()
     {
         // Arrange
+        await CreateBucketAsync(_testBucket);
         var dir = new ContentRepositoryDirectory("/media");
         await _contentRepositoryScoped.CreateDirectoryAsync(_testBucket, dir);
 
@@ -484,6 +511,7 @@ public class DirectoryOperationsTests : IClassFixture<DatabaseTestFixture>, IDis
     public async Task CompleteWorkflow_CreateStructureUploadDelete_Works()
     {
         // Arrange
+        await CreateBucketAsync(_testBucket);
         var dir1 = new ContentRepositoryDirectory("/2024");
         var dir2 = new ContentRepositoryDirectory("/2024/january");
         var filePath = new ContentRepositoryResourcePath("/2024/january/photo.jpg");
@@ -518,6 +546,7 @@ public class DirectoryOperationsTests : IClassFixture<DatabaseTestFixture>, IDis
     public async Task CompleteWorkflow_MultipleDirectoriesWithFiles_Works()
     {
         // Arrange & Act
+        await CreateBucketAsync(_testBucket);
         var dirs = new[]
         {
             new ContentRepositoryDirectory("/2024"),
@@ -566,6 +595,7 @@ public class DirectoryOperationsTests : IClassFixture<DatabaseTestFixture>, IDis
     public async Task CompleteWorkflow_CreateDeleteRecreate_Works()
     {
         // Arrange
+        await CreateBucketAsync(_testBucket);
         var dir = new ContentRepositoryDirectory("/temp");
 
         // Act - Create
@@ -590,6 +620,7 @@ public class DirectoryOperationsTests : IClassFixture<DatabaseTestFixture>, IDis
     public async Task CompleteWorkflow_DeleteBucketWithDirectories_RemovesAll()
     {
         // Arrange
+        await CreateBucketAsync(_testBucket);
         var dir1 = new ContentRepositoryDirectory("/data");
         var dir2 = new ContentRepositoryDirectory("/data/archive");
 
@@ -624,6 +655,7 @@ public class DirectoryOperationsTests : IClassFixture<DatabaseTestFixture>, IDis
     public async Task DirectoryOperations_WithSpecialCharactersInPath_Works()
     {
         // Arrange
+        await CreateBucketAsync(_testBucket);
         var dir = new ContentRepositoryDirectory("/project-2024_final");
 
         // Act
@@ -639,6 +671,7 @@ public class DirectoryOperationsTests : IClassFixture<DatabaseTestFixture>, IDis
     public async Task DirectoryOperations_WithDeeplyNestedPath_Works()
     {
         // Arrange
+        await CreateBucketAsync(_testBucket);
         var paths = new[]
         {
             new ContentRepositoryDirectory("/a"),
@@ -666,6 +699,7 @@ public class DirectoryOperationsTests : IClassFixture<DatabaseTestFixture>, IDis
     public async Task DirectoryOperations_WithLongDirectoryName_Works()
     {
         // Arrange
+        await CreateBucketAsync(_testBucket);
         var longName = new string('x', 200);
         var dir = new ContentRepositoryDirectory($"/{longName}");
 
@@ -682,6 +716,7 @@ public class DirectoryOperationsTests : IClassFixture<DatabaseTestFixture>, IDis
     public async Task DirectoryOperations_CaseSensitivity_TreatsPathsAsNormalized()
     {
         // Arrange
+        await CreateBucketAsync(_testBucket);
         var dir1 = new ContentRepositoryDirectory("/Projects");
         var dir2 = new ContentRepositoryDirectory("/projects");
 
@@ -698,6 +733,7 @@ public class DirectoryOperationsTests : IClassFixture<DatabaseTestFixture>, IDis
     public async Task DirectoryOperations_ManyDirectoriesInBucket_Works()
     {
         // Arrange
+        await CreateBucketAsync(_testBucket);
         var dirCount = 50;
         var directories = Enumerable.Range(1, dirCount)
             .Select(i => new ContentRepositoryDirectory($"/dir{i:D3}"))
