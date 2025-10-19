@@ -1,4 +1,5 @@
 using EnterpriseCoder.Marten.ContentRepo.Entities;
+using EnterpriseCoder.Marten.ContentRepo.Utility;
 using Marten;
 
 namespace EnterpriseCoder.Marten.ContentRepo.Procedures;
@@ -88,10 +89,11 @@ public class ContentDirectoryProcedures
     /// </summary>
     /// <param name="session">The Marten document session for transaction management.</param>
     /// <param name="bucketId">The ID of the bucket where the directory will be created.</param>
-    /// <param name="directoryPath">The normalized directory path.</param>
+    /// <param name="directoryPath">The normalized directory path (path format validated by ContentRepositoryDirectory).</param>
     /// <returns>The created ContentDirectory entity.</returns>
     /// <exception cref="ArgumentNullException">Thrown when session or directoryPath is null.</exception>
-    /// <exception cref="InvalidOperationException">Thrown when a directory already exists at the specified path.</exception>
+    /// <exception cref="ArgumentException">Thrown when bucketId is empty.</exception>
+    /// <exception cref="DirectoryAlreadyExistsException">Thrown when a directory already exists at the specified path.</exception>
     public async Task<ContentDirectory> CreateDirectoryAsync(
         IDocumentSession session,
         Guid bucketId,
@@ -102,13 +104,12 @@ public class ContentDirectoryProcedures
         if (directoryPath == null)
             throw new ArgumentNullException(nameof(directoryPath));
 
+        // Validate bucket ID
+        DirectoryValidator.ValidateBucketId(bucketId);
+
         // Check if directory already exists
         var existing = await SelectDirectoryByPathAsync(session, bucketId, directoryPath);
-        if (existing != null)
-        {
-            throw new InvalidOperationException(
-                $"Directory already exists at path '{directoryPath.Path}' in bucket '{bucketId}'.");
-        }
+        DirectoryValidator.ValidateDirectoryDoesNotExist(existing != null, bucketId, directoryPath);
 
         var newDirectory = new ContentDirectory
         {
@@ -126,12 +127,14 @@ public class ContentDirectoryProcedures
 
     /// <summary>
     /// Deletes a directory entity from the database.
+    /// The directory must be empty (no files or subdirectories) before deletion.
     /// </summary>
     /// <param name="session">The Marten document session for transaction management.</param>
     /// <param name="bucketId">The ID of the bucket containing the directory.</param>
     /// <param name="directoryPath">The normalized directory path to delete.</param>
     /// <returns>True if the directory was deleted; false if it was not found.</returns>
     /// <exception cref="ArgumentNullException">Thrown when session or directoryPath is null.</exception>
+    /// <exception cref="DirectoryNotEmptyException">Thrown when directory contains files or subdirectories.</exception>
     public async Task<bool> DeleteDirectoryAsync(
         IDocumentSession session,
         Guid bucketId,
@@ -147,6 +150,10 @@ public class ContentDirectoryProcedures
         {
             return false;
         }
+
+        // Check if directory is empty
+        var isEmpty = await DirectoryValidator.IsDirectoryEmptyAsync(session, bucketId, directoryPath);
+        DirectoryValidator.ValidateDirectoryIsEmpty(directory, isEmpty);
 
         session.Delete(directory);
         return true;
