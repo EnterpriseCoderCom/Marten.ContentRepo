@@ -245,9 +245,124 @@ public interface IContentRepository
     Task<PagedContentRepositoryResourceInfo> GetResourceListingByUserDataLongAsync(IDocumentSession documentSession,
         string bucketName, long userLong, int oneBasedPage, int pageSize);
 
+    /// <summary>
+    /// Gets a listing of subdirectories at the specified path, including both explicit directories
+    /// and implicit directories (derived from file paths).
+    /// </summary>
+    /// <remarks>
+    /// This method returns both:
+    /// 1. Explicitly created directories (stored as ContentDirectory entities)
+    /// 2. Implicit directories derived from file paths in the directory
+    ///
+    /// The listing includes unique directory names at the immediate child level.
+    /// </remarks>
+    /// <param name="documentSession">A Marten <c>IDocumentSession</c> that will be used to query the database.</param>
+    /// <param name="bucketName">The name of the bucket to be searched.</param>
+    /// <param name="baseDirectory">A slash-separated path to the base directory (e.g., "/myDirectory").</param>
+    /// <returns>Returns an <see cref="IReadOnlyList{ContentRepositoryDirectoryInfo}"/> containing information about subdirectories.</returns>
+    /// <exception cref="BucketNotFoundException">Thrown when the bucket specified by <paramref name="bucketName"/> is not found.</exception>
     Task<IReadOnlyList<ContentRepositoryDirectoryInfo>> GetDirectoryListingAsync(IDocumentSession documentSession,
         string bucketName,
         ContentRepositoryDirectory baseDirectory);
+
+    /// <summary>
+    /// Creates an empty directory in the specified bucket.
+    /// </summary>
+    /// <remarks>
+    /// Transaction Control: This method adds the directory to the session specified by
+    /// <paramref name="documentSession"/>, but does not Save the session.
+    ///
+    /// Example:
+    /// <code>
+    /// var directory = new ContentRepositoryDirectory("/projects/2024");
+    /// await repository.CreateDirectoryAsync(session, "bucket1", directory);
+    /// await session.SaveChangesAsync();
+    /// </code>
+    /// </remarks>
+    /// <param name="documentSession">A Marten <c>IDocumentSession</c> that will be used to update the database.</param>
+    /// <param name="bucketName">The name of the bucket in which to create the directory.</param>
+    /// <param name="directoryPath">A slash-separated path to the directory (e.g., "/myDirectory/subDirectory").</param>
+    /// <exception cref="BucketNotFoundException">Thrown when the bucket specified by <paramref name="bucketName"/> is not found.</exception>
+    /// <exception cref="DirectoryAlreadyExistsException">Thrown when a directory already exists at the specified path.</exception>
+    /// <returns>A task that represents the asynchronous operation.</returns>
+    Task CreateDirectoryAsync(IDocumentSession documentSession, string bucketName,
+        ContentRepositoryDirectory directoryPath);
+
+    /// <summary>
+    /// Creates an empty directory in the specified bucket, with auto-creation of the bucket if needed.
+    /// </summary>
+    /// <remarks>
+    /// Transaction Control: If <paramref name="autoCreateBucket"/> is true, the bucket is created using a separate
+    /// session. The directory is added to the session specified by <paramref name="documentSession"/>,
+    /// but does not Save the session.
+    ///
+    /// Example:
+    /// <code>
+    /// var directory = new ContentRepositoryDirectory("/projects/2024");
+    /// await repository.CreateDirectoryAsync(session, "bucket1", directory, autoCreateBucket: true);
+    /// await session.SaveChangesAsync();
+    /// </code>
+    /// </remarks>
+    /// <param name="documentSession">A Marten <c>IDocumentSession</c> that will be used to update the database.</param>
+    /// <param name="bucketName">The name of the bucket in which to create the directory.</param>
+    /// <param name="directoryPath">A slash-separated path to the directory.</param>
+    /// <param name="autoCreateBucket">Default: true. Whether to create the bucket if it does not exist.</param>
+    /// <exception cref="BucketNotFoundException">Thrown when the bucket is not found and <paramref name="autoCreateBucket"/> is false.</exception>
+    /// <exception cref="DirectoryAlreadyExistsException">Thrown when a directory already exists at the specified path.</exception>
+    /// <returns>A task that represents the asynchronous operation.</returns>
+    Task CreateDirectoryAsync(IDocumentSession documentSession, string bucketName,
+        ContentRepositoryDirectory directoryPath, bool autoCreateBucket);
+
+    /// <summary>
+    /// Deletes an empty directory from the specified bucket.
+    /// </summary>
+    /// <remarks>
+    /// Transaction Control: This method marks the directory for deletion in the session specified by
+    /// <paramref name="documentSession"/>, but does not Save the session.
+    ///
+    /// Example:
+    /// <code>
+    /// var directory = new ContentRepositoryDirectory("/projects");
+    /// await repository.DeleteDirectoryAsync(session, "bucket1", directory);
+    /// await session.SaveChangesAsync();
+    /// </code>
+    /// </remarks>
+    /// <param name="documentSession">A Marten <c>IDocumentSession</c> that will be used to update the database.</param>
+    /// <param name="bucketName">The name of the bucket containing the directory.</param>
+    /// <param name="directoryPath">A slash-separated path to the directory to be deleted.</param>
+    /// <param name="force">Default: false. When true, deletes the directory even if it contains subdirectories or implicit files.</param>
+    /// <exception cref="BucketNotFoundException">Thrown when the bucket specified by <paramref name="bucketName"/> is not found.</exception>
+    /// <exception cref="DirectoryNotFoundException">Thrown when the directory is not found.</exception>
+    /// <exception cref="DirectoryNotEmptyException">Thrown when the directory contains files or subdirectories and <paramref name="force"/> is false.</exception>
+    /// <returns>A task that represents the asynchronous operation.</returns>
+    Task DeleteDirectoryAsync(IDocumentSession documentSession, string bucketName,
+        ContentRepositoryDirectory directoryPath, bool force = false);
+
+    /// <summary>
+    /// Determines if an explicit directory exists at the specified path.
+    /// </summary>
+    /// <remarks>
+    /// This method checks for explicitly created directories. Implicit directories (derived from file paths)
+    /// are not checked by this method.
+    ///
+    /// Example:
+    /// <code>
+    /// var directory = new ContentRepositoryDirectory("/projects");
+    /// bool exists = await repository.DirectoryExistsAsync(session, "bucket1", directory);
+    /// if (!exists)
+    /// {
+    ///     await repository.CreateDirectoryAsync(session, "bucket1", directory);
+    ///     await session.SaveChangesAsync();
+    /// }
+    /// </code>
+    /// </remarks>
+    /// <param name="documentSession">A Marten <c>IDocumentSession</c> that will be used to check the database.</param>
+    /// <param name="bucketName">The name of the bucket containing the directory.</param>
+    /// <param name="directoryPath">A slash-separated path to the directory.</param>
+    /// <returns>Returns true if an explicit directory exists at the specified path. Otherwise, returns false.</returns>
+    /// <exception cref="BucketNotFoundException">Thrown when the bucket specified by <paramref name="bucketName"/> is not found.</exception>
+    Task<bool> DirectoryExistsAsync(IDocumentSession documentSession, string bucketName,
+        ContentRepositoryDirectory directoryPath);
 
     Task UpdateResourceMetaDataAsync(IDocumentSession documentSession, string bucketName,
         ContentRepositoryResourcePath resourcePath, IReadOnlyDictionary<string, string> updatedMetaData);
