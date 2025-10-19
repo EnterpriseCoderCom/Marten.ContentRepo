@@ -26,4 +26,5 @@ public partial class ContentRepository : IContentRepository
     private readonly ContentBucketProcedures _contentBucketProcedures = new();
     private readonly ContentResourceBlockProcedures _resourceBlockProcedures = new();
     private readonly ContentResourceHeaderProcedures _resourceHeaderProcedures = new();
+    private readonly ContentDirectoryProcedures _contentDirectoryProcedures = new();
 }
